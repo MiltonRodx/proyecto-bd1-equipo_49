@@ -5,6 +5,31 @@
 **Grupo:** 49  
 **Equipo:** X Motors  
 **Producto Entregable:** Modelo Entidad-Relación (DER), Modelo Relacional en 3FN y Documentación de Negocio  
+**Entrega:** viernes 11/09 · **Pregunta:** ¿Cómo representamos la información?
+
+## Material de esta etapa
+
+| Archivo | Descripción |
+|---|---|
+| [BDI Proyecto Integrador _ Grupo 49.pdf](BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf) | PDF archivado en esta carpeta |
+| [ESQUEMA RELACIONAL ETAPA 2.png](ESQUEMA%20RELACIONAL%20ETAPA%202.png) | Diagrama relacional (ver imagen abajo) |
+| [archivo_erdplus_relacional.erdplus](archivo_erdplus_relacional.erdplus) | Fuente editable para [ERDPlus](https://erdplus.com) |
+| [Notacion chen- diagrama relacional.txt](Notacion%20chen-%20diagrama%20relacional.txt) | DER en notación Chen (texto) |
+
+> Cómo leer: este MD es la lectura rápida. El diagrama válido es el PNG + `.erdplus`. El `.txt` detalla entidades, atributos y cardinalidades.
+> Volver al [README general](../../README.md) · Anterior: [Etapa I](../etapa-01/ETAPA_01.md).
+
+## Contenido
+
+* [Presentación de la Etapa II](#-presentación-de-la-etapa-ii)
+* [1. Integrantes del Grupo](#1-integrantes-del-grupo)
+* [2. Descripción del Dominio del Negocio](#2-descripción-del-dominio-del-negocio)
+* [3. Justificación del Modelado Relacional (3FN)](#3-justificación-del-modelado-relacional-3fn)
+* [4. Alcance del Sistema](#4-alcance-del-sistema)
+* [5. Reglas de Negocio (RN)](#5-reglas-de-negocio-rn)
+* [6. Requerimientos de Sistema](#6-requerimientos-de-sistema)
+* [7. Diagramas y archivos](#7-diagramas-y-archivos)
+* [8. Notas de diseño](#8-notas-de-diseño)
 
 ---
 
@@ -95,3 +120,28 @@ El diseño relacional presentado en esta etapa cumple de forma estricta con la *
 * **RD#1 - RD#2:** `stock_disponible >= 0` en modelos y `stock >= 0` en accesorios.
 * **RD#3:** Bloqueo de ventas con stock en cero.
 * **RD#4:** Unicidad y formato numérico para DNI (clientes/vendedores) y CUIT (proveedores).
+
+---
+
+## 7. Diagramas y archivos
+
+### Esquema relacional
+
+![Esquema relacional Etapa 2](ESQUEMA%20RELACIONAL%20ETAPA%202.png)
+
+Fuente editable: [archivo_erdplus_relacional.erdplus](archivo_erdplus_relacional.erdplus) (abrir en [ERDPlus](https://erdplus.com)).
+
+Tablas del diagrama: `PERSONA`, `CLIENTE`, `VENDEDOR`, `DIRECCION_CLIENTE`, `DIRECCION_PROVEEDOR`, `PROVEEDOR`, `MODELO_MOTOCICLETA`, `MOTOCICLETA`, `ACCESORIO`, `VENTA`, `DETALLE_VENTA_ACCESORIO`, `PROVISION_MOTOCICLETA`, `PROVISION_ACCESORIO`, `HISTORIAL_DE_PRECIO`, `COTIZACION`.
+
+### DER en notación Chen
+
+Ver [Notacion chen- diagrama relacional.txt](Notacion%20chen-%20diagrama%20relacional.txt): entidades, atributos (PK con `*`), relaciones y cardinalidades (1:1, 1:N, M:N), incluida la herencia `PERSONA → CLIENTE / VENDEDOR`.
+
+## 8. Notas de diseño
+
+* En este modelo `VENTA.metodo_pago` es un `VARCHAR`. La tabla normalizada `METODO_PAGO` se crea en Etapa III.
+* El PDF archivado en esta carpeta corresponde al entregable de Etapa I; el entregable de Etapa II es este MD más el PNG, el `.erdplus` y el `.txt`.
+
+---
+
+> Navegación: [README general](../../README.md) · [Etapa I](../etapa-01/ETAPA_01.md)

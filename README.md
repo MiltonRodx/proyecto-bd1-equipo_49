@@ -1,123 +1,116 @@
-# Proyecto BD1 - Equipo 49
-## Proyecto decidido
-Sistema de gestión de ventas de motos.
+# X Motors — Sistema de Gestión de Ventas de Motos | BD1 Grupo 49
 
+> Base de Datos I — FaCENA (UNNE). Base relacional en 3FN para una agencia de motos 0 km: stock por modelo, unidades por chasis, ventas de 1 moto + 0..N accesorios, precios pactados congelados.
 
----
----
-## Consigna:
-## Presentación y Contexto
+## Equipo
 
-El objetivo central del proyecto es diseñar, normalizar e implementar una base de datos relacional que soporte el ciclo completo de operaciones de venta, garantizando la integridad referencial, la consistencia y la no redundancia de la información.
+| Integrante | DNI |
+|---|---|
+| Rodriguez Rivas Milton Nahuel | 47896329 |
+| Zacarías Blanco Fernando Iván | 40547162 |
+| Balenzuela Tobías | 46775591 |
+| Veglia Marcos Daniel | 45845762 |
+| Zarate Arturo Alan | 44212316 |
 
----
+## Estado de las etapas
 
-## Alcance y Restricciones
+| Etapa | Pregunta | Carpeta | Contenido | Estado |
+|---|---|---|---|---|
+| I. Requerimientos | ¿Qué necesita el negocio? | [`docs/etapa-01/`](docs/etapa-01/) | [`ETAPA_01.md`](docs/etapa-01/ETAPA_01.md) + PDF entregable | ✅ Entregada (04/09) |
+| II. Modelado | ¿Cómo representamos la información? | [`docs/etapa-02/`](docs/etapa-02/) | [`ETAPA_02.md`](docs/etapa-02/ETAPA_02.md) + DER + relacional 3FN | ✅ Entregada (11/09) |
+| III. Implementación | ¿Cómo construimos la BD? | [`docs/etapa-03/`](docs/etapa-03/) + [`sql/ddl/`](sql/ddl/) + [`sql/dml/`](sql/dml/) | DDL + DML | ⏳ Pendiente (30/09) |
+| IV. Consultas | ¿Cómo obtenemos información? | [`docs/etapa-04/`](docs/etapa-04/) + [`sql/consultas/`](sql/consultas/) | Factura, reporte agregado, consulta avanzada | ⏳ Pendiente |
+| V. Temas técnicos | ¿Cómo la hacemos robusta? | [`docs/etapa-05/`](docs/etapa-05/) + [`sql/tecnico/`](sql/tecnico/) | Procedimientos, transacciones, triggers, seguridad, índices | ⏳ Pendiente |
 
-### Dominio del problema
+Documentos fuente por etapa:
 
-Todos los equipos deberán desarrollar un sistema de gestión de ventas de productos o servicios (ej. indumentaria, electrónica, repuestos automotores, librería, etc.), pudiendo seleccionar libremente el dominio específico, siempre que el caso permita satisfacer los requerimientos mínimos establecidos.
+* Etapa I: [ETAPA_01.md](docs/etapa-01/ETAPA_01.md) · [PDF entregable](docs/etapa-01/BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf)
+* Etapa II: [ETAPA_02.md](docs/etapa-02/ETAPA_02.md) · [Esquema relacional (PNG)](docs/etapa-02/ESQUEMA%20RELACIONAL%20ETAPA%202.png) · [ERDPlus](docs/etapa-02/archivo_erdplus_relacional.erdplus) · [Notación Chen (TXT)](docs/etapa-02/Notacion%20chen-%20diagrama%20relacional.txt) · [PDF](docs/etapa-02/BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf)
 
-### Límite de tablas
-
-El modelo deberá presentar una complejidad suficiente para representar adecuadamente el dominio seleccionado. Como referencia, se espera un esquema de entre 6 y 10 relaciones, pudiendo justificarse una cantidad diferente cuando las características del dominio lo requieran.
-
-### Nivel de normalización
-
-El esquema debe alcanzar obligatoriamente la **Tercera Forma Normal (3FN)**.
-
----
-
-## Etapas y Entregables
-
-### Etapa I: Requerimientos y Dominio del Negocio
-
-- **Descripción del caso:** Breve introducción al rubro elegido y alcance del sistema.
-- **Reglas de Negocio (mínimo 6):** Redacción explícita de las reglas que rigen las operaciones.
-  - Debe incluir al menos:
-    - Gestión de stock
-    - Registro de clientes
-    - Historial de precios unitarios en el detalle de compra (para evitar cambios retroactivos)
-    - Métodos de pago
-
-### Etapa II: Modelado Conceptual y Lógico
-
-- **Diagrama Entidad-Relación (DER):** Diagrama con entidades, atributos, relaciones y cardinalidades (1:1, 1:N, N:M). Usando notación P. Chen en la herramienta ERDPlus.
-- **Transformación al Modelo Relacional:** Notación de tablas con claves primarias (PK) y foráneas (FK).
-- **Proceso de Normalización:** Documentación paso a paso de la evolución del modelo:
-  1. **1FN:** Eliminación de grupos repetitivos y garantía de atomicidad.
-  2. **2FN:** Eliminación de dependencias funcionales parciales en claves compuestas.
-  3. **3FN:** Eliminación de dependencias transitivas en atributos no clave.
-
-### Etapa III: Implementación Física (Scripts SQL)
-
-- **Script DDL (Data Definition Language):**
-  - Creación de tablas e integridad referencial (PRIMARY KEY, FOREIGN KEY con reglas de borrado/modificación).
-  - Definición correcta de tipos de datos (VARCHAR, DECIMAL, DATETIME, etc.) y restricciones (NOT NULL, UNIQUE, CHECK).
-- **Script DML (Data Manipulation Language):**
-  - Poblado inicial de la base de datos con al menos 8 a 10 registros coherentes por tabla para pruebas.
-
-### Etapa IV: Consultas y Casos de Uso
-
-Desarrollar y probar los scripts SQL para responder a las siguientes necesidades de información:
-
-- **Factura/Comprobante:** Consulta que consolide el encabezado y detalle de una venta, calculando sub-totales por renglón y el total acumulado.
-- **Reporte Agregado:** Total de ventas realizadas por cada vendedor o por cada categoría de producto en un rango de fechas (GROUP BY, SUM, COUNT).
-- **Consulta de Negocio Avanzada:** Una consulta que combine al menos 3 tablas mediante JOIN y aplique filtros condicionales (HAVING o subconsultas).
-
-### Etapa V: Implementación Temas Técnicos
-
-Investigar e implementar en el motor de bases de datos diferentes componentes, mecanismos y estructuras que aportan valor crítico para que la implementación de la base de datos sea robusta, rápida, segura y fácil de mantener a largo plazo.
-
-- Descripción breve de cada uno de los temas técnicos y fundamentos de aplicación en el caso de estudio desarrollado.
-- Script SQL de implementación en el motor de bases de datos.
-- Script SQL o resumen explicativo (en caso de corresponder) de demostración de utilización de cada tema técnico implementado.
-
-**Temas técnicos:**
-- Procedimientos y funciones almacenadas
-- Manejo de transacciones
-- Triggers de auditorías
-- Seguridad
-- Índices (optimización)
-
----
-
-## Cronograma
-
-| Etapa | Pregunta que responde | Producto | Fecha Entrega |
-|-------|----------------------|----------|---------------|
-| **I. Requerimientos** | ¿Qué necesita el negocio? | Requerimientos + reglas | viernes 04/09 |
-| **II. Modelado** | ¿Cómo representamos la información? | DER + modelo relacional + 3FN | viernes 11/09 |
-| **III. Implementación** | ¿Cómo construimos la BD? | DDL + DML | miércoles 30/09 |
-| **IV. Consultas** | ¿Cómo obtenemos información? | SQL + casos de uso | — |
-| **V. Temas técnicos** | ¿Cómo hacemos la solución más robusta? | Procedimientos, funciones, transacciones, triggers, seguridad e índices | — |
-
----
-
-## Estructura del Repositorio
+## Estructura del repositorio
 
 ```
-proyecto-bd1-equipo_XX/
-│
+proyecto-bd1-equipo_49/
+├── README.md
 ├── docs/
-│   ├── etapa-01/
-│   ├── etapa-02/
+│   ├── etapa-01/  ETAPA_01.md + PDF
+│   ├── etapa-02/  ETAPA_02.md + PDF + PNG + .erdplus + .txt Chen
 │   ├── etapa-03/
 │   ├── etapa-04/
 │   └── etapa-05/
-│
 ├── sql/
 │   ├── ddl/
 │   ├── dml/
 │   ├── consultas/
 │   └── tecnico/
-│
-├── modelos/
-│   └── der/
-│
-└── README.md
+└── modelos/
+    └── der/
 ```
+
+## Cómo clonar y usar
+
+Requisitos: `git`, visor de PDF/PNG y navegador para [ERDPlus](https://erdplus.com).
+
+```bash
+git clone <url-del-repo>
+cd proyecto-bd1-equipo_49
+ls docs/etapa-01 docs/etapa-02
+```
+
+* Lectura rápida: empezá por [`docs/etapa-01/ETAPA_01.md`](docs/etapa-01/ETAPA_01.md) y [`docs/etapa-02/ETAPA_02.md`](docs/etapa-02/ETAPA_02.md).
+* Entregables firmados: PDFs en cada carpeta de etapa.
+* Diagramas: abrí la imagen PNG directamente o importá el `.erdplus` en ERDPlus; el `.txt` de Etapa II describe el DER en notación Chen.
+
+## Nota de diseño vigente
+
+En Etapa II `VENTA.metodo_pago` es un `VARCHAR`. La tabla normalizada `METODO_PAGO` (con recargo/descuento) se crea en Etapa III. Las Etapas I–II no se modifican por esto.
 
 ---
 
-> **Última modificación:** miércoles, 26 de agosto de 2026, 22:47
+<details>
+<summary>Consigna completa del proyecto (Etapas I–V)</summary>
+
+### Presentación y Contexto
+
+El objetivo central es diseñar, normalizar e implementar una base de datos relacional que soporte el ciclo completo de operaciones de venta, garantizando integridad referencial, consistencia y no redundancia.
+
+### Alcance y Restricciones
+
+* Dominio libre de gestión de ventas, con complejidad de 6 a 10 relaciones (justificable si difiere).
+* Normalización obligatoria hasta **3FN**.
+
+### Etapa I: Requerimientos y Dominio del Negocio
+
+* Descripción del caso y alcance.
+* Reglas de negocio (mínimo 6): gestión de stock, registro de clientes, historial de precios unitarios en el detalle, métodos de pago.
+
+### Etapa II: Modelado Conceptual y Lógico
+
+* DER en notación P. Chen con ERDPlus (entidades, atributos, cardinalidades).
+* Modelo relacional con PK/FK.
+* Normalización 1FN → 2FN → 3FN documentada.
+
+### Etapa III: Implementación Física
+
+* DDL con PK/FK, tipos y restricciones (`NOT NULL`, `UNIQUE`, `CHECK`).
+* DML con 8–10 registros coherentes por tabla.
+
+### Etapa IV: Consultas y Casos de Uso
+
+* Factura/comprobante con subtotales y total.
+* Reporte agregado (`GROUP BY`, `SUM`, `COUNT`).
+* Consulta avanzada con ≥3 `JOIN` y `HAVING`/subconsultas.
+
+### Etapa V: Temas Técnicos
+
+Procedimientos y funciones, transacciones, triggers de auditoría, seguridad e índices.
+
+| Etapa | Producto | Fecha |
+|---|---|---|
+| I. Requerimientos | Requerimientos + reglas | viernes 04/09 |
+| II. Modelado | DER + relacional + 3FN | viernes 11/09 |
+| III. Implementación | DDL + DML | miércoles 30/09 |
+| IV. Consultas | SQL + casos de uso | — |
+| V. Temas técnicos | Robustez | — |
+
+</details>

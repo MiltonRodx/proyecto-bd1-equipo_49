@@ -1,5 +1,35 @@
 # Etapa I: Requerimientos y Dominio del Negocio
 
+**Materia:** Base de Datos I — FaCENA (UNNE)
+**Grupo:** 49 · **Equipo:** X Motors
+**Entrega:** viernes 04/09 · **Pregunta:** ¿Qué necesita el negocio?
+
+## Integrantes
+
+* Rodriguez Rivas Milton Nahuel — DNI: 47896329
+* Zacarías Blanco Fernando Iván — DNI: 40547162
+* Balenzuela Tobías — DNI: 46775591
+* Veglia Marcos Daniel — DNI: 45845762
+* Zarate Arturo Alan — DNI: 44212316
+
+## Material de esta etapa
+
+| Archivo | Descripción |
+|---|---|
+| [BDI Proyecto Integrador _ Grupo 49.pdf](BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf) | Entregable firmado (fuente autoritativa) |
+| `ETAPA_01.md` (este archivo) | Lectura rápida del mismo contenido |
+
+> Cómo leer: este MD resume el caso, requerimientos y reglas. Ante cualquier diferencia, vale el PDF.
+> Volver al [README general](../../README.md) · Siguiente: [Etapa II](../etapa-02/ETAPA_02.md).
+
+## Contenido
+
+* [Descripción del caso](#descripción-del-caso)
+* [Requerimientos](#requerimientos)
+* [Reglas de Negocio](#reglas-de-negocio)
+
+---
+
 ## Descripción del caso
 
 Decidimos implementar un sistema de gestión de ventas aplicado al rubro de motos, pensado para ser utilizado en una agencia de motos. Este rubro se caracteriza por manejar distintos modelos de motos junto con sus respectivos stocks, así como también por requerir un seguimiento detallado de los clientes a lo largo de todo el proceso de compra (interesado, en proceso de compra, comprador).
@@ -76,3 +106,8 @@ A continuación se detallan las reglas de negocio que rigen las operaciones del 
 **Estado de la compra**
 
 12. Toda compra debe registrar un estado que puede ser: efectuada, cancelada o reembolsada. El estado inicial de toda compra es "efectuada". Si una compra pasa a estado "cancelada" o "reembolsada", el stock de la moto y de los accesorios involucrados debe reintegrarse, y la operación no se elimina del sistema sino que se conserva con su estado actualizado, preservando el historial completo.
+
+---
+
+> Nota: la tabla normalizada `METODO_PAGO` se implementa en Etapa III. No altera esta etapa.
+> Navegación: [README general](../../README.md) · [Etapa II](../etapa-02/ETAPA_02.md)

@@ -1,0 +1,179 @@
+================================================================================
+DIAGRAMA ENTIDAD-RELACIÓN - NOTACIÓN DE CHEN (VERSIÓN UNIFICADA / CORREGIDA)
+Derivado del Esquema Relacional Etapa 2 (X Motors)
+Iteración 2: unifica esta versión con una segunda propuesta de otro LLM,
+corrige errores detectados en ambas y deja una única versión verificada
+contra el esquema relacional original.
+================================================================================
+
+--------------------------------------------------------------------------------
+0. CAMBIOS DE ESTA ITERACIÓN (respecto a la v1 propia y a la v2 comparada)
+--------------------------------------------------------------------------------
+- Se elimina el atributo "precio_venta_pactado" en VENTA: NO existe en el
+  esquema relacional original (error introducido por la otra versión).
+- Se corrige el atributo de la relación venta-accesorio a "precio_unitario"
+  (la otra versión lo llamaba, erróneamente, "precio_pactado").
+- Se restauran los nombres exactos de atributos del esquema original:
+  id_modelo_motocicleta (no "id_modelo"), cc_cilindrada (no "cilindrada"),
+  nro_chasis / nro_motor (no "numero_chasis" / "numero_motor").
+- Se adopta notación IS_A explícita para la especialización PERSONA -> CLIENTE
+  / VENDEDOR (más estándar en Chen que un rombo genérico "es_un").
+- Se marcan DIRECCION_CLIENTE y DIRECCION_PROVEEDOR como entidades débiles
+  [[ ]], con relación identificadora de doble rombo.
+- Las relaciones N:M sin atributos propios (PROVEEDOR-MODELO_MOTOCICLETA,
+  PROVEEDOR-ACCESORIO) se representan como rombos M:N puros, sin entidad
+  asociativa intermedia, porque PROVISION_MOTOCICLETA y PROVISION_ACCESORIO
+  en el relacional no tienen atributos propios más allá de las FKs: son solo
+  el artefacto de traducir una relación M:N a tablas, no entidades
+  conceptuales reales.
+- La relación N:M VENTA-ACCESORIO SÍ tiene atributos propios (cantidad,
+  precio_unitario) en el relacional (DETALLE_VENTA_ACCESORIO), por lo que se
+  modela como rombo M:N con atributos colgando del propio rombo (notación
+  válida en Chen), sin necesidad de una entidad aparte.
+- Se eliminan los atributos FK duplicados dentro de las entidades (ej.
+  id_modelo_motocicleta dentro de HISTORIAL_DE_PRECIO, dni_cliente dentro de
+  COTIZACION, etc.): en Chen conceptual puro, la FK no es un atributo, es la
+  relación (rombo) misma. Mantenerla como atributo Y como relación sería
+  redundante y es un rasgo del modelo relacional, no del conceptual.
+- Se corrige la cardinalidad de MOTOCICLETA-VENTA: no es (1,1)-(1,1) total en
+  ambos lados. Del lado VENTA es obligatoria (1,1) (toda venta requiere una
+  moto), pero del lado MOTOCICLETA es opcional (0,1) (no toda moto fabricada/
+  registrada está necesariamente vendida).
+
+--------------------------------------------------------------------------------
+1. LEYENDA DE SIMBOLOGÍA (NOTACIÓN CHEN)
+--------------------------------------------------------------------------------
+- ENTIDAD FUERTE:          [ NOMBRE_ENTIDAD ]
+- ENTIDAD DÉBIL:           [[ NOMBRE_ENTIDAD ]]
+- ATRIBUTO:                ( atributo )
+- ATRIBUTO CLAVE (PK):     ( *atributo_clave* )
+- ATRIBUTO OPCIONAL:       ( atributo? )
+- ATRIBUTO DE RELACIÓN:    < RELACION > -- ( atributo )
+- RELACIÓN:                < nombre_relacion >
+- RELACIÓN IDENTIFICADORA: <<identifica>>  (para entidad débil)
+- ESPECIALIZACIÓN:         ISA (triángulo)
+- CARDINALIDAD (min,max):  (0,1) (1,1) (0,N) (1,N)   [también se anota 1:1, 1:N, M:N]
+
+--------------------------------------------------------------------------------
+2. ENTIDADES FUERTES Y ATRIBUTOS (sin FKs como atributos)
+--------------------------------------------------------------------------------
+
+[ PROVEEDOR ]
+    ( *cuit_proveedor* )
+    ( razon_social )
+    ( email )
+    ( telefono )
+
+[[ DIRECCION_PROVEEDOR ]]   -- entidad débil, dependiente de PROVEEDOR
+    ( calle )
+    ( numero )
+    ( ciudad )
+    ( provincia )
+    ( codigo_postal )
+
+[ MODELO_MOTOCICLETA ]
+    ( *id_modelo_motocicleta* )
+    ( nombre_modelo )
+    ( marca )
+    ( cc_cilindrada )
+    ( color )
+    ( anio )
+    ( precio_lista )
+    ( stock_disponible )
+
+[ HISTORIAL_DE_PRECIO ]
+    ( *id_historial* )
+    ( precio_nuevo )
+    ( precio_anterior )
+    ( fecha_modificacion )
+
+[ MOTOCICLETA ]
+    ( *nro_chasis* )
+    ( nro_motor? )        -- atributo opcional (puede no informarse)
+
+[ ACCESORIO ]
+    ( *id_accesorio* )
+    ( descripcion )
+    ( stock )
+    ( categoria )
+    ( precio_costo )
+    ( precio_lista )
+
+[ PERSONA ]   -- entidad genérica / supertipo de la jerarquía ISA
+    ( *dni_persona* )
+    ( nombre )
+    ( apellido )
+    ( cuil )
+    ( email )
+    ( telefono )
+
+[ CLIENTE ]   -- subtipo de PERSONA
+    ( *dni_cliente* )
+    ( estado )
+
+[ VENDEDOR ]  -- subtipo de PERSONA
+    ( *dni_vendedor* )
+
+[[ DIRECCION_CLIENTE ]]   -- entidad débil, dependiente de CLIENTE
+    ( calle )
+    ( numero )
+    ( ciudad )
+    ( provincia )
+    ( codigo_postal )
+
+[ COTIZACION ]
+    ( *id_cotizacion* )
+    ( fecha_emision )
+    ( fecha_vencimiento )
+    ( precio_cotizado )
+
+[ VENTA ]
+    ( *cod_venta* )
+    ( fecha )
+    ( metodo_pago )
+    ( estado )
+    ( monto_total )
+
+--------------------------------------------------------------------------------
+3. JERARQUÍA DE ESPECIALIZACIÓN (ISA)
+--------------------------------------------------------------------------------
+
+                    [ PERSONA ]
+                         |
+                        ISA           (total, exclusiva: todo DNI cargado
+                    /         \        es cliente O vendedor, no ambos
+                   /           \       -- ajustar si el negocio permite
+          [ CLIENTE ]     [ VENDEDOR ]    que una persona sea las dos cosas)
+
+--------------------------------------------------------------------------------
+4. RELACIONES (ROMBOS) Y CARDINALIDADES
+--------------------------------------------------------------------------------
+
+-- Direcciones (entidades débiles, relación identificadora) --
+[ PROVEEDOR ] (1,1) ──── <<posee_dir_p>> ──── (1,1) [[ DIRECCION_PROVEEDOR ]]
+[ CLIENTE ]   (1,1) ──── <<posee_dir_c>> ──── (1,1) [[ DIRECCION_CLIENTE ]]
+
+-- Proveedores <-> Catálogo (M:N puras, sin atributos propios) --
+[ PROVEEDOR ] (0,N) ──── < suministra > ──── (0,N) [ MODELO_MOTOCICLETA ]
+[ PROVEEDOR ] (0,N) ──── < suministra > ──── (0,N) [ ACCESORIO ]
+
+-- Modelo y su inventario / histórico / cotizaciones --
+[ MODELO_MOTOCICLETA ] (1,1) ──── < compone >  ──── (0,N) [ MOTOCICLETA ]
+[ MODELO_MOTOCICLETA ] (1,1) ──── < registra >  ──── (0,N) [ HISTORIAL_DE_PRECIO ]
+[ MODELO_MOTOCICLETA ] (1,1) ──── < cotiza >    ──── (0,N) [ COTIZACION ]
+[ CLIENTE ]             (1,1) ──── < solicita >  ──── (0,N) [ COTIZACION ]
+
+-- Venta --
+[ MOTOCICLETA ] (0,1) ──── < se_vende_en > ──── (1,1) [ VENTA ]
+[ CLIENTE ]     (1,1) ──── < realiza >     ──── (0,N) [ VENTA ]
+[ VENDEDOR ]    (1,1) ──── < atiende >     ──── (0,N) [ VENTA ]
+
+-- Venta <-> Accesorios (M:N con atributos propios en el rombo) --
+[ VENTA ] (0,N) ──── < incluye > ──── (0,N) [ ACCESORIO ]
+                          |
+                          ├── ( cantidad )
+                          └── ( precio_unitario )
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================
