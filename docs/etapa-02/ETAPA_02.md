@@ -127,7 +127,7 @@ El diseño relacional presentado en esta etapa cumple de forma estricta con la *
 
 ### Esquema relacional
 
-![Esquema relacional Etapa 2](ESQUEMA%20RELACIONAL%20ETAPA%202.png)
+![Esquema relacional Etapa 2](ESQUEMA%20RELACIONAL%20ETAPA%202.V2.png)
 
 Fuente editable: [archivo_erdplus_relacional.erdplus](archivo_erdplus_relacional.erdplus) (abrir en [ERDPlus](https://erdplus.com)).
 
