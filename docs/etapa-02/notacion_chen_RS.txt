@@ -88,8 +88,8 @@ contra el esquema relacional original.
     ( fecha_modificacion )
 
 [ MOTOCICLETA ]
-    ( *nro_chasis* )
-    ( nro_motor? )        -- atributo opcional (puede no informarse)
+    ( *nro_chasis* )      -- Clave Primaria (PK) y Atributo Único (UNIQUE).
+    ( nro_motor [UQ] )    -- Atributo Único (UNIQUE).
 
 [ ACCESORIO ]
     ( *id_accesorio* )
