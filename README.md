@@ -65,7 +65,11 @@ ls docs/etapa-01 docs/etapa-02
 
 En Etapa II `VENTA.metodo_pago` es un `VARCHAR`. La tabla normalizada `METODO_PAGO` (con recargo/descuento) se crea en Etapa III. Las Etapas I–II no se modifican por esto.
 
----
+### Actualización de documentación
+
+
+Se realizo una revision de la estructura del repositorio y de la documentacion correspondiente a las estapas del proyecto, tambien se verifico la 
+organizacion de los archivos y entregrables para facilitar el manejo en siguientes etapas. 
 
 <details>
 <summary>Consigna completa del proyecto (Etapas I–V)</summary>
