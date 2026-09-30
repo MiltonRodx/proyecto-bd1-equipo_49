@@ -47,7 +47,7 @@ Entorno: SQL Server **`[COMPLETAR: versión]`** · Cliente: **`[COMPLETAR: SSMS 
 - **PK:** simples (`dni`, `numero_chasis`, `cuit_proveedor`, o `IDENTITY` en modelo, accesorio, venta, cotización e historial) y compuestas en las tablas N:M (`provision_*`, `detalle_venta_accesorio`).
 - **`ON DELETE CASCADE`:** solo en `vendedor` y `cliente` (hacia `persona`), `direccion_cliente` y `direccion_proveedor`, porque no tienen sentido sin su entidad principal.
 - **`NO ACTION`:** en el resto, para preservar el historial (RN11).
-- **`ON UPDATE`:** no declarado (por defecto, `NO ACTION`). **`[COMPLETAR: justificar]`**
+- **`ON UPDATE`:** no declarado (por defecto, `NO ACTION`), ya que los identificadores principales representan valores de negocio estables y normalizados que nunca deberían cambiar una vez emitidos o registrados.
 
 ### 4.3 Tipos y restricciones
 
