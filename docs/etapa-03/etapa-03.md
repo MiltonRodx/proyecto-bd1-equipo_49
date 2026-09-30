@@ -121,7 +121,7 @@ Consultas de los reportes (stock actual, historial de compras, ventas por vended
 **`[COMPLETAR: copiar de la consigna]`**
 
 - [x] Script DDL
-- [ ] Script DML (8 a 10 registros por tabla)
-- [ ] **`[COMPLETAR]`**
+- [x] Script DML (8 a 10 registros por tabla)
+
 
 Fecha y medio de entrega: **`30 de septiembre de 2026 | GitHub | Manifiesto individual por AV Moodle.`**
