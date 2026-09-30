@@ -70,3 +70,36 @@ create table venta (
     references motocicleta(numero_chasis),
   constraint uq_venta_numero_chasis unique (numero_chasis)
 );
+
+create table direccion_cliente (
+  dni_cliente int not null,
+  calle varchar(100) not null,
+  numero int not null,
+  ciudad varchar(100) not null,
+  provincia varchar(100) not null,
+  codigo_postal varchar(10) not null,
+  constraint pk_direccion_cliente primary key (dni_cliente),
+  constraint fk_direccion_cliente_dni_cliente foreign key (dni_cliente) 
+    references cliente(dni_cliente) on delete cascade
+);
+
+create table proveedor (
+  cuit_proveedor bigint not null,
+  razon_social varchar(100) not null,
+  email varchar(100) not null,
+  telefono varchar(30) not null,
+  constraint pk_proveedor primary key (cuit_proveedor)
+);
+
+create table direccion_proveedor (
+  cuit_proveedor bigint not null,
+  calle varchar(100) not null,
+  numero int not null,
+  ciudad varchar(100) not null,
+  provincia varchar(100) not null,
+  codigo_postal varchar(10) not null,
+  constraint pk_direccion_proveedor primary key (cuit_proveedor),
+  constraint fk_direccion_proveedor_cuit_proveedor foreign key (cuit_proveedor) 
+    references proveedor(cuit_proveedor) on delete cascade
+);
+
