@@ -1,0 +1,228 @@
+USE [X MOTORS];
+GO
+
+-- ============================================================================
+-- INGRESO DATOS A LAS TABLAS
+-- ============================================================================
+
+-- 1. PERSONA (10 registros: 5 vendedores + 5 clientes)
+INSERT INTO persona (dni, nombre, apellido, cuil, telefono, email) VALUES
+(10111222, 'Carlos', 'Gómez', 20101112229, '1155443322', 'carlos.gomez@xmotors.com'),
+(10222333, 'Mariana', 'López', 27102223334, '1166778899', 'mariana.lopez@xmotors.com'),
+(10333444, 'Esteban', 'Martínez', 20103334445, '1144332211', 'esteban.martinez@xmotors.com'),
+(10444555, 'Lucía', 'Fernández', 27104445556, '1122334455', 'lucia.fernandez@xmotors.com'),
+(10556677, 'Jorge', 'Pérez', 20105566771, '1199887766', 'jorge.perez@xmotors.com'),
+(20111222, 'Juan', 'Pérez', 20201112229, '1111223344', 'juan.perez@gmail.com'),
+(20222333, 'María', 'Giménez', 27202223334, '1122334455', 'maria.gimenez@hotmail.com'),
+(20333444, 'Lucas', 'Silva', 20203334445, '1133445566', 'lucas.silva@yahoo.com'),
+(20444555, 'Florencia', 'Ríos', 27204445556, '1144556677', 'florencia.rios@gmail.com'),
+(20555666, 'Diego', 'Medina', 20205556667, '1155667788', 'diego.medina@outlook.com'),
+
+-- 2. VENDEDOR (10 registros)
+INSERT INTO vendedor (dni_vendedor) VALUES
+(10111222), (10222333), (10333444), (10444555), (10556677),
+(10667788), (10778899), (10889900), (10990011), (11001122);
+
+-- 3. CLIENTE (10 registros)
+INSERT INTO cliente (dni_cliente, estado) VALUES
+(20111222, 'comprador'),
+(20222333, 'comprador'),
+(20333444, 'comprador'),
+(20444555, 'en proceso de compra'),
+(20555666, 'interesado'),
+(20666777, 'comprador'),
+(20777888, 'en proceso de compra'),
+(20888990, 'interesado'),
+(20999001, 'comprador'),
+(21000112, 'comprador');
+
+-- 4. DIRECCION_CLIENTE (10 registros)
+INSERT INTO direccion_cliente (dni_cliente, calle, numero, ciudad, provincia, codigo_postal) VALUES
+(20111222, 'Av. Corrientes', 1234, 'Capital Federal', 'Buenos Aires', 'C1043'),
+(20222333, 'San Martín', 456, 'Rosario', 'Santa Fe', 'S2000'),
+(20333444, 'Bv. 27 de Febrero', 789, 'Córdoba', 'Córdoba', 'X5000'),
+(20444555, 'Rivadavia', 1500, 'Mendoza', 'Mendoza', 'M5500'),
+(20555666, 'San Lorenzo', 321, 'Salta', 'Salta', 'A4400'),
+(20666777, 'Belgrano', 987, 'San Miguel de Tucumán', 'Tucumán', 'T4000'),
+(20777888, 'Mitre', 654, 'Paraná', 'Entre Ríos', 'E3100'),
+(20888990, 'España', 200, 'Neuquén', 'Neuquén', 'Q8300'),
+(20999001, 'Sarmiento', 1110, 'Mar del Plata', 'Buenos Aires', 'B7600'),
+(21000112, '9 de Julio', 450, 'Corrientes', 'Corrientes', 'W3400');
+
+-- 5. PROVEEDOR (10 registros)
+INSERT INTO proveedor (cuit_proveedor, razon_social, email, telefono) VALUES
+(30711122234, 'Honda Motor de Argentina S.A.', 'contacto@honda.com.ar', '01145678900'),
+(30722233345, 'Yamaha Motor Argentina S.A.', 'ventas@yamaha-motor.com.ar', '01147654321'),
+(30733344456, 'KTM Argentina S.A.', 'info@ktmargentina.com', '01148901234'),
+(30744455567, 'Suzuki Motos Argentina', 'comercial@suzukimotos.com.ar', '01143210987'),
+(30755566678, 'Corven Motors Argentina S.A.', 'info@corven.com.ar', '03482421111'),
+(30766677789, 'Zanella Hnos S.A.C.I.F.', 'atencion@zanella.com.ar', '01141234567'),
+(30777788890, 'Gilera Motors Argentina', 'ventas@gilera.com.ar', '01149876543'),
+(30788899901, 'Imsa Bajaj S.A.', 'contacto@bajaj.com.ar', '01146543210'),
+(30799900012, 'Royal Enfield Argentina', 'info@royalenfield.com.ar', '01142345678'),
+(30700011123, 'TVS Motor Company Arg', 'contacto@tvsargentina.com.ar', '01143456789');
+
+-- 6. DIRECCION_PROVEEDOR (10 registros)
+INSERT INTO direccion_proveedor (cuit_proveedor, calle, numero, ciudad, provincia, codigo_postal) VALUES
+(30711122234, 'Panamericana', 2500, 'Vicente López', 'Buenos Aires', 'B1636'),
+(30722233345, 'Acceso Oeste', 1200, 'Ituzaingó', 'Buenos Aires', 'B1712'),
+(30733344456, 'Av. Libertador', 4500, 'Capital Federal', 'Buenos Aires', 'C1426'),
+(30744455567, 'Ruta 8', 1500, 'San Martín', 'Buenos Aires', 'B1650'),
+(30755566678, 'Ruta Nacional 9', 98, 'Venado Tuerto', 'Santa Fe', 'S2600'),
+(30766677789, 'Av. Márquez', 3000, 'Tres de Febrero', 'Buenos Aires', 'B1684'),
+(30777788890, 'Camino de Cintura', 4000, '18 de Marzo', 'Buenos Aires', 'B1706'),
+(30788899901, 'Av. Del Libertador', 7200, 'Capital Federal', 'Buenos Aires', 'C1428'),
+(30799900012, 'Dardo Rocha', 800, 'San Isidro', 'Buenos Aires', 'B1642'),
+(30700011123, 'Av. Córdoba', 2200, 'Capital Federal', 'Buenos Aires', 'C1120');
+
+-- 7. MODELO_MOTOCICLETA (10 registros)
+INSERT INTO modelo_motocicleta (nombre_modelo, marca, cilindrada, color, anio, stock_disponible, precio_lista) VALUES
+('CB 250 Twister', 'Honda', 250, 'Rojo', 2025, 5, 4500000.00),
+('FZ-S Fi', 'Yamaha', 150, 'Azul', 2025, 8, 3200000.00),
+('Duke 200', 'KTM', 200, 'Naranja', 2024, 3, 5800000.00),
+('Gixxer 250', 'Suzuki', 250, 'Negro', 2025, 4, 4800000.00),
+('Ns 200', 'Bajaj', 200, 'Amarillo', 2025, 10, 3600000.00),
+('TVS RTR 200', 'TVS', 200, 'Gris', 2024, 6, 3400000.00),
+('XR 190L', 'Honda', 190, 'Blanco', 2025, 7, 4100000.00),
+('MT-03', 'Yamaha', 321, 'Cyan', 2024, 2, 7500000.00),
+('RC 390', 'KTM', 390, 'Blanco/Naranja', 2024, 1, 8900000.00),
+('Dominar 400', 'Bajaj', 400, 'Verde', 2025, 5, 6200000.00);
+
+-- 8. PROVISION_MOTOCICLETA (10 registros)
+INSERT INTO provision_motocicleta (cuit_proveedor, id_modelo) VALUES
+(30711122234, 1),
+(30722233345, 2),
+(30733344456, 3),
+(30744455567, 4),
+(30788899901, 5),
+(30700011123, 6),
+(30711122234, 7),
+(30722233345, 8),
+(30733344456, 9),
+(30788899901, 10);
+
+-- 9. MOTOCICLETA (10 unidades físicas)
+INSERT INTO motocicleta (numero_chasis, numero_motor, id_modelo) VALUES
+('CHS89123401', 'MOT98123401', 1),
+('CHS89123402', 'MOT98123402', 1),
+('CHS89123403', 'MOT98123403', 2),
+('CHS89123404', 'MOT98123404', 3),
+('CHS89123405', 'MOT98123405', 4),
+('CHS89123406', 'MOT98123406', 5),
+('CHS89123407', 'MOT98123407', 6),
+('CHS89123408', 'MOT98123408', 7),
+('CHS89123409', 'MOT98123409', 8),
+('CHS89123410', 'MOT98123410', 10);
+
+-- 10. ACCESORIO (10 registros)
+INSERT INTO accesorio (descripcion, stock, categoria, precio_lista, precio_costo) VALUES
+('Casco Integral MT Helmets', 15, 'Indumentaria', 120000.00, 75000.00),
+('Campera con protecciones Cordura', 10, 'Indumentaria', 250000.00, 160000.00),
+('Guantes de cuero invierno', 20, 'Indumentaria', 45000.00, 25000.00),
+('Traba disco con alarma', 25, 'Seguridad', 35000.00, 18000.00),
+('Cadenón linga reforzada', 18, 'Seguridad', 28000.00, 14000.00),
+('Kit de transmisión reforzado', 12, 'Repuestos', 90000.00, 50000.00),
+('Filtro de aire deportivo', 30, 'Repuestos', 15000.00, 8000.00),
+('Baúl maletero 39 litros', 8, 'Equipamiento', 110000.00, 65000.00),
+('Cargador USB para manillar', 22, 'Accesorios', 18000.00, 9000.00),
+('Lonas cobertoras impermeables', 14, 'Accesorios', 32000.00, 16000.00);
+
+-- 11. PROVISION_ACCESORIO (10 registros)
+INSERT INTO provision_accesorio (cuit_proveedor, id_accesorio) VALUES
+(30711122234, 1),
+(30722233345, 2),
+(30733344456, 3),
+(30744455567, 4),
+(30755566678, 5),
+(30766677789, 6),
+(30777788890, 7),
+(30788899901, 8),
+(30799900012, 9),
+(30700011123, 10);
+
+-- 12. VENTA (10 registros)
+INSERT INTO venta (fecha, metodo_pago, precio_venta_moto, monto_total, estado, dni_cliente, dni_vendedor, numero_chasis) VALUES
+('2026-03-01', 'Transferencia', 4500000.00, 4620000.00, 'efectuada', 20111222, 10111222, 'CHS89123401'),
+('2026-03-02', 'Tarjeta de Crédito', 3200000.00, 3200000.00, 'efectuada', 20222333, 10222333, 'CHS89123402'),
+('2026-03-03', 'Efectivo', 5800000.00, 5845000.00, 'efectuada', 20333444, 10333444, 'CHS89123403'),
+('2026-03-04', 'Transferencia', 4800000.00, 4800000.00, 'efectuada', 20666777, 10444555, 'CHS89123404'),
+('2026-03-05', 'Tarjeta de Débito', 3600000.00, 3635000.00, 'efectuada', 20999001, 10556677, 'CHS89123405'),
+('2026-03-06', 'Transferencia', 3400000.00, 3400000.00, 'efectuada', 21000112, 10667788, 'CHS89123406'),
+('2026-03-07', 'Efectivo', 4100000.00, 4145000.00, 'efectuada', 20111222, 10778899, 'CHS89123407'),
+('2026-03-08', 'Tarjeta de Crédito', 7500000.00, 7610000.00, 'efectuada', 20222333, 10889900, 'CHS89123408'),
+('2026-03-09', 'Transferencia', 8900000.00, 9010000.00, 'cancelada', 20333444, 10990011, 'CHS89123409'),
+('2026-03-10', 'Efectivo', 6200000.00, 6200000.00, 'efectuada', 20666777, 11001122, 'CHS89123410');
+
+-- 13. DETALLE_VENTA_ACCESORIO (10 registros)
+INSERT INTO detalle_venta_accesorio (cod_venta, id_accesorio, cantidad, precio_pactado) VALUES
+(1, 1, 1, 120000.00),
+(2, 4, 1, 35000.00),
+(3, 2, 1, 250000.00),
+(4, 3, 2, 90000.00),
+(5, 5, 1, 35000.00),
+(6, 6, 1, 90000.00),
+(7, 7, 1, 15000.00),
+(8, 8, 1, 110000.00),
+(9, 9, 2, 36000.00),
+(10, 10, 1, 32000.00);
+
+-- 14. COTIZACION (10 registros)
+INSERT INTO cotizacion (fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo) VALUES
+('2026-02-01', '2026-02-08', 4500000.00, 20111222, 1),
+('2026-02-02', '2026-02-09', 3200000.00, 20222333, 2),
+('2026-02-03', '2026-02-10', 5800000.00, 20333444, 3),
+('2026-02-04', '2026-02-11', 4800000.00, 20444555, 4),
+('2026-02-05', '2026-02-12', 3600000.00, 20555666, 5),
+('2026-02-06', '2026-02-13', 3400000.00, 20666777, 6),
+('2026-02-07', '2026-02-14', 4100000.00, 20777888, 7),
+('2026-02-08', '2026-02-15', 7500000.00, 20888990, 8),
+('2026-02-09', '2026-02-16', 8900000.00, 20999001, 9),
+('2026-02-10', '2026-02-17', 6200000.00, 21000112, 10);
+
+-- 15. HISTORIAL_DE_PRECIO (10 registros)
+INSERT INTO historial_de_precio (precio_nuevo, precio_anterior, fecha_modificacion, id_modelo) VALUES
+(4500000.00, 4200000.00, '2026-01-15', 1),
+(3200000.00, 2950000.00, '2026-01-15', 2),
+(5800000.00, 5400000.00, '2026-01-20', 3),
+(4800000.00, 4500000.00, '2026-01-20', 4),
+(3600000.00, 3300000.00, '2026-01-25', 5),
+(3400000.00, 3100000.00, '2026-01-25', 6),
+(4100000.00, 3800000.00, '2026-01-28', 7),
+(7500000.00, 7000000.00, '2026-02-01', 8),
+(8900000.00, 8300000.00, '2026-02-01', 9),
+(6200000.00, 5800000.00, '2026-02-05', 10);
+GO
+
+
+-- ============================================================================
+-- REALIZO MODIFICACIONES EN LAS TABLAS
+-- ============================================================================
+
+-- Actualizo stock y precio de un modelo
+UPDATE modelo_motocicleta
+SET precio_lista = 4650000.00, 
+    stock_disponible = stock_disponible + 2
+WHERE id_modelo = 1;
+
+-- Actualizo estado de un cliente
+UPDATE cliente
+SET estado = 'en proceso de compra'
+WHERE dni_cliente = 20555666;
+
+-- Actualizo datos de contacto de un proveedor
+UPDATE proveedor
+SET telefono = '01149998888',
+    email = 'soporte@honda.com.ar'
+WHERE cuit_proveedor = 30711122234;
+
+-- Elimino cotización vencida
+DELETE FROM cotizacion
+WHERE id_cotizacion = 1;
+
+-- Elimino detalles y venta cancelada de forma segura
+DELETE FROM detalle_venta_accesorio
+WHERE cod_venta = 9;
+
+DELETE FROM venta
+WHERE cod_venta = 9 AND estado = 'cancelada';
+GO
