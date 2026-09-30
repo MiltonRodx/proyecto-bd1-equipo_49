@@ -20,8 +20,8 @@ Implementar en **SQL Server** el modelo relacional de las etapas anteriores medi
 
 | Archivo | Contenido |
 |---|---|
-| `DDL_Script_X_Motors.sql` | Creación de tablas, restricciones e índices |
-| `DML_Script_X_Motors.sql` | Datos de prueba |
+| [`DDL_Script_X_Motors.sql`](DDL_Script_X_Motors.sql) | Creación de tablas, restricciones e índices |
+| [`DML_Script_X_Motors.sql`](DML_Script_X_Motors.sql) | Datos de prueba |
 
 **Orden:** crear la base → ejecutar el DDL → ejecutar el DML. El DDL usa `USE [X MOTORS]` pero no crea la base, así que primero:
 
