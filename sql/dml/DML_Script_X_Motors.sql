@@ -41,13 +41,7 @@ INSERT INTO persona (dni, nombre, apellido, cuil, telefono, email) VALUES
   (36543210, 'Micaela', 'Cabrera', 27365432107, '+54 9 379 422-1544', 'micaela.cabrera@example.com'),
   (30999888, 'Pablo', 'Ortiz', 20309998884, '+54 9 379 423-1581', 'pablo.ortiz@example.com'),
   (37111444, 'Romina', 'Silva', 27371114441, '+54 9 379 424-1618', 'romina.silva@example.com'),
-  (39222555, 'Gonzalo', 'Vera', 20392225558, '+54 9 379 425-1655', 'gonzalo.vera@example.com'),
-  (30111222, 'Juan', 'Perez', 20301112225, '3794551234', 'juan.perez@gmail.com'),
-  (32444555, 'Maria', 'Gomez', 27324445559, '3794123456', 'maria.gomez@gmail.com'),
-  (28777888, 'Carlos', 'Lopez', 20287778883, '3794987654', 'carlos.lopez@gmail.com'),
-  (35666999, 'Ana', 'Martinez', 27356669994, '3794567890', 'ana.martinez@gmail.com'),
-  (31222333, 'Luis', 'Fernandez', 20312223336, '3794234567', 'luis.fernandez@gmail.com'),
-  (29888777, 'Sofia', 'Ramirez', 27298887776, '3794345678', 'sofia.ramirez@gmail.com');
+  (39222555, 'Gonzalo', 'Vera', 20392225558, '+54 9 379 425-1655', 'gonzalo.vera@example.com');
 
 -- ==========================================================================
 -- 2a. VENDEDOR (8)
@@ -61,10 +55,8 @@ INSERT INTO vendedor (dni_vendedor) VALUES
   (36543210),
   (30999888),
   (37111444),
-  (39222555),
-  (30111222),
-  (28777888);
-
+  (39222555);
+  
 
 -- ==========================================================================
 -- 2b. CLIENTE (8) - estados: interesado / en proceso de compra / comprador
@@ -79,11 +71,8 @@ INSERT INTO cliente (dni_cliente, estado) VALUES
   (40234567, 'comprador'),
   (27654321, 'comprador'),
   (38765432, 'en proceso de compra'),
-  (42111222, 'interesado'),
-  (32444555, 'interesado'),
-  (35666999, 'en proceso de compra'),
-  (31222333, 'comprador'),
-  (29888777, 'comprador');
+  (42111222, 'interesado');
+
 
 -- ==========================================================================
 -- 3. DIRECCION_CLIENTE (8)
@@ -97,11 +86,8 @@ INSERT INTO direccion_cliente (dni_cliente, calle, numero, ciudad, provincia, co
   (40234567, 'Mitre', 95, 'Paso de los Libres', 'Corrientes', 'W3230'),
   (27654321, 'Av. 3 de Abril', 1500, 'Corrientes', 'Corrientes', 'W3400'),
   (38765432, 'San Martin', 320, 'Posadas', 'Misiones', 'N3300'),
-  (42111222, 'Rivadavia', 610, 'Presidencia Roque Saenz Pena', 'Chaco', 'H3700'),
-  (32444555, 'Av. 3 de Abril', 1250, 'Corrientes', 'Corrientes', '3400'),
-  (35666999, 'Junin', 850, 'Corrientes', 'Corrientes', '3400'),
-  (31222333, 'San Martin', 1450, 'Corrientes', 'Corrientes', '3400'),
-  (29888777, 'España', 720, 'Resistencia', 'Chaco', '3500');
+  (42111222, 'Rivadavia', 610, 'Presidencia Roque Saenz Pena', 'Chaco', 'H3700');
+ 
 
 -- ==========================================================================
 -- 4. MODELO_MOTOCICLETA (10) - ids 1..10
@@ -118,11 +104,8 @@ INSERT INTO modelo_motocicleta (nombre_modelo, marca, cilindrada, color, anio, s
   ('RX 200', 'Zanella', 200, 'Blanco', 2025, 1, 3700000.00),
   ('Energy 110', 'Corven', 110, 'Rojo', 2026, 1, 2400000.00),
   ('Rouser NS200', 'Bajaj', 200, 'Negro', 2026, 1, 5900000.00),
-  ('Ninja 400', 'Kawasaki', 399, 'Verde', 2026, 1, 14500000.00),
-  ('CB500F', 'Honda', 500, 'Rojo', 2025, 10, 8500000.00),
- ('MT-03', 'Yamaha', 321, 'Azul', 2025, 7, 9200000.00),
- ('Dominar 400', 'Bajaj', 373, 'Negro', 2025, 5, 7800000.00),
- ('Z400', 'Kawasaki', 399, 'Verde', 2025, 4, 10500000.00);
+  ('Ninja 400', 'Kawasaki', 399, 'Verde', 2026, 1, 14500000.00);
+ 
 
 -- ==========================================================================
 -- 5. MOTOCICLETA (14 unidades)
@@ -142,18 +125,8 @@ INSERT INTO motocicleta (numero_chasis, numero_motor, id_modelo) VALUES
   ('9C2COR00000000011', 'MOT-COR-000011', 8),
   ('9C2BAJ00000000012', 'MOT-BAJ-000012', 9),
   ('9C2KAW00000000013', 'MOT-KAW-000013', 10),
-  ('9C2KAW00000000014', 'MOT-KAW-000014', 10),
-  ('HONCB500F001', 'HONMOT500001', 11),
-  ('HONCB500F002', 'HONMOT500002', 11),
-  ('HONCB500F003', 'HONMOT500003', 11),
-  ('HONCB500F004', 'HONMOT500004', 11),
-  ('YAMMT03001', 'YAMMOT03001', 12),
-  ('YAMMT03002', 'YAMMOT03002', 12),
-  ('YAMMT03003', 'YAMMOT03003', 12),
-  ('BAJDOM40001', 'BAJMOT40001', 13),
-  ('BAJDOM40002', 'BAJMOT40002', 13),
-  ('KAWZ400001', 'KAWMOT40001', 14),
- ('KAWZ400002', 'KAWMOT40002', 14);
+  ('9C2KAW00000000014', 'MOT-KAW-000014', 10);
+  
 
 
 -- ==========================================================================
@@ -168,10 +141,8 @@ INSERT INTO proveedor (cuit_proveedor, razon_social, email, telefono) VALUES
   (30644433324, 'Zanella Hnos. y Cia. S.A.', 'ventas@zanella.example.com', '+54 11 4444-1005'),
   (30733322213, 'Corven Motos S.A.', 'distribuidores@corven.example.com', '+54 341 422-1006'),
   (30722211102, 'Bajaj Auto Argentina S.A.', 'info@bajajarg.example.com', '+54 351 433-1007'),
-  (30711100091, 'Kawasaki Importadora S.R.L.', 'ventas@kawaimport.example.com', '+54 11 4666-1008'),
-  (30711223344, 'Motos Argentinas SA', 'ventas@motosargentinas.com', '3794556677'),
- (30722334455, 'Importadora del Litoral SA', 'contacto@importadoralitoral.com', '3794667788'),
- (30733445566, 'Repuestos del Nordeste SRL', 'ventas@repuestosnordeste.com', '3794778899');
+  (30711100091, 'Kawasaki Importadora S.R.L.', 'ventas@kawaimport.example.com', '+54 11 4666-1008');
+  
   
 
 -- ==========================================================================
@@ -186,10 +157,8 @@ INSERT INTO direccion_proveedor (cuit_proveedor, calle, numero, ciudad, provinci
   (30644433324, 'Ruta 8 Km 34', 0, 'Pilar', 'Buenos Aires', 'B1629'),
   (30733322213, 'Bv. Orono', 950, 'Rosario', 'Santa Fe', 'S2000'),
   (30722211102, 'Av. Colon', 3100, 'Cordoba', 'Cordoba', 'X5000'),
-  (30711100091, 'Av. Cabildo', 2050, 'CABA', 'Buenos Aires', 'C1428'),
-  (30711223344, 'Ruta Nacional 12', 3500, 'Corrientes', 'Corrientes', '3400'),
- (30722334455, 'Av. Independencia', 2450, 'Corrientes', 'Corrientes', '3400'),
- (30733445566, 'Av. Alberdi', 1800, 'Resistencia', 'Chaco', '3500');
+  (30711100091, 'Av. Cabildo', 2050, 'CABA', 'Buenos Aires', 'C1428');
+ 
 
 
 -- ==========================================================================
@@ -207,13 +176,8 @@ INSERT INTO provision_motocicleta (cuit_proveedor, id_modelo) VALUES
   (30644433324, 7),
   (30733322213, 8),
   (30722211102, 9),
-  (30711100091, 10),
-  (30711223344, 1),
-  (30711223344, 2),
-  (30722334455, 3),
- (30722334455, 4),
- (30733445566, 1),
- (30733445566, 3);
+  (30711100091, 10);
+  
 
 -- ==========================================================================
 -- 9. ACCESORIO (10) - ids 1..10
@@ -230,12 +194,8 @@ INSERT INTO accesorio (descripcion, stock, categoria, precio_lista, precio_costo
   ('Cubre moto impermeable', 9, 'equipamiento', 29000.00, 16000.00),
   ('Kit de herramientas', 6, 'repuesto', 54000.00, 33000.00),
   ('Aceite 10W40 1L', 38, 'repuesto', 14500.00, 9000.00),
-  ('Pastillas de freno delanteras', 8, 'repuesto', 38000.00, 24000.00),
- ('Casco integral homologado', 20, 'Cascos', 180000.00, 110000.00),
-('Guantes para motociclista', 30, 'Indumentaria', 75000.00, 45000.00),
-('Campera de moto', 15, 'Indumentaria', 250000.00, 160000.00),
-('Baul trasero 45 litros', 10, 'Accesorios', 220000.00, 140000.00),
-('Parabrisas universal', 12, 'Accesorios', 150000.00, 95000.00);
+  ('Pastillas de freno delanteras', 8, 'repuesto', 38000.00, 24000.00);
+ 
 
 -- ==========================================================================
 -- 10. PROVISION_ACCESORIO (11)
@@ -253,12 +213,7 @@ INSERT INTO provision_accesorio (cuit_proveedor, id_accesorio) VALUES
   (30722211102, 8),
   (30698765432, 9),
   (30711100091, 10);
-  (30711223344, 11),
-(30711223344, 12),
-(30722334455, 13),
-(30722334455, 14),
-(30733445566, 15),
-(30733445566, 11);
+
 
 -- ==========================================================================
 -- 11. VENTA (10) - ids 1..10: 7 efectuadas, 2 canceladas, 1 reembolsada
@@ -277,9 +232,8 @@ INSERT INTO venta (fecha, metodo_pago, precio_venta_moto, monto_total, estado, d
   ('2026-06-25', 'tarjeta de credito', 5900000.00, 6052000.00, 'reembolsada', 28345672, 34567890, '9C2BAJ00000000012'),
   ('2026-07-20', 'financiamiento', 13700000.00, 14077750.00, 'efectuada', 35123903, 36543210, '9C2KAW00000000013'),
   ('2026-08-18', 'transferencia bancaria', 3100000.00, 3138000.00, 'efectuada', 30456781, 30999888, '9C2MTM00000000006'),
-  ('2026-09-03', 'tarjeta de credito', 5400000.00, 5400000.00, 'cancelada', 30456781, 36543210, '9C2YAM00000000007'),
-  ('2026-09-10', 'Transferencia', 8500000.00, 8750000.00, 'efectuada', 31222333, 30111222, 'HONCB500F001'),
-('2026-09-15', 'Tarjeta de credito', 9200000.00, 9275000.00,'efectuada', 29888777, 28777888, 'YAMMT03001');
+  ('2026-09-03', 'tarjeta de credito', 5400000.00, 5400000.00, 'cancelada', 30456781, 36543210, '9C2YAM00000000007');
+
 
 
 -- ==========================================================================
@@ -304,9 +258,8 @@ INSERT INTO detalle_venta_accesorio (cod_venta, id_accesorio, cantidad, precio_p
   (8, 1, 1, 185000.00),
   (8, 4, 1, 156750.00),
   (8, 6, 1, 36000.00),
-  (9, 10, 1, 38000.00),
-  (1, 11, 1, 180000.00),
-  (1, 12, 1, 75000.00);
+  (9, 10, 1, 38000.00);
+  
 
 
 -- ==========================================================================
@@ -323,10 +276,8 @@ INSERT INTO cotizacion (fecha_emision, fecha_vencimiento, precio_cotizado, dni_c
   ('2026-09-24', '2026-10-01', 5400000.00, 38765432, 5),
   ('2026-09-26', '2026-10-03', 5900000.00, 42111222, 9),
   ('2026-09-10', '2026-09-17', 3850000.00, 42111222, 1),
-  ('2026-09-28', '2026-10-05', 3700000.00, 38765432, 7),
-  ('2026-09-01', '2026-09-08', 8500000.00, 32444555, 1),
-  ('2026-09-05', '2026-09-12', 9200000.00, 35666999, 2),
-  ('2026-09-15', '2026-09-22', 7800000.00, 32444555, 3);
+  ('2026-09-28', '2026-10-05', 3700000.00, 38765432, 7);
+ 
 
 -- ==========================================================================
 -- 14. HISTORIAL_DE_PRECIO (10)
@@ -343,13 +294,8 @@ INSERT INTO historial_de_precio (precio_nuevo, precio_anterior, fecha_modificaci
   (11200000.00, 10900000.00, '2026-07-15', 6),
   (5900000.00, 5500000.00, '2026-06-01', 9),
   (14000000.00, 13500000.00, '2026-03-15', 10),
-  (14500000.00, 14000000.00, '2026-08-10', 10),
-  (8500000.00, 8000000.00, '2026-08-01', 11),
-  (8500000.00, 8200000.00, '2026-09-01', 11),
-  (9200000.00, 8900000.00, '2026-08-15', 12),
-  (9200000.00, 9000000.00, '2026-09-05', 12),
-  (7800000.00, 7500000.00, '2026-09-01', 13),
- (10500000.00, 10000000.00, '2026-09-10', 14);
+  (14500000.00, 14000000.00, '2026-08-10', 10);
+ 
 
 COMMIT TRANSACTION;  -- confirmacion de transacción! (usamos la herramienta de transacciones como buena práctica, a pesar de ser una base de datos de prueba)
 GO
@@ -384,6 +330,4 @@ GO
 -- N7. Borrar una persona con ventas         -> error de FK (cliente -> venta, sin cascada)
 -- DELETE FROM persona WHERE dni = 30456781;
 
--- N8. Registro de vendedor cuyo DNI no esta registrado en persona          -> error de fk_vendedor_dni_vendedor
--- INSERT INTO vendedor (dni_vendedor) -- Intentare crear  un vendedor cuyo DNI no existe en persona
--- VALUES (99999999);
+
