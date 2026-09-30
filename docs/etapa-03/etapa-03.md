@@ -76,14 +76,16 @@ Descuento y reintegro automático de stock (RN1, RN2, RN11), pasaje del cliente 
 
 ## 6. Pruebas
 
+Se realizaron pruebas para verificar el funcionamiento de las restricciones implementadas.
+
 | Prueba | Resultado esperado | Resultado obtenido |
 |---|---|---|
-| Stock negativo en modelo o accesorio | Error de `CHECK` | **`[COMPLETAR]`** |
-| Estado inválido en venta o cliente | Error de `CHECK` | **`[COMPLETAR]`** |
-| Dos ventas `efectuada` con el mismo chasis | Error de índice único | **`[COMPLETAR]`** |
-| Venta `efectuada` sobre un chasis con venta anterior `cancelada` | Permitido | **`[COMPLETAR]`** |
-| Venta con un cliente inexistente | Error de FK | **`[COMPLETAR]`** |
-| Borrar una persona con ventas | Error de FK | **`[COMPLETAR]`** |
+| Stock negativo en modelo o accesorio | Error de restricción `CHECK` | Correcto: SQL Server rechazó la operación debido a la restricción `CHECK` de stock mayor o igual a 0. |
+| Estado inválido en venta o cliente | Error de restricción `CHECK` | Correcto: SQL Server rechazó la inserción debido a que el valor del estado no pertenece a los valores permitidos. |
+| Dos ventas `efectuada` con el mismo chasis | Error del índice único | Correcto: SQL Server impidió la segunda venta efectuada del mismo chasis mediante el índice único filtrado `ux_venta_chasis_vigente`. |
+| Venta `efectuada` sobre un chasis con una venta anterior `cancelada` | Operación permitida | Correcto: SQL Server permitió registrar la venta porque la venta anterior no tenía estado `efectuada`. |
+| Venta con un cliente inexistente | Error de clave foránea | Correcto: SQL Server rechazó la operación por incumplimiento de la clave foránea hacia la tabla `cliente`. |
+| Eliminación de una persona relacionada con ventas | Error de clave foránea | Correcto: SQL Server impidió eliminar la persona debido a la existencia de registros relacionados en la tabla `venta`. |
 
 Consultas de los reportes (stock actual, historial de compras, ventas por vendedor, abastecimiento por proveedor): **`[COMPLETAR]`**
 
