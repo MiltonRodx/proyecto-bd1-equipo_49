@@ -1,0 +1,310 @@
+USE [X MOTORS];
+GO
+
+
+--PERSONA
+
+
+INSERT INTO persona (dni, nombre, apellido, cuil, telefono, email)
+VALUES
+(41234567, 'Tobias', 'Balenzuela', 20412345673, '3795126840', 'tobias.balenzuela@correo.com'),
+(39876543, 'Santiago', 'Villalba', 20398765436, '3796237519', 'santiago.villalba@correo.com'),
+(42654321, 'Cyntia', 'Ruiz', 27426543218, '3797348261', 'cyntia.ruiz@correo.com'),
+(38456789, 'Juan', 'Balenzuela', 20384567896, '3798459132', 'juan.balenzuela@correo.com'),
+(43567890, 'Irina', 'Balenzuela', 27435678908, '3799562741', 'irina.balenzuela@correo.com'),
+(37654321, 'Octavio', 'Dorrego', 20376543219, '3791673852', 'octavio.dorrego@correo.com'),
+(40987654, 'Ignacio', 'Arce', 20409876547, '3792784963', 'ignacio.arce@correo.com'),
+(45123456, 'Julian', 'Cabral', 20451234568, '3793895174', 'julian.cabral@correo.com');
+GO
+
+
+
+--  VENDEDORES
+
+
+INSERT INTO vendedor (dni_vendedor)
+VALUES
+(41234567),
+(39876543),
+(42654321),
+(38456789),
+(43567890),
+(37654321),
+(40987654),
+(45123456);
+GO
+
+
+--  CLIENTES
+
+INSERT INTO cliente (dni_cliente, estado)
+VALUES
+(41234567, 'comprador'),
+(39876543, 'interesado'),
+(42654321, 'en proceso de compra'),
+(38456789, 'comprador'),
+(43567890, 'interesado'),
+(37654321, 'comprador'),
+(40987654, 'en proceso de compra'),
+(45123456, 'comprador');
+GO
+
+
+--  MODELO_MOTOCICLETA
+
+INSERT INTO modelo_motocicleta
+(nombre_modelo, marca, cilindrada, color, anio, stock_disponible, precio_lista)
+VALUES
+('Zontes G1-125', 'Zontes', 125, 'Negro', 2024, 6, 4850000.00),
+('Zontes U1-125', 'Zontes', 125, 'Azul', 2023, 4, 4520000.00),
+('Montesa Cota 4RT', 'Montesa', 301, 'Rojo', 2025, 2, 8900000.00),
+('Rieju MRT 125', 'Rieju', 125, 'Blanco', 2024, 5, 5200000.00),
+('Rieju Aventura 500', 'Rieju', 500, 'Verde', 2025, 3, 11800000.00),
+('GasGas EC 250', 'GasGas', 250, 'Rojo', 2024, 3, 10500000.00),
+('GasGas SM 700', 'GasGas', 700, 'Negro', 2025, 2, 15600000.00),
+('Derbi Senda 125', 'Derbi', 125, 'Amarillo', 2023, 4, 4900000.00);
+GO
+
+
+--  MOTOCICLETA
+
+INSERT INTO motocicleta
+(numero_chasis, numero_motor, id_modelo)
+VALUES
+('ES-ZON-874521', 'ZON-MTR-583214', 1),
+('ES-ZON-639847', 'ZON-MTR-741925', 2),
+('ES-MON-528316', 'MON-MTR-936184', 3),
+('ES-RIE-417925', 'RIE-MTR-625731', 4),
+('ES-RIE-753184', 'RIE-MTR-814263', 5),
+('ES-GAS-286415', 'GAS-MTR-572936', 6),
+('ES-GAS-941753', 'GAS-MTR-318475', 7),
+('ES-DER-635829', 'DER-MTR-764218', 8);
+GO
+
+
+--  VENTA
+
+INSERT INTO venta
+(fecha, metodo_pago, precio_venta_moto, monto_total, estado,
+ dni_cliente, dni_vendedor, numero_chasis)
+VALUES
+('2026-01-17', 'Transferencia', 4850000.00, 5100000.00, 'efectuada',
+ 41234567, 39876543, 'ES-ZON-874521'),
+
+('2026-02-28', 'Tarjeta de credito', 4520000.00, 4520000.00, 'efectuada',
+ 38456789, 42654321, 'ES-ZON-639847'),
+
+('2026-03-14', 'Efectivo', 8900000.00, 9200000.00, 'cancelada',
+ 43567890, 37654321, 'ES-MON-528316'),
+
+('2026-04-09', 'Transferencia', 5200000.00, 5450000.00, 'efectuada',
+ 37654321, 40987654, 'ES-RIE-417925'),
+
+('2026-05-22', 'Tarjeta de debito', 11800000.00, 12000000.00, 'reembolsada',
+ 40987654, 45123456, 'ES-RIE-753184'),
+
+('2026-06-11', 'Efectivo', 10500000.00, 10850000.00, 'efectuada',
+ 45123456, 41234567, 'ES-GAS-286415'),
+
+('2026-07-26', 'Transferencia', 15600000.00, 15900000.00, 'efectuada',
+ 39876543, 43567890, 'ES-GAS-941753'),
+
+('2026-08-19', 'Tarjeta de credito', 4900000.00, 5100000.00, 'efectuada',
+ 42654321, 38456789, 'ES-DER-635829');
+GO
+
+
+-- DIRECCION_CLIENTE
+
+INSERT INTO direccion_cliente
+(dni_cliente, calle, numero, ciudad, provincia, codigo_postal)
+VALUES
+(41234567, 'Calle de Alcala', 184, 'Madrid', 'Madrid', '28009'),
+(39876543, 'Carrer de Valencia', 317, 'Barcelona', 'Barcelona', '08009'),
+(42654321, 'Calle Colon', 42, 'Valencia', 'Valencia', '46004'),
+(38456789, 'Calle San Fernando', 28, 'Sevilla', 'Sevilla', '41004'),
+(43567890, 'Calle Larios', 91, 'Malaga', 'Malaga', '29005'),
+(37654321, 'Calle Mayor', 63, 'Salamanca', 'Salamanca', '37002'),
+(40987654, 'Avenida de Galicia', 116, 'Vigo', 'Pontevedra', '36201'),
+(45123456, 'Calle Alfonso I', 37, 'Zaragoza', 'Zaragoza', '50003');
+GO
+
+
+--  PROVEEDOR
+
+INSERT INTO proveedor
+(cuit_proveedor, razon_social, email, telefono)
+VALUES
+(28456123000110, 'Moto Brasil Distribuidora Ltda', 'contato@motobrasil.com.br', '+551132145678'),
+(29674321000125, 'Rodas do Sul Ltda', 'vendas@rodasdoul.com.br', '+555132567890'),
+(30789542000138, 'Brasil Moto Pecas Ltda', 'comercial@brasilmoto.com.br', '+552132789456'),
+(31864257000141, 'Amazonia Motors Ltda', 'vendas@amazoniamotors.com.br', '+559132456781'),
+(32975468000153, 'Paulista Motos Importacao', 'info@paulistamotos.com.br', '+551134678925'),
+(34186579000167, 'Sul Brasil Acessorios', 'contato@sulbrasil.com.br', '+555133789214'),
+(35297681000172, 'Rio Moto Distribuidora', 'vendas@riomoto.com.br', '+552125689743'),
+(36418792000186, 'Brasil Motorcycles Trade', 'trade@brmotorcycles.com.br', '+551136547821');
+GO
+
+
+--  DIRECCION_PROVEEDOR
+
+INSERT INTO direccion_proveedor
+(cuit_proveedor, calle, numero, ciudad, provincia, codigo_postal)
+VALUES
+(28456123000110, 'Avenida Paulista', 1578, 'Sao Paulo', 'Sao Paulo', '01310-200'),
+(29674321000125, 'Rua dos Andradas', 845, 'Porto Alegre', 'Rio Grande do Sul', '90020-005'),
+(30789542000138, 'Avenida Rio Branco', 326, 'Rio de Janeiro', 'Rio de Janeiro', '20040-001'),
+(31864257000141, 'Avenida Djalma Batista', 1145, 'Manaus', 'Amazonas', '69050-010'),
+(32975468000153, 'Rua Augusta', 1290, 'Sao Paulo', 'Sao Paulo', '01305-100'),
+(34186579000167, 'Rua XV de Novembro', 520, 'Curitiba', 'Parana', '80020-310'),
+(35297681000172, 'Rua Visconde de Piraja', 780, 'Rio de Janeiro', 'Rio de Janeiro', '22410-002'),
+(36418792000186, 'Avenida Brasil', 2410, 'Campinas', 'Sao Paulo', '13070-170');
+GO
+
+
+--  PROVISION_MOTOCICLETA
+
+INSERT INTO provision_motocicleta
+(cuit_proveedor, id_modelo)
+VALUES
+(28456123000110, 1),
+(29674321000125, 2),
+(30789542000138, 3),
+(31864257000141, 4),
+(32975468000153, 5),
+(34186579000167, 6),
+(35297681000172, 7),
+(36418792000186, 8);
+GO
+
+
+--  ACCESORIO
+
+INSERT INTO accesorio
+(descripcion, stock, categoria, precio_lista, precio_costo)
+VALUES
+('Casco modular carbono XTR', 18, 'Cascos', 285000.00, 190000.00),
+('Intercomunicador Bluetooth V6', 13, 'Electronica', 175000.00, 110000.00),
+('Guantes impermeables touring', 31, 'Indumentaria', 78000.00, 49000.00),
+('Pantalon reforzado para moto', 16, 'Indumentaria', 215000.00, 145000.00),
+('Maletas laterales aluminio', 7, 'Equipaje', 480000.00, 325000.00),
+('Soporte universal para celular', 24, 'Accesorios', 65000.00, 39000.00),
+('Protector de radiador metalico', 11, 'Proteccion', 135000.00, 85000.00),
+('Kit de luces auxiliares LED', 20, 'Iluminacion', 125000.00, 79000.00);
+GO
+
+
+
+-- PROVISION_ACCESORIO
+
+INSERT INTO provision_accesorio
+(cuit_proveedor, id_accesorio)
+VALUES
+(28456123000110, 1),
+(29674321000125, 2),
+(30789542000138, 3),
+(31864257000141, 4),
+(32975468000153, 5),
+(34186579000167, 6),
+(35297681000172, 7),
+(36418792000186, 8);
+GO
+
+
+--  DETALLE_VENTA_ACCESORIO
+
+
+INSERT INTO detalle_venta_accesorio
+(cod_venta, id_accesorio, cantidad, precio_pactado)
+VALUES
+(1, 1, 1, 275000.00),
+(2, 2, 1, 165000.00),
+(3, 3, 2, 72000.00),
+(4, 4, 1, 205000.00),
+(5, 5, 1, 450000.00),
+(6, 6, 2, 60000.00),
+(7, 7, 1, 125000.00),
+(8, 8, 2, 115000.00);
+GO
+
+
+--  COTIZACION
+
+
+INSERT INTO cotizacion
+(fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo)
+VALUES
+('2025-11-03', '2025-11-10', 4700000.00, 41234567, 1),
+('2025-11-19', '2025-11-26', 4400000.00, 39876543, 2),
+('2025-12-02', '2025-12-09', 8750000.00, 42654321, 3),
+('2025-12-18', '2025-12-25', 5100000.00, 38456789, 4),
+('2026-01-07', '2026-01-14', 11500000.00, 43567890, 5),
+('2026-01-25', '2026-02-01', 10200000.00, 37654321, 6),
+('2026-02-13', '2026-02-20', 15100000.00, 40987654, 7),
+('2026-03-01', '2026-03-08', 4750000.00, 45123456, 8);
+GO
+
+
+--  HISTORIAL_DE_PRECIO
+
+INSERT INTO historial_de_precio
+(precio_nuevo, precio_anterior, fecha_modificacion, id_modelo)
+VALUES
+(4850000.00, 4550000.00, '2025-10-12', 1),
+(4520000.00, 4250000.00, '2025-10-25', 2),
+(8900000.00, 8400000.00, '2025-11-08', 3),
+(5200000.00, 4900000.00, '2025-11-21', 4),
+(11800000.00, 10900000.00, '2025-12-05', 5),
+(10500000.00, 9800000.00, '2025-12-19', 6),
+(15600000.00, 14800000.00, '2026-01-11', 7),
+(4900000.00, 4600000.00, '2026-01-28', 8);
+GO
+
+----ver tablas totalidad de las tablas
+
+SELECT * FROM persona;
+SELECT * FROM vendedor;
+SELECT * FROM cliente;
+SELECT * FROM modelo_motocicleta;
+SELECT * FROM motocicleta;
+SELECT * FROM venta;
+SELECT * FROM direccion_cliente;
+SELECT * FROM proveedor;
+SELECT * FROM direccion_proveedor;
+SELECT * FROM provision_motocicleta;
+SELECT * FROM accesorio;
+SELECT * FROM provision_accesorio;
+SELECT * FROM detalle_venta_accesorio;
+SELECT * FROM cotizacion;
+SELECT * FROM historial_de_precio;
+GO
+
+-- algunas pruebas de restricciones
+
+-- intento vender una moto que ya esta vendida,pruba de UNIQUE en venta efectuada
+INSERT INTO venta
+(fecha, metodo_pago, precio_venta_moto, monto_total, estado, dni_cliente, dni_vendedor, numero_chasis) VALUES
+('2026-09-30', 'Efectivo', 4850000.00, 4850000.00, 'efectuada', 43567890, 37654321, 'ES-ZON-874521');
+
+-- vendo una moto que su venta no esta efectuada
+INSERT INTO venta
+(fecha, metodo_pago, precio_venta_moto, monto_total, estado, dni_cliente, dni_vendedor, numero_chasis) VALUES
+('2026-09-30', 'Transferencia', 8900000.00, 8900000.00, 'efectuada', 41234567, 39876543, 'ES-MON-528316');
+
+ -- prueba del CHEK en cliente con dni que no existe
+ INSERT INTO cliente (dni_cliente, estado) VALUES 
+ (41234567, 'vendido');
+
+ -- prueba de CHEK en stock, intento poner un negativo
+ UPDATE modelo_motocicleta
+ SET stock_disponible = -5
+ WHERE id_modelo = 1;
+
+ -- prueba de FOREIGN KEY en venta, falla porque el cliente no existe
+ INSERT INTO venta (fecha, metodo_pago, precio_venta_moto, monto_total, estado, dni_cliente, dni_vendedor, numero_chasis) VALUES
+('2026-09-30', 'Efectivo', 5000000.00, 5000000.00, 'efectuada', 99999999, 41234567, 'ES-DER-635829');
+
+-- prueba RN cotizacion de 7 dias, debe fallar porque vence 7 dias luego de la fecha de emison
+INSERT INTO cotizacion (fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo) VALUES
+('2026-09-30', '2026-10-15', 5000000.00, 41234567, 1);
+
