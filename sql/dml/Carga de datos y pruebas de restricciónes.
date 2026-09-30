@@ -1,0 +1,511 @@
+CREATE DATABASE [X MOTORS];
+
+
+USE [X MOTORS];
+GO
+
+-- ============================================================================
+-- 1. ENTIDAD BASE: PERSONA
+-- Almacena los datos personales unificados de los actores del sistema.
+-- ============================================================================
+CREATE TABLE persona (
+  dni INT NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  apellido VARCHAR(100) NOT NULL,
+  cuil BIGINT NOT NULL,
+  telefono VARCHAR(30) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  CONSTRAINT pk_persona_dni PRIMARY KEY (dni)
+);
+
+-- ============================================================================
+-- 2. ROLES HEREDADOS DE PERSONA (ESPECIALIZACIÓN / SUBTIPOS)
+-- ============================================================================
+
+-- VENDEDOR: Rol derivado de persona (ON DELETE CASCADE mantiene la integridad)
+CREATE TABLE vendedor (
+  dni_vendedor INT NOT NULL,
+  CONSTRAINT pk_vendedor_dni_vendedor PRIMARY KEY (dni_vendedor),
+  CONSTRAINT fk_vendedor_dni_vendedor FOREIGN KEY (dni_vendedor) 
+    REFERENCES persona(dni) ON DELETE CASCADE
+);
+
+-- CLIENTE: Rol derivado de persona con validación de estados de compra
+CREATE TABLE cliente (
+  dni_cliente INT NOT NULL,
+  estado VARCHAR(100) NOT NULL,
+  CONSTRAINT ck_cliente_estado CHECK (estado IN ('interesado', 'en proceso de compra', 'comprador')),
+  CONSTRAINT pk_cliente_dni_cliente PRIMARY KEY (dni_cliente),
+  CONSTRAINT fk_cliente_dni_cliente FOREIGN KEY (dni_cliente) 
+    REFERENCES persona(dni) ON DELETE CASCADE
+);
+
+-- ============================================================================
+-- 3. CATÁLOGO Y GESTIÓN DE PRODUCTOS
+-- ============================================================================
+
+-- MODELO_MOTOCICLETA: Catálogo general de modelos vendidos
+CREATE TABLE modelo_motocicleta (
+  id_modelo INT NOT NULL IDENTITY(1,1),
+  nombre_modelo VARCHAR(100) NOT NULL,
+  marca VARCHAR(100) NOT NULL,
+  cilindrada INT NOT NULL,
+  color VARCHAR(50) NOT NULL,
+  anio INT NOT NULL,
+  stock_disponible INT NOT NULL CONSTRAINT df_modelo_motocicleta_stock_disponible DEFAULT 0,
+  precio_lista DECIMAL(10,2) NOT NULL,
+  CONSTRAINT pk_modelo_motocicleta PRIMARY KEY (id_modelo),
+  CONSTRAINT ck_modelo_stock CHECK (stock_disponible >= 0)
+);
+
+-- MOTOCICLETA: Unidades físicas en stock identificadas por chasis y motor
+CREATE TABLE motocicleta (
+  numero_chasis VARCHAR(100) NOT NULL,
+  numero_motor VARCHAR(100) NOT NULL,
+  id_modelo INT NOT NULL,
+  CONSTRAINT pk_motocicleta PRIMARY KEY (numero_chasis),
+  CONSTRAINT fk_motocicleta_modelo_motocicleta FOREIGN KEY (id_modelo) 
+    REFERENCES modelo_motocicleta(id_modelo),
+  CONSTRAINT uq_motocicleta_numero_motor UNIQUE (numero_motor)
+);
+
+-- ============================================================================
+-- 4. TRANSACCIONES PRINCIPALES
+-- ============================================================================
+
+-- VENTA: Registro final de la operación comercial
+CREATE TABLE venta (
+  cod_venta INT NOT NULL IDENTITY(1,1),
+  fecha DATE NOT NULL,
+  metodo_pago VARCHAR(50) NOT NULL,
+  precio_venta_moto DECIMAL(12,2) NOT NULL, -- Congela el precio al vender
+  monto_total DECIMAL(12,2) NOT NULL,
+  estado VARCHAR(30) NOT NULL CONSTRAINT df_venta_estado DEFAULT 'efectuada',
+  dni_cliente INT NOT NULL,
+  dni_vendedor INT NOT NULL,
+  numero_chasis VARCHAR(100) NOT NULL,
+  CONSTRAINT pk_venta PRIMARY KEY (cod_venta),
+  CONSTRAINT ck_venta_estado CHECK (estado IN ('efectuada', 'cancelada', 'reembolsada')),
+  CONSTRAINT fk_venta_cliente FOREIGN KEY (dni_cliente) 
+    REFERENCES cliente(dni_cliente),
+  CONSTRAINT fk_venta_vendedor FOREIGN KEY (dni_vendedor) 
+    REFERENCES vendedor(dni_vendedor),
+  CONSTRAINT fk_venta_motocicleta FOREIGN KEY (numero_chasis) 
+    REFERENCES motocicleta(numero_chasis),
+  CONSTRAINT uq_venta_numero_chasis UNIQUE (numero_chasis) -- Una moto física se vende una sola vez
+);
+
+-- DIRECCION_CLIENTE: Extensión 1:1 de los datos de domicilio del cliente
+CREATE TABLE direccion_cliente (
+  dni_cliente INT NOT NULL,
+  calle VARCHAR(100) NOT NULL,
+  numero INT NOT NULL,
+  ciudad VARCHAR(100) NOT NULL,
+  provincia VARCHAR(100) NOT NULL,
+  codigo_postal VARCHAR(10) NOT NULL,
+  CONSTRAINT pk_direccion_cliente PRIMARY KEY (dni_cliente),
+  CONSTRAINT fk_direccion_cliente_dni_cliente FOREIGN KEY (dni_cliente) 
+    REFERENCES cliente(dni_cliente) ON DELETE CASCADE
+);
+
+-- ============================================================================
+-- 5. MÓDULO DE PROVEEDORES Y ABASTECIMIENTO
+-- ============================================================================
+
+-- PROVEEDOR: Entidad que suministra modelos y accesorios
+CREATE TABLE proveedor (
+  cuit_proveedor BIGINT NOT NULL,
+  razon_social VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  telefono VARCHAR(30) NOT NULL,
+  CONSTRAINT pk_proveedor PRIMARY KEY (cuit_proveedor)
+);
+
+-- DIRECCION_PROVEEDOR: Domicilio comercial del proveedor
+CREATE TABLE direccion_proveedor (
+  cuit_proveedor BIGINT NOT NULL,
+  calle VARCHAR(100) NOT NULL,
+  numero INT NOT NULL,
+  ciudad VARCHAR(100) NOT NULL,
+  provincia VARCHAR(100) NOT NULL,
+  codigo_postal VARCHAR(10) NOT NULL,
+  CONSTRAINT pk_direccion_proveedor PRIMARY KEY (cuit_proveedor),
+  CONSTRAINT fk_direccion_proveedor_cuit_proveedor FOREIGN KEY (cuit_proveedor) 
+    REFERENCES proveedor(cuit_proveedor) ON DELETE CASCADE
+);
+
+-- PROVISION_MOTOCICLETA: Relación N:M entre Proveedores y Modelos
+CREATE TABLE provision_motocicleta (
+  cuit_proveedor BIGINT NOT NULL,
+  id_modelo INT NOT NULL,
+  CONSTRAINT pk_provision_motocicleta PRIMARY KEY (cuit_proveedor, id_modelo),
+  CONSTRAINT fk_provision_motocicleta_cuit_proveedor FOREIGN KEY (cuit_proveedor) 
+    REFERENCES proveedor(cuit_proveedor),
+  CONSTRAINT fk_provision_motocicleta_id_modelo FOREIGN KEY (id_modelo) 
+    REFERENCES modelo_motocicleta(id_modelo)
+);
+
+-- ============================================================================
+-- 6 MÓDULO DE ACCESORIOS Y DETALLES
+-- ============================================================================
+
+-- ACCESORIO: Catálogo de repuestos e indumentaria
+CREATE TABLE accesorio (
+  id_accesorio INT NOT NULL IDENTITY(1,1),
+  descripcion VARCHAR(255) NOT NULL,
+  stock INT NOT NULL CONSTRAINT df_accesorio_stock DEFAULT 0,
+  categoria VARCHAR(50) NOT NULL,
+  precio_lista DECIMAL(12,2) NOT NULL,
+  precio_costo DECIMAL(12,2) NOT NULL,
+  CONSTRAINT pk_accesorio PRIMARY KEY (id_accesorio),
+  CONSTRAINT ck_accesorio_stock CHECK (stock >= 0),
+  CONSTRAINT ck_accesorio_precio_lista CHECK (precio_lista >= 0),
+  CONSTRAINT ck_accesorio_precio_costo CHECK (precio_costo >= 0)
+);
+
+-- PROVISION_ACCESORIO: Relación N:M entre Proveedores y Accesorios
+CREATE TABLE provision_accesorio (
+  cuit_proveedor BIGINT NOT NULL,
+  id_accesorio INT NOT NULL,
+  CONSTRAINT pk_provision_accesorio PRIMARY KEY (cuit_proveedor, id_accesorio),
+  CONSTRAINT fk_provision_accesorio_cuit_proveedor FOREIGN KEY (cuit_proveedor) 
+    REFERENCES proveedor(cuit_proveedor),
+  CONSTRAINT fk_provision_accesorio_id_accesorio FOREIGN KEY (id_accesorio) 
+    REFERENCES accesorio(id_accesorio)
+);
+
+-- DETALLE_VENTA_ACCESORIO: Relación N:M que registra los accesorios vendidos en cada venta
+CREATE TABLE detalle_venta_accesorio (
+  cod_venta INT NOT NULL,
+  id_accesorio INT NOT NULL,
+  cantidad INT NOT NULL,
+  precio_pactado DECIMAL(12,2) NOT NULL, -- Mantiene el valor pactado en el momento de la transacción
+  CONSTRAINT pk_detalle_venta_accesorio PRIMARY KEY (cod_venta, id_accesorio),
+  CONSTRAINT fk_detalle_venta_accesorio_venta FOREIGN KEY (cod_venta) 
+    REFERENCES venta(cod_venta),
+  CONSTRAINT fk_detalle_venta_accesorio_accesorio FOREIGN KEY (id_accesorio) 
+    REFERENCES accesorio(id_accesorio),
+  CONSTRAINT ck_detalle_venta_accesorio_cantidad CHECK (cantidad > 0),
+  CONSTRAINT ck_detalle_venta_accesorio_precio CHECK (precio_pactado >= 0)
+);
+
+-- ============================================================================
+-- 7. REGLAS DE NEGOCIO ADICIONALES (RN) Y TRAZABILIDAD
+-- ============================================================================
+
+-- COTIZACION: Presupuestos previos solicitados por clientes (RN12: 7 días corridos)
+CREATE TABLE cotizacion (
+  id_cotizacion INT NOT NULL IDENTITY(1,1),
+  fecha_emision DATE NOT NULL,
+  fecha_vencimiento DATE NOT NULL,
+  precio_cotizado DECIMAL(12,2) NOT NULL,
+  dni_cliente INT NOT NULL,
+  id_modelo INT NOT NULL,
+  CONSTRAINT pk_cotizacion PRIMARY KEY (id_cotizacion),
+  CONSTRAINT fk_cotizacion_dni_cliente FOREIGN KEY (dni_cliente) 
+    REFERENCES cliente(dni_cliente),
+  CONSTRAINT fk_cotizacion_id_modelo FOREIGN KEY (id_modelo) 
+    REFERENCES modelo_motocicleta(id_modelo),
+  CONSTRAINT ck_cotizacion_precio CHECK (precio_cotizado >= 0),
+  CONSTRAINT ck_cotizacion_validez_7_dias CHECK (fecha_vencimiento = DATEADD(day, 7, fecha_emision))
+);
+
+-- HISTORIAL_DE_PRECIO: Registro histórico de modificaciones de listas de precios
+CREATE TABLE historial_de_precio (
+  id_historial INT NOT NULL IDENTITY(1,1),
+  precio_nuevo DECIMAL(12,2) NOT NULL,
+  precio_anterior DECIMAL(12,2) NOT NULL,
+  fecha_modificacion DATE NOT NULL,
+  id_modelo INT NOT NULL,
+  CONSTRAINT pk_historial_de_precio PRIMARY KEY (id_historial),
+  CONSTRAINT fk_historial_de_precio_id_modelo FOREIGN KEY (id_modelo) 
+    REFERENCES modelo_motocicleta(id_modelo),
+  CONSTRAINT ck_historial_precio_nuevo CHECK (precio_nuevo >= 0),
+  CONSTRAINT ck_historial_precio_anterior CHECK (precio_anterior >= 0)
+);
+
+
+-- ============================================================================
+--  PERSONA
+-- ============================================================================
+INSERT INTO persona (dni, nombre, apellido, cuil, telefono, email)
+VALUES
+(30111222, 'Juan', 'Perez', 20301112225, '3794551234', 'juan.perez@gmail.com'),
+(32444555, 'Maria', 'Gomez', 27324445559, '3794123456', 'maria.gomez@gmail.com'),
+(28777888, 'Carlos', 'Lopez', 20287778883, '3794987654', 'carlos.lopez@gmail.com'),
+(35666999, 'Ana', 'Martinez', 27356669994, '3794567890', 'ana.martinez@gmail.com'),
+(31222333, 'Luis', 'Fernandez', 20312223336, '3794234567', 'luis.fernandez@gmail.com'),
+(29888777, 'Sofia', 'Ramirez', 27298887776, '3794345678', 'sofia.ramirez@gmail.com');
+
+SELECT * FROM persona;
+
+
+-- ============================================================================
+--  VENDEDOR
+-- ============================================================================
+INSERT INTO vendedor (dni_vendedor)
+VALUES
+(30111222),
+(28777888);
+
+SELECT * FROM vendedor;
+
+
+-- ============================================================================
+--  CLIENTES
+-- ============================================================================
+
+INSERT INTO cliente (dni_cliente, estado)
+VALUES
+(32444555, 'interesado'),
+(35666999, 'en proceso de compra'),
+(31222333, 'comprador'),
+(29888777, 'comprador');
+
+SELECT * FROM cliente;
+
+
+-- ============================================================================
+--  DIRECCIONES DE CLIENTES
+-- ============================================================================
+
+INSERT INTO direccion_cliente
+(dni_cliente, calle, numero, ciudad, provincia, codigo_postal)
+VALUES
+(32444555, 'Av. 3 de Abril', 1250, 'Corrientes', 'Corrientes', '3400'),
+(35666999, 'Junin', 850, 'Corrientes', 'Corrientes', '3400'),
+(31222333, 'San Martin', 1450, 'Corrientes', 'Corrientes', '3400'),
+(29888777, 'España', 720, 'Resistencia', 'Chaco', '3500');
+
+SELECT * FROM direccion_cliente;
+
+
+-- ============================================================================
+--  MODELOS DE MOTOCICLETAS
+-- ============================================================================
+
+INSERT INTO modelo_motocicleta
+(nombre_modelo, marca, cilindrada, color, anio, stock_disponible, precio_lista)
+VALUES
+('CB500F', 'Honda', 500, 'Rojo', 2025, 10, 8500000.00),
+('MT-03', 'Yamaha', 321, 'Azul', 2025, 7, 9200000.00),
+('Dominar 400', 'Bajaj', 373, 'Negro', 2025, 5, 7800000.00),
+('Z400', 'Kawasaki', 399, 'Verde', 2025, 4, 10500000.00);
+
+SELECT * FROM modelo_motocicleta;
+
+
+-- ============================================================================
+--  MOTOCICLETAS FISICAS
+-- ============================================================================
+
+INSERT INTO motocicleta
+(numero_chasis, numero_motor, id_modelo)
+VALUES
+('HONCB500F001', 'HONMOT500001', 1),
+('HONCB500F002', 'HONMOT500002', 1),
+('HONCB500F003', 'HONMOT500003', 1),
+('HONCB500F004', 'HONMOT500004', 1),
+
+('YAMMT03001', 'YAMMOT03001', 2),
+('YAMMT03002', 'YAMMOT03002', 2),
+('YAMMT03003', 'YAMMOT03003', 2),
+
+('BAJDOM40001', 'BAJMOT40001', 3),
+('BAJDOM40002', 'BAJMOT40002', 3),
+
+('KAWZ400001', 'KAWMOT40001', 4),
+('KAWZ400002', 'KAWMOT40002', 4);
+
+SELECT * FROM motocicleta;
+
+-- ============================================================================
+--  PROVEEDORES
+-- ============================================================================
+
+INSERT INTO proveedor
+(cuit_proveedor, razon_social, email, telefono)
+VALUES
+(30711223344, 'Motos Argentinas SA', 'ventas@motosargentinas.com', '3794556677'),
+(30722334455, 'Importadora del Litoral SA', 'contacto@importadoralitoral.com', '3794667788'),
+(30733445566, 'Repuestos del Nordeste SRL', 'ventas@repuestosnordeste.com', '3794778899');
+
+SELECT * FROM proveedor ;
+
+
+-- ============================================================================
+-- DIRECCIONES DE PROVEEDORES
+-- ============================================================================
+
+INSERT INTO direccion_proveedor
+(cuit_proveedor, calle, numero, ciudad, provincia, codigo_postal)
+VALUES
+(30711223344, 'Ruta Nacional 12', 3500, 'Corrientes', 'Corrientes', '3400'),
+(30722334455, 'Av. Independencia', 2450, 'Corrientes', 'Corrientes', '3400'),
+(30733445566, 'Av. Alberdi', 1800, 'Resistencia', 'Chaco', '3500');
+
+SELECT * FROM direccion_proveedor;
+
+-- ============================================================================
+-- PROVISION DE MOTOCICLETAS
+-- ============================================================================
+
+INSERT INTO provision_motocicleta
+(cuit_proveedor, id_modelo)
+VALUES
+(30711223344, 1),
+(30711223344, 2),
+(30722334455, 3),
+(30722334455, 4),
+(30733445566, 1),
+(30733445566, 3);
+
+SELECT * FROM provision_motocicleta;
+
+-- ============================================================================
+-- ACCESORIOS
+-- ============================================================================
+
+INSERT INTO accesorio
+(descripcion, stock, categoria, precio_lista, precio_costo)
+VALUES
+('Casco integral homologado', 20, 'Cascos', 180000.00, 110000.00),
+('Guantes para motociclista', 30, 'Indumentaria', 75000.00, 45000.00),
+('Campera de moto', 15, 'Indumentaria', 250000.00, 160000.00),
+('Baul trasero 45 litros', 10, 'Accesorios', 220000.00, 140000.00),
+('Parabrisas universal', 12, 'Accesorios', 150000.00, 95000.00);
+
+SELECT * FROM accesorio;
+
+-- ============================================================================
+-- PROVISION DE ACCESORIOS
+-- ============================================================================
+
+INSERT INTO provision_accesorio
+(cuit_proveedor, id_accesorio)
+VALUES
+(30711223344, 1),
+(30711223344, 2),
+(30722334455, 3),
+(30722334455, 4),
+(30733445566, 5),
+(30733445566, 1);
+
+SELECT * FROM provision_accesorio;
+
+
+-- ============================================================================
+-- VENTAS
+-- ============================================================================
+
+INSERT INTO venta
+(fecha, metodo_pago, precio_venta_moto, monto_total,
+ estado, dni_cliente, dni_vendedor, numero_chasis)
+VALUES
+('2026-09-10', 'Transferencia', 8500000.00, 8750000.00,
+ 'efectuada', 31222333, 30111222, 'HONCB500F001'),
+
+('2026-09-15', 'Tarjeta de credito', 9200000.00, 9275000.00,
+ 'efectuada', 29888777, 28777888, 'YAMMT03001');
+
+ SELECT * FROM venta;
+
+
+-- ============================================================================
+-- DETALLE DE ACCESORIOS VENDIDOS
+-- ============================================================================
+
+-- La primera venta incluye casco + guantes
+INSERT INTO detalle_venta_accesorio
+(cod_venta, id_accesorio, cantidad, precio_pactado)
+VALUES
+(1, 1, 1, 180000.00),
+(1, 2, 1, 75000.00);
+
+
+-- La segunda venta incluye guantes
+INSERT INTO detalle_venta_accesorio
+(cod_venta, id_accesorio, cantidad, precio_pactado)
+VALUES
+(2, 2, 1, 75000.00);
+
+ SELECT * FROM detalle_venta_accesorio;
+
+
+
+-- ============================================================================
+-- COTIZACIONES
+-- ============================================================================
+
+INSERT INTO cotizacion
+(fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo)
+VALUES
+('2026-09-01', '2026-09-08', 8500000.00, 32444555, 1),
+
+('2026-09-05', '2026-09-12', 9200000.00, 35666999, 2),
+
+('2026-09-15', '2026-09-22', 7800000.00, 32444555, 3);
+
+SELECT * FROM cotizacion;
+
+
+
+-- ============================================================================
+-- HISTORIAL DE PRECIOS
+-- ============================================================================
+
+INSERT INTO historial_de_precio
+(precio_nuevo, precio_anterior, fecha_modificacion, id_modelo)
+VALUES
+(8500000.00, 8000000.00, '2026-08-01', 1),
+(8500000.00, 8200000.00, '2026-09-01', 1),
+
+(9200000.00, 8900000.00, '2026-08-15', 2),
+(9200000.00, 9000000.00, '2026-09-05', 2),
+
+(7800000.00, 7500000.00, '2026-09-01', 3),
+
+(10500000.00, 10000000.00, '2026-09-10', 4);
+
+SELECT * FROM historial_de_precio;
+
+
+
+-- ============================================================================
+-- PRUEBAS
+-- ============================================================================
+INSERT INTO persona (dni, nombre, apellido, cuil, telefono, email)-- Ingresamos un dni repetido
+VALUES
+(30111222, 'Pedro', 'Gonzalez', 20200000001, '3794000000', 'pedro@gmail.com');
+
+-- "Violation of PRIMARY KEY constraint 'pk_persona_dni'. Cannot insert duplicate key in object 'dbo.persona'. The duplicate key value is (30111222)" porque dni
+--- no puede repetirse.
+
+
+INSERT INTO vendedor (dni_vendedor) -- Intentare crear  un vendedor cuyo DNI no existe en persona
+VALUES (99999999);
+-- "The INSERT statement conflicted with the FOREIGN KEY constraint "fk_vendedor_dni_vendedor". The conflict occurred in database "X MOTORS", table "dbo.persona", 
+-- column 'dni'" esto ocurre debido a fk_vendedor_dni_vendedor debido a que un vendedor se forma a partir de la tabla persona.
+
+
+INSERT INTO cliente (dni_cliente, estado) -- Intento ingresar un cliente el estado 'vendido'
+VALUES (30111222, 'vendido');
+--- "The INSERT statement conflicted with the CHECK constraint "ck_cliente_estado". The conflict occurred in database "X MOTORS", table "dbo.cliente", column 
+--- 'estado'", falla por ck_cliente_estado que solo permite ingresar como estado a interesado, en proceso de compra,y  comprador.
+
+
+INSERT INTO venta -- Intentare volver a vender que anteriormente ya se vendio.
+(fecha, metodo_pago, precio_venta_moto, monto_total,estado, dni_cliente, dni_vendedor, numero_chasis)
+VALUES
+('2026-09-30', 'Efectivo', 8500000.00, 8500000.00,'efectuada', 29888777, 28777888, 'HONCB500F001');
+-- "Violation of UNIQUE KEY constraint 'uq_venta_numero_chasis'. Cannot insert duplicate key in object 'dbo.venta'. The duplicate key value is (HONCB500F001)",
+--  falla porque la moto con numero_chasis HONCB500F001 ya fue vendida y debido a "CONSTRAINT uq_venta_numero_chasis UNIQUE (numero_chasis)" una misma moto física 
+--  no puede venderse dos veces.
+
+
+INSERT INTO cotizacion --- Probare la cotizacion de 7 dias.
+(fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo)
+VALUES
+('2026-10-01', '2026-10-09', 8500000, 32444555, 1);
+-- "The INSERT statement conflicted with the CHECK constraint "ck_cotizacion_validez_7_dias". The conflict occurred in database
+-- "X MOTORS", table "dbo.cotizacion".",
