@@ -88,8 +88,10 @@ CREATE TABLE venta (
   CONSTRAINT fk_venta_vendedor FOREIGN KEY (dni_vendedor) 
     REFERENCES vendedor(dni_vendedor),
   CONSTRAINT fk_venta_motocicleta FOREIGN KEY (numero_chasis) 
-    REFERENCES motocicleta(numero_chasis),
-  CONSTRAINT uq_venta_numero_chasis UNIQUE (numero_chasis) -- Una moto física se vende una sola vez
+    REFERENCES motocicleta(numero_chasis)
+    CREATE UNIQUE INDEX ux_venta_chasis_vigente -- una unidad de moto no puede estar en estado efectuado mas de una vez
+      ON venta (numero_chasis)                  -- (puede aparecer el mismo numero_chasis pero en diferentes estados).
+      WHERE estado = 'efectuada';
 );
 
 -- DIRECCION_CLIENTE: Extensión 1:1 de los datos de domicilio del cliente
