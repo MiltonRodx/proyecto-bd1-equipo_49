@@ -221,18 +221,4 @@ CREATE TABLE historial_de_precio (
   CONSTRAINT ck_historial_precio_anterior CHECK (precio_anterior >= 0)
 );
 
--- Una moto no puede estar en dos ventas EFECTUADAS a la vez.
--- anulacion vale 0 mientras la venta esta EFECTUADA y cod_venta cuando se anula.
-ALTER TABLE VENTA
-  ADD anulacion INT NOT NULL CONSTRAINT DF_VENTA_anulacion DEFAULT 0;
-
-UPDATE VENTA
- SET anulacion = cod_venta
- WHERE estado <> 'EFECTUADA';
-
-ALTER TABLE VENTA
-  ADD CONSTRAINT UQ_VENTA_numero_chasis UNIQUE (numero_chasis);
-
-ALTER TABLE VENTA
-  ADD CONSTRAINT UQ_VENTA_anulacion UNIQUE ( anulacion);
 
