@@ -70,9 +70,26 @@ Descuento y reintegro automático de stock (RN1, RN2, RN11), pasaje del cliente 
 
 **Orden de inserción:** `persona` → `vendedor`, `cliente` → `direccion_cliente` → `modelo_motocicleta` → `motocicleta` → `proveedor` → `direccion_proveedor` → `provision_motocicleta` → `accesorio` → `provision_accesorio` → `venta` → `detalle_venta_accesorio` → `cotizacion` → `historial_de_precio`
 
-**Nota:** si cliente y vendedor tienen 8 registros cada uno y no se solapan, `persona` necesita al menos 16.
 
-**Registros cargados por tabla:** **`[COMPLETAR]`**
+
+**Registros cargados por tabla: se usan iguales vendedores y clientes
+
+tabla	Registros
+persona	8 
+vendedor	8
+cliente	8
+direccion_cliente	8
+modelo_motocicleta	8
+motocicleta	8
+proveedor	8
+direccion_proveedor	8
+provision_motocicleta	8
+accesorio	8
+provision_accesorio	8
+venta	8
+detalle_venta_accesorio	8
+cotizacion	8
+historial_de_precio	8
 
 ## 6. Pruebas
 
