@@ -42,7 +42,7 @@ Entorno: SQL Server **`[COMPLETAR: versión]`** · Cliente: **`[COMPLETAR: SSMS 
 - **Ventas:** `venta`, `detalle_venta_accesorio`
 - **Reglas de negocio:** `cotizacion`, `historial_de_precio`
 
-**`[COMPLETAR: imagen del esquema relacional final]`**
+[](docs/etapa-02/esquema_relacional_etapa_02.png);
 
 ### 4.2 Claves y reglas de borrado
 
