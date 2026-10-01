@@ -30,7 +30,7 @@ CREATE DATABASE [X MOTORS];
 GO
 ```
 
-Entorno: SQL Server **`[COMPLETAR: versión]`** · Cliente: **`[COMPLETAR: SSMS / Azure Data Studio]`**
+Entorno: SQL Server 2022 · Cliente: SSMS / Azure Data Studio
 
 ## 4. Script DDL
 
@@ -117,8 +117,6 @@ Consultas de los reportes (stock actual, historial de compras, ventas por vended
 - Nomenclatura distinta a ERD/RS (`numero_chasis`, `cilindrada`, `monto_total`, `precio_pactado`). **`[COMPLETAR: unificar]`**
 
 ## 8. Entregables
-
-**`[COMPLETAR: copiar de la consigna]`**
 
 - [x] Script DDL
 - [x] Script DML (8 a 10 registros por tabla)
