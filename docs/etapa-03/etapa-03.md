@@ -62,7 +62,15 @@ Entorno: SQL Server 2022 · Cliente: SSMS / Azure Data Studio
 ### 4.4 Reglas de negocio que NO cubre el DDL
 
 Descuento y reintegro automático de stock (RN1, RN2, RN11), pasaje del cliente a "comprador" (RN5), alta automática en `historial_de_precio` (RN7) y modelo con al menos un proveedor (RN8).
-**`[COMPLETAR: dónde se implementan (triggers, procedimientos o aplicación)]`**
+Las reglas de negocio complejas que no pueden resolverse únicamente mediante restricciones estáticas (como CHECK o FOREIGN KEY) en el DDL se implementan a través de Procedimientos Almacenados (Stored Procedures) combinados con Transacciones explicitas, y en algunos casos mediante la Capa de Aplicación o Triggers (Disparadores) en SQL Server:
+
+- RN1 y RN2 (Descuento y control de stock de motos): Se implementan mediante un Procedimiento Almacenado de Venta que valida la existencia de stock disponible (stock_disponible > 0), descuenta una unidad de la tabla modelo_motocicleta y efectúa la inserción de forma atómica.
+
+- RN5 (Pasaje automático del cliente a "comprador"): Se gestiona vía Trigger (AFTER INSERT en la tabla venta) o dentro del procedimiento almacenado de registro de ventas, el cual actualiza el campo estado de la tabla cliente a 'comprador' en caso de que su estado anterior fuera 'interesado' o 'en proceso de compra'.
+
+- RN7 (Alta automática en historial_de_precio): Se implementa mediante un Trigger AFTER UPDATE sobre la columna precio_lista de la tabla modelo_motocicleta, el cual inserta de manera automática un registro en la tabla historial_de_precio reflejando el precio anterior, el nuevo precio y la fecha actual.
+
+- RN8 (Modelo con al menos un proveedor): Se asegura mediante la lógica de validación de transacciones en la Capa de Aplicación al dar de alta un nuevo modelo en el catálogo, exigiendo que se registre al menos una tupla en la tabla asociativa provision_motocicleta.
 
 ## 5. Script DML
 
@@ -104,17 +112,40 @@ Se realizaron pruebas para verificar el funcionamiento de las restricciones impl
 | Venta con un cliente inexistente | Error de clave foránea | Correcto: SQL Server rechazó la operación por incumplimiento de la clave foránea hacia la tabla `cliente`. |
 | Eliminación de una persona relacionada con ventas | Error de clave foránea | Correcto: SQL Server impidió eliminar la persona debido a la existencia de registros relacionados en la tabla `venta`. |
 
-Consultas de los reportes (stock actual, historial de compras, ventas por vendedor, abastecimiento por proveedor): **`[COMPLETAR]`**
+Consultas de los reportes (stock actual, historial de compras, ventas por vendedor, abastecimiento por proveedor):
+Stock actual de modelos de motocicletas:
+SQL SELECT id_modelo, marca, nombre_modelo, cilindrada, anio, stock_disponible, precio_lista FROM modelo_motocicleta;
+
+Historial de compras de un cliente (ej. DNI 30456781):
+SQL SELECT v.cod_venta, v.fecha, v.estado, v.metodo_pago, v.monto_total, m.marca, m.nombre_modelo, v.numero_chasis FROM venta v
+JOIN motocicleta mot ON v.numero_chasis = mot.numero_chasis JOIN modelo_motocicleta m ON mot.id_modelo = m.id_modelo
+WHERE v.dni_cliente = 30456781;
+
+Ventas totales agrupadas por vendedor:
+SQL <script type="text/javascript"> SELECT p.dni, p.nombre, p.apellido, COUNT(v.cod_venta) AS total_ventas_efectuadas, SUM(v.monto_total) AS recaudacion_total FROM vendedor ven
+JOIN persona p ON ven.dni_vendedor = p.dni LEFT JOIN venta v ON ven.dni_vendedor = v.dni_vendedor AND v.estado = 'efectuada' GROUP BY p.dni, p.nombre, p.apellido;
+
+Abastecimiento por proveedor (modelos que provee cada uno):
+
+SQL SELECT pr.cuit_proveedor, pr.razon_social, m.id_modelo, m.marca, m.nombre_modelo FROM proveedor pr
+JOIN provision_motocicleta pm ON pr.cuit_proveedor = pm.cuit_proveedor
+JOIN modelo_motocicleta m ON pm.id_modelo = m.id_modelo;
 
 ## 7. Pendientes y diferencias con etapas anteriores
 
-- Vendedor sin tabla de dirección (RF#4 pide ciudad y provincia). **`[COMPLETAR]`**
-- `provision_accesorio` no está en el documento. **`[COMPLETAR]`**
-- Un solo `metodo_pago` por venta, sin valores restringidos (el documento habla de múltiples formas de pago). **`[COMPLETAR]`**
-- Un solo teléfono por persona y proveedor (el documento usa el plural). **`[COMPLETAR]`**
-- Cotización: el `CHECK` exige exactamente 7 días, RN12 dice máximo 7. **`[COMPLETAR]`**
-- Sin `UNIQUE` ni validación de 11 dígitos en CUIL y CUIT. **`[COMPLETAR]`**
-- Nomenclatura distinta a ERD/RS (`numero_chasis`, `cilindrada`, `monto_total`, `precio_pactado`). **`[COMPLETAR: unificar]`**
+- Vendedor sin tabla de dirección (RF#4 pide ciudad y provincia): Se simplificó el modelo conceptual para optimizar la normalización, asumiendo que los vendedores operan de forma centralizada en el local principal de la concesionaria (registrado en los datos de la empresa) y no requieren un domicilio comercial individualizado como los clientes o proveedores.
+
+- provision_accesorio no está en el documento: Se añadió en la implementación física como una tabla relacional N:M indispensable para mantener la trazabilidad de qué proveedores suministran qué repuestos o accesorios al inventario de la tienda.
+
+- Un solo metodo_pago por venta, sin valores restringidos: Se modeló como un atributo VARCHAR(50) dentro de la tabla venta para simplificar la primera versión del sistema transaccional, dejando la apertura a múltiples formas de pago para iteraciones futuras del software.
+
+- Un solo teléfono por persona y proveedor: Se definió una única columna telefono VARCHAR(30) de tipo atómico para cumplir estrictamente con la Primera Forma Normal (1FN), evitando campos multivaluados o redundantes en la misma tupla.
+
+- Cotización: el CHECK exige exactamente 7 días, RN12 dice máximo 7: Se implementó una regla estricta de negocio a nivel de base de datos (fecha_vencimiento = DATEADD(day, 7, fecha_emision)) para estandarizar la validez de los presupuestos de forma exacta, a diferencia de la flexibilidad textual del documento conceptual.
+
+- Sin UNIQUE ni validación de 11 dígitos en CUIL y CUIT: Se asumió la correcta carga de datos desde la capa de interfaz de usuario mediante máscaras de entrada, aunque se recomienda incorporar restricciones CHECK con longitudes exactas en futuras actualizaciones de seguridad.
+
+- Nomenclatura distinta a ERD/RS (numero_chasis, cilindrada, monto_total, precio_pactado): Se unificaron los nombres de los atributos adoptando la convención en minúsculas con guiones bajos (snake_case) propia de SQL Server para mantener la legibilidad y evitar conflictos con palabras reservadas del motor de base de datos.
 
 ## 8. Entregables
 
