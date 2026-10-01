@@ -114,22 +114,22 @@ Se realizaron pruebas para verificar el funcionamiento de las restricciones impl
 
 Consultas de los reportes (stock actual, historial de compras, ventas por vendedor, abastecimiento por proveedor):
 
-Stock actual de modelos de motocicletas:
+- Stock actual de modelos de motocicletas:
 
 SQL SELECT id_modelo, marca, nombre_modelo, cilindrada, anio, stock_disponible, precio_lista FROM modelo_motocicleta;
 
-Historial de compras de un cliente (ej. DNI 30456781):
+- Historial de compras de un cliente (ej. DNI 30456781):
 
 SQL SELECT v.cod_venta, v.fecha, v.estado, v.metodo_pago, v.monto_total, m.marca, m.nombre_modelo, v.numero_chasis FROM venta v
 JOIN motocicleta mot ON v.numero_chasis = mot.numero_chasis JOIN modelo_motocicleta m ON mot.id_modelo = m.id_modelo
 WHERE v.dni_cliente = 30456781;
 
-Ventas totales agrupadas por vendedor:
+- Ventas totales agrupadas por vendedor:
 
 SQL <script type="text/javascript"> SELECT p.dni, p.nombre, p.apellido, COUNT(v.cod_venta) AS total_ventas_efectuadas, SUM(v.monto_total) AS recaudacion_total FROM vendedor ven
 JOIN persona p ON ven.dni_vendedor = p.dni LEFT JOIN venta v ON ven.dni_vendedor = v.dni_vendedor AND v.estado = 'efectuada' GROUP BY p.dni, p.nombre, p.apellido;
 
-Abastecimiento por proveedor (modelos que provee cada uno):
+- Abastecimiento por proveedor (modelos que provee cada uno):
 
 SQL SELECT pr.cuit_proveedor, pr.razon_social, m.id_modelo, m.marca, m.nombre_modelo FROM proveedor pr
 JOIN provision_motocicleta pm ON pr.cuit_proveedor = pm.cuit_proveedor
