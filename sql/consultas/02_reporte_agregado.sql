@@ -84,3 +84,49 @@ LEFT JOIN venta v ON dva.cod_venta = v.cod_venta
 GROUP BY a.id_accesorio, a.descripcion, a.categoria, a.stock
 ORDER BY cantidad_total_vendida DESC, ingreso_total_accesorio DESC;
 GO
+
+-- ============================================================================
+-- REPORTE AGREGADO 4: VENTAS POR MÉTODO DE PAGO
+-- Incluye: método de pago, cantidad de ventas, monto total ingresado, porcentaje estimado
+-- Filtros opcionales: @fecha_desde, @fecha_hasta (NULL = sin filtro)
+-- ============================================================================
+DECLARE @fecha_desde DATE = NULL;
+DECLARE @fecha_hasta DATE = NULL;
+
+SELECT 
+    v.metodo_pago,
+    COUNT(v.cod_venta) AS total_ventas,
+    SUM(v.monto_total) AS monto_total_recaudado,
+    CASE WHEN COUNT(v.cod_venta) > 0 
+         THEN SUM(v.monto_total) / COUNT(v.cod_venta) 
+         ELSE 0 END AS ticket_promedio_medio_pago
+FROM venta v
+WHERE v.estado = 'efectuada'
+    AND (@fecha_desde IS NULL OR v.fecha >= @fecha_desde)
+    AND (@fecha_hasta IS NULL OR v.fecha <= @fecha_hasta)
+GROUP BY v.metodo_pago
+ORDER BY monto_total_recaudado DESC;
+GO
+
+-- ============================================================================
+-- REPORTE AGREGADO 5: TOP CLIENTES (RANKING DE COMPRAS)
+-- Incluye: DNI, nombre y apellido del cliente, cantidad de motos compradas, dinero total gastado
+-- Filtros opcionales: @fecha_desde, @fecha_hasta (NULL = sin filtro)
+-- ============================================================================
+DECLARE @fecha_desde DATE = NULL;
+DECLARE @fecha_hasta DATE = NULL;
+
+SELECT 
+    c.dni_cliente,
+    p.nombre + ' ' + p.apellido AS cliente,
+    COUNT(v.cod_venta) AS motos_compradas,
+    SUM(v.monto_total) AS inversion_total
+FROM cliente c
+JOIN persona p ON c.dni_cliente = p.dni
+JOIN venta v ON c.dni_cliente = v.dni_cliente
+WHERE v.estado = 'efectuada'
+    AND (@fecha_desde IS NULL OR v.fecha >= @fecha_desde)
+    AND (@fecha_hasta IS NULL OR v.fecha <= @fecha_hasta)
+GROUP BY c.dni_cliente, p.nombre, p.apellido
+ORDER BY inversion_total DESC, motos_compradas DESC;
+GO
