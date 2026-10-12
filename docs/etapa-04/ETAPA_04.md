@@ -28,7 +28,7 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 |---|---|---|
 | `01_factura.sql` | Factura completa: cabecera (cliente, vendedor, moto), detalle (moto + accesorios), totales + auditoría de integridad | Factura/comprobante con subtotales y total |
 | `02_reporte_agregado.sql` | 3 reportes: ventas por vendedor, ventas por modelo, accesorios más vendidos (con filtros de fecha opcionales) | Reporte agregado (`GROUP BY`, `SUM`, `COUNT`) |
-| `03_avanzada.sql` | 2 consultas: clientes recurrentes (HAVING), cotizaciones vencidas sin concretar (NOT EXISTS) | Consulta avanzada (≥3 JOIN + HAVING/subconsultas) |
+| `03_avanzada.sql` | 4 consultas: clientes recurrentes (HAVING), cotizaciones vencidas sin concretar (NOT EXISTS), vendedores estrella con accesorios (HAVING), motos sin historial comercial (NOT EXISTS) | Consulta avanzada (≥3 JOIN + HAVING/subconsultas) |
 
 **Orden:** Ejecutar sobre la base `[X MOTORS]` ya poblada con el DML de Etapa III.
 
@@ -82,6 +82,20 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 - **Regla negocio:** RN12 (cotización 7 días) + RN5 (estado cliente)
 - **Uso:** Acción comercial proactiva, recuperación de leads
 
+#### Consulta 3: Vendedores Estrella con Ventas de Accesorios
+- **JOINs:** 4 (`persona → vendedor → venta → detalle_venta_accesorio`)
+- **Cláusula avanzada:** `HAVING COUNT(DISTINCT v.cod_venta) >= 1`
+- **Métricas:** Ventas con accesorios, total recaudado en accesorios, legajo vendedor
+- **Regla negocio:** RN9 (vendedor responsable), RN10 (accesorios opcionales)
+- **Uso:** Incentivos por venta cruzada, ranking de vendedores por upselling
+
+#### Consulta 4: Motos Físicas Sin Historial Comercial (Stock Estancado)
+- **JOINs:** 2 (`motocicleta → modelo_motocicleta`) + 2 subconsultas `NOT EXISTS`
+- **Cláusula avanzada:** Doble `NOT EXISTS` (sin cotizaciones + sin ventas)
+- **Métricas:** Chasis, motor, marca, modelo, precio lista
+- **Regla negocio:** RN1/RN2 (stock), RN8 (trazabilidad proveedor)
+- **Uso:** Identificar stock muerto, acciones de promoción/descuento, rotación de inventario
+
 ---
 
 ## 5. Decisiones de diseño
@@ -108,6 +122,8 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 | `02_reporte_agregado.sql` | Con `@fecha_desde='2026-06-01'` | OK — solo ventas desde junio |
 | `03_avanzada.sql` Consulta 1 | Datos actuales | OK — devuelve clientes con >1 compra (ej. DNI 30456781, 35123903) |
 | `03_avanzada.sql` Consulta 2 | Datos actuales | OK — devuelve cotizaciones vencidas de clientes sin compra |
+| `03_avanzada.sql` Consulta 3 | Datos actuales | OK — devuelve vendedores con ventas de accesorios |
+| `03_avanzada.sql` Consulta 4 | Datos actuales | OK — devuelve motos físicas sin cotizaciones ni ventas |
 
 ---
 
@@ -115,7 +131,7 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 
 - [x] `sql/consultas/01_factura.sql` — Factura parametrizada con auditoría
 - [x] `sql/consultas/02_reporte_agregado.sql` — 3 reportes de gestión con filtros de fecha
-- [x] `sql/consultas/03_avanzada.sql` — 2 consultas avanzadas (HAVING + NOT EXISTS)
+- [x] `sql/consultas/03_avanzada.sql` — 4 consultas avanzadas (2× HAVING + 2× NOT EXISTS)
 - [x] `docs/etapa-04/ETAPA_04.md` — Esta documentación
 
 **Fecha de entrega:** **16 de octubre de 2026** · GitHub · Manifiesto individual por AV Moodle.

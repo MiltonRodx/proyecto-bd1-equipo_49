@@ -1,9 +1,11 @@
 -- ============================================================================
 -- ETAPA IV - 03 CONSULTAS AVANZADAS (JOINs + HAVING / SUBCONSULTAS)
 -- Sistema: X Motors - Grupo 49. Motor: SQL Server. Base [X MOTORS] cargada.
--- Descripción: Dos consultas de análisis de negocio con ≥3 JOINs cada una.
+-- Descripción: Cuatro consultas de análisis de negocio con ≥3 JOINs cada una.
 --   1. Clientes recurrentes (HAVING) - Fidelización / VIP
 --   2. Cotizaciones vencidas sin concretar (NOT EXISTS) - Oportunidades perdidas RN12
+--   3. Vendedores estrella con accesorios (HAVING) - Upselling / Incentivos
+--   4. Motos físicas sin historial comercial (NOT EXISTS) - Stock estancado
 -- ============================================================================
 
 USE [X MOTORS];
