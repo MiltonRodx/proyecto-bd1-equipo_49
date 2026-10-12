@@ -76,3 +76,52 @@ WHERE cot.fecha_vencimiento < GETDATE()  -- cotización vencida
   )
 ORDER BY dias_desde_vencimiento DESC, cot.precio_cotizado DESC;
 GO
+
+-- ============================================================================
+-- CONSULTA 3: VENDEDORES ESTRELLA CON VENTAS DE ACCESORIOS 
+-- Objetivo: Detectar vendedores que hayan concretado al menos 2 ventas 'efectuadas'
+-- que incluyan de forma obligatoria ventas de accesorios adicionales.
+-- ============================================================================
+SELECT 
+    pv.dni AS dni_vendedor,
+    pv.nombre + ' ' + pv.apellido AS vendedor,
+    vd.legajo,
+    COUNT(DISTINCT v.cod_venta) AS ventas_con_accesorios,
+    SUM(dva.cantidad * dva.precio_pactado) AS total_recaudado_accesorios
+FROM persona AS pv
+JOIN vendedor AS vd ON vd.dni_vendedor = pv.dni
+JOIN venta AS v ON v.dni_vendedor = vd.dni_vendedor AND v.estado = 'efectuada'
+JOIN detalle_venta_accesorio AS dva ON dva.cod_venta = v.cod_venta
+GROUP BY pv.dni, pv.nombre, pv.apellido, vd.legajo
+HAVING COUNT(DISTINCT v.cod_venta) >= 1
+ORDER BY ventas_con_accesorios DESC, total_recaudado_accesorios DESC;
+GO
+
+
+-- ============================================================================
+-- CONSULTA 4: MOTOS FÍSICAS SIN HISTORIAL COMERCIAL (STOCK ESTANCADO) 
+-- Objetivo: Listar aquellas motocicletas físicas dadas de alta en stock que 
+-- NOT EXISTS: No registren ninguna cotización previa ni tampoco ninguna venta.
+-- ============================================================================
+SELECT 
+    m.numero_chasis,
+    m.numero_motor,
+    mo.marca,
+    mo.nombre_modelo,
+    mo.precio_lista
+FROM motocicleta AS m
+JOIN modelo_motocicleta AS mo ON mo.id_modelo = m.id_modelo
+WHERE NOT EXISTS (
+        -- Verifica que la moto nunca haya sido cotizada
+        SELECT 1 
+        FROM cotizacion AS cot 
+        WHERE cot.id_modelo = m.id_modelo
+    )
+  AND NOT EXISTS (
+        -- Verifica que la moto nunca haya sido vendida
+        SELECT 1 
+        FROM venta AS v 
+        WHERE v.numero_chasis = m.numero_chasis
+    )
+ORDER BY mo.marca, mo.nombre_modelo;
+GO
