@@ -19,7 +19,7 @@
 | I. Requerimientos | ¿Qué necesita el negocio? | [`docs/etapa-01/`](docs/etapa-01/) | [`ETAPA_01.md`](docs/etapa-01/ETAPA_01.md) + PDF entregable | ✅ Entregada (04/09) |
 | II. Modelado | ¿Cómo representamos la información? | [`docs/etapa-02/`](docs/etapa-02/) | [`ETAPA_02.md`](docs/etapa-02/ETAPA_02.md) + DER + relacional 3FN | ✅ Entregada (11/09) |
 | III. Implementación | ¿Cómo construimos la BD? | [`docs/etapa-03/`](docs/etapa-03/) + [`sql/ddl/`](sql/ddl/) + [`sql/dml/`](sql/dml/) | DDL + DML | ✅ Entregada (30/09) |
-| IV. Consultas | ¿Cómo obtenemos información? | [`docs/etapa-04/`](docs/etapa-04/) + [`sql/consultas/`](sql/consultas/) | Factura, reporte agregado, consulta avanzada | ⏳ Pendiente |
+| IV. Consultas | ¿Cómo obtenemos información? | [`docs/etapa-04/`](docs/etapa-04/) + [`sql/consultas/`](sql/consultas/) | Factura, reporte agregado, consulta avanzada | ✅ Entregada (16/10) |
 | V. Temas técnicos | ¿Cómo la hacemos robusta? | [`docs/etapa-05/`](docs/etapa-05/) + [`sql/tecnico/`](sql/tecnico/) | Procedimientos, transacciones, triggers, seguridad, índices | ⏳ Pendiente |
 
 Documentos fuente por etapa:
@@ -114,7 +114,7 @@ Procedimientos y funciones, transacciones, triggers de auditoría, seguridad e �
 | I. Requerimientos | Requerimientos + reglas | viernes 04/09 |
 | II. Modelado | DER + relacional + 3FN | viernes 11/09 |
 | III. Implementación | DDL + DML | miércoles 30/09 |
-| IV. Consultas | SQL + casos de uso | — |
+| IV. Consultas | SQL + casos de uso | 16/10 |
 | V. Temas técnicos | Robustez | — |
 
 </details>
