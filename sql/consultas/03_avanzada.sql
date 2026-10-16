@@ -126,3 +126,65 @@ WHERE NOT EXISTS (
     )
 ORDER BY mo.marca, mo.nombre_modelo;
 GO
+
+
+-- ============================================================================
+-- CONSULTA 5: PROOVEDORES CON MAYOR VARIEDAD Y VALOR DE STOCK SUMINISTRADO
+-- Objetivo: Analizar qué proveedores abastecen una mayor cantidad de modelos
+-- de motocicletas y accesorios, sumando el valor total potencial de lista de
+-- sus productos para evaluar alianzas comerciales.
+-- ============================================================================
+
+SELECT 
+    p.cuit_proveedor,
+    p.razon_social,
+    COUNT(DISTINCT pm.id_modelo) AS cantidad_modelos_provistos,
+    COUNT(DISTINCT pa.id_accesorio) AS cantidad_accesorios_provistos,
+    ISNULL(SUM(m.precio_lista), 0) AS valor_total_modelos_lista
+FROM proveedor AS p
+LEFT JOIN provision_motocicleta AS pm ON pm.cuit_proveedor = p.cuit_proveedor
+LEFT JOIN modelo_motocicleta AS m ON m.id_modelo = pm.id_modelo
+LEFT JOIN provision_accesorio AS pa ON pa.cuit_proveedor = p.cuit_proveedor
+GROUP BY p.cuit_proveedor, p.razon_social
+ORDER BY cantidad_modelos_provistos DESC, valor_total_modelos_lista DESC;
+GO
+
+
+-- ============================================================================
+-- CONSULTA 6: MODELOS DE MOTOCICLETAS CON MAYOR IMPACTO EN VENTAS
+-- Objetivo: Determinar cuáles son los modelos que generan mayor recaudación 
+-- real para la empresa mediante ventas efectuadas.
+-- ============================================================================
+
+SELECT 
+    mo.id_modelo,
+    mo.marca,
+    mo.nombre_modelo,
+    COUNT(v.cod_venta) AS total_unidades_vendidas,
+    SUM(v.precio_venta_moto) AS recaudacion_total_motos,
+    CAST(AVG(v.precio_venta_moto) AS DECIMAL(12,2)) AS precio_venta_promedio
+FROM modelo_motocicleta AS mo
+JOIN motocicleta AS m ON m.id_modelo = mo.id_modelo
+JOIN venta AS v ON v.numero_chasis = m.numero_chasis AND v.estado = 'efectuada'
+GROUP BY mo.id_modelo, mo.marca, mo.nombre_modelo
+ORDER BY recaudacion_total_motos DESC;
+GO
+
+
+-- ============================================================================
+-- CONSULTA 7: ANÁLISIS DE MÉTODOS DE PAGO MÁS UTILIZADOS Y VOLUMEN RECAUDADO
+-- Objetivo: Conocer las preferencias de pago de los clientes al concretar la 
+-- compra de una moto para negociar comisiones o acuerdos con entidades 
+-- financieras o pasarelas de pago.
+-- ============================================================================
+
+SELECT 
+    metodo_pago,
+    COUNT(cod_venta) AS cantidad_operaciones,
+    SUM(monto_total) AS monto_total_recaudado,
+    CAST(AVG(monto_total) AS DECIMAL(12,2)) AS ticket_promedio_operacion
+FROM venta
+WHERE estado = 'efectuada'
+GROUP BY metodo_pago
+ORDER BY monto_total_recaudado DESC;
+GO
