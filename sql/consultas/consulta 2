@@ -1,0 +1,35 @@
+-- ETAPA IV - CONSULTA 2
+-- Reporte de ventas por vendedor.
+
+-- Defino el período que queremos analizar.
+DECLARE @fecha_inicio DATE = '2026-01-01';
+DECLARE @fecha_fin DATE = '2026-12-31';
+
+SELECT
+    ve.dni_vendedor,
+    p.nombre + ' ' + p.apellido AS vendedor,
+
+    -- Cantidad de ventas realizadas.
+    COUNT(v.cod_venta) AS cantidad_ventas,
+
+    -- Sumo de los importes registrados en las ventas.
+    SUM(v.monto_total) AS total_vendido
+
+FROM vendedor ve
+INNER JOIN persona p
+    ON ve.dni_vendedor = p.dni
+INNER JOIN venta v
+    ON ve.dni_vendedor = v.dni_vendedor
+
+-- Filtro las ventas por fecha.
+WHERE v.fecha >= @fecha_inicio
+  AND v.fecha < DATEADD(DAY, 1, @fecha_fin)
+
+-- Agrupo los resultados por vendedor.
+GROUP BY
+    ve.dni_vendedor,
+    p.nombre,
+    p.apellido
+
+-- Ordeno desde el vendedor que más vendió.
+ORDER BY total_vendido DESC;
