@@ -132,41 +132,7 @@ ORDER BY inversion_total DESC, motos_compradas DESC;
 GO
 
 -- ============================================================================
--- REPORTE AGREGADO 6: EFECTIVIDAD DE COTIZACIONES POR MODELO
--- Incluye: modelo, cantidad de cotizaciones emitidas, cotizaciones concretadas y tasa de conversión %
--- Filtros opcionales: @fecha_desde, @fecha_hasta (NULL = sin filtro)
--- ============================================================================
-DECLARE @fecha_desde DATE = NULL;  -- Ej: '2026-01-01'
-DECLARE @fecha_hasta DATE = NULL;  -- Ej: '2026-12-31'
-
-SELECT 
-    mo.id_modelo,
-    mo.marca,
-    mo.nombre_modelo,
-    COUNT(cot.id_cotizacion) AS total_cotizaciones_emitidas,
-    COUNT(v.cod_venta) AS cotizaciones_concretadas_venta,
-    CASE 
-        WHEN COUNT(cot.id_cotizacion) > 0 
-        THEN CAST((CAST(COUNT(v.cod_venta) AS FLOAT) / COUNT(cot.id_cotizacion)) * 100 AS DECIMAL(5,2))
-        ELSE 0 
-    END AS tasa_conversion_porcentaje
-FROM modelo_motocicleta mo
-LEFT JOIN cotizacion cot ON mo.id_modelo = cot.id_modelo
-    AND (@fecha_desde IS NULL OR cot.fecha_emision >= @fecha_desde)
-    AND (@fecha_hasta IS NULL OR cot.fecha_emision <= @fecha_hasta)
--- Relacionamos para ver si esa misma cotización derivó en una venta del cliente para ese modelo
-LEFT JOIN venta v ON v.dni_cliente = cot.dni_cliente 
-    AND v.estado = 'efectuada'
-    AND EXISTS (
-        SELECT 1 FROM motocicleta m 
-        WHERE m.numero_chasis = v.numero_chasis AND m.id_modelo = cot.id_modelo
-    )
-GROUP BY mo.id_modelo, mo.marca, mo.nombre_modelo
-ORDER BY tasa_conversion_porcentaje DESC, total_cotizaciones_emitidas DESC;
-GO
-
--- ============================================================================
--- REPORTE AGREGADO 7: VENTAS POR UBICACIÓN GEOGRÁFICA (PROVINCIA / CIUDAD)
+-- REPORTE AGREGADO 6: VENTAS POR UBICACIÓN GEOGRÁFICA (PROVINCIA / CIUDAD)
 -- Incluye: provincia, ciudad, cantidad de operaciones, monto total facturado y ticket promedio
 -- Filtros opcionales: @fecha_desde, @fecha_hasta (NULL = sin filtro)
 -- ============================================================================
@@ -193,25 +159,3 @@ GROUP BY dc.provincia, dc.ciudad
 ORDER BY monto_total_facturado DESC, total_ventas DESC;
 GO
 
--- ============================================================================
--- REPORTE AGREGADO 8: STOCK FÍSICO DISPONIBLE Y TIEMPO EN INVENTARIO
--- Incluye: chasis, motor, marca, modelo, precio de lista y días de permanencia en stock
--- ============================================================================
-SELECT 
-    m.numero_chasis,
-    m.numero_motor,
-    mo.marca,
-    mo.nombre_modelo,
-    mo.cilindrada,
-    mo.precio_lista
-FROM motocicleta m
-JOIN modelo_motocicleta mo ON m.id_modelo = mo.id_modelo
-WHERE NOT EXISTS (
-    -- Filtra solo las motos que NO tienen una venta en estado 'efectuada'
-    SELECT 1 
-    FROM venta v 
-    WHERE v.numero_chasis = m.numero_chasis 
-      AND v.estado = 'efectuada'
-)
-ORDER BY mo.precio_lista DESC;
-GO

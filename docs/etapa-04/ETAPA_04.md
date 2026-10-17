@@ -27,8 +27,8 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 | Archivo | Contenido | Requisito cubierto |
 |---|---|---|
 | `01_factura.sql` | Factura completa: cabecera (cliente, vendedor, moto), detalle (moto + accesorios), totales + auditoría de integridad | Factura/comprobante con subtotales y total |
-| `02_reporte_agregado.sql` | 3 reportes: ventas por vendedor, ventas por modelo, accesorios más vendidos (con filtros de fecha opcionales) | Reporte agregado (`GROUP BY`, `SUM`, `COUNT`) |
-| `03_avanzada.sql` | 4 consultas: clientes recurrentes (HAVING), cotizaciones vencidas sin concretar (NOT EXISTS), vendedores estrella con accesorios (HAVING), motos sin historial comercial (NOT EXISTS) | Consulta avanzada (≥3 JOIN + HAVING/subconsultas) |
+| `02_reporte_agregado.sql` | 6 reportes: ventas por vendedor, ventas por modelo, accesorios más vendidos, ventas por método de pago, top clientes y ventas por ubicación geográfica (con filtros de fecha opcionales) | Reporte agregado (`GROUP BY`, `SUM`, `COUNT`) |
+| `03_avanzada.sql` | 5 consultas: clientes recurrentes (HAVING), cotizaciones vencidas sin concretar (NOT EXISTS), vendedores estrella con accesorios (HAVING), motos sin historial comercial (NOT EXISTS) y proveedores con mayor variedad/valor de stock (JOINs) | Consulta avanzada (≥3 JOIN + HAVING/subconsultas) |
 
 **Orden:** Ejecutar sobre la base `[X MOTORS]` ya poblada con el DML de Etapa III.
 
@@ -60,6 +60,9 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 | **Ventas por vendedor** | Ranking de vendedores por facturación | Total ventas, monto total, ticket promedio |
 | **Ventas por modelo** | Performance de cada modelo | Unidades vendidas, monto total, precio promedio, stock actual |
 | **Accesorios más vendidos** | Demanda de accesorios | Cantidad total, ingreso total, precio promedio pactado, stock actual |
+| **Ventas por método de pago** | Preferencias de pago de los clientes | Cantidad de operaciones, monto recaudado, ticket promedio |
+| **Top clientes** | Ranking de clientes por compras | Motos compradas, inversión total |
+| **Ventas por ubicación geográfica** | Distribución de las ventas por provincia/ciudad | Operaciones, monto facturado, ticket promedio |
 
 **Reglas de negocio cubiertas:** RN1/RN2 (stock), RN9 (vendedor responsable), RN10 (accesorios opcionales).
 
@@ -96,6 +99,13 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 - **Regla negocio:** RN1/RN2 (stock), RN8 (trazabilidad proveedor)
 - **Uso:** Identificar stock muerto, acciones de promoción/descuento, rotación de inventario
 
+#### Consulta 5: Proveedores con Mayor Variedad y Valor de Stock
+- **JOINs:** 4 (`proveedor → provision_motocicleta → modelo_motocicleta` + `provision_accesorio`)
+- **Cláusula avanzada:** subconsultas agregadas con `GROUP BY` por proveedor para evitar el *fan-out* de filas
+- **Métricas:** Cantidad de modelos provistos, cantidad de accesorios provistos, valor total de lista de los modelos
+- **Regla negocio:** RN8 (trazabilidad proveedor)
+- **Uso:** Evaluar alianzas comerciales y capacidad de abastecimiento
+
 ---
 
 ## 5. Decisiones de diseño
@@ -120,18 +130,20 @@ Implementar en **SQL Server** las consultas que resuelven los casos de uso de in
 | `01_factura.sql` | Venta 4 (cancelada) | OK — muestra estado cancelada, montos registrados |
 | `02_reporte_agregado.sql` | Sin filtros | OK — 8 vendedores, 10 modelos, 10 accesorios listados |
 | `02_reporte_agregado.sql` | Con `@fecha_desde='2026-06-01'` | OK — solo ventas desde junio |
+| `02_reporte_agregado.sql` Reporte 6 | Datos actuales | OK — ventas agrupadas por provincia/ciudad |
 | `03_avanzada.sql` Consulta 1 | Datos actuales | OK — devuelve clientes con >1 compra (ej. DNI 30456781, 35123903) |
 | `03_avanzada.sql` Consulta 2 | Datos actuales | OK — devuelve cotizaciones vencidas de clientes sin compra |
 | `03_avanzada.sql` Consulta 3 | Datos actuales | OK — devuelve vendedores con ventas de accesorios |
 | `03_avanzada.sql` Consulta 4 | Datos actuales | OK — devuelve motos físicas sin cotizaciones ni ventas |
+| `03_avanzada.sql` Consulta 5 | Proveedor con modelos y accesorios | OK — una fila por proveedor; el valor de lista no se multiplica por la cantidad de accesorios |
 
 ---
 
 ## 7. Entregables
 
 - [x] `sql/consultas/01_factura.sql` — Factura parametrizada con auditoría
-- [x] `sql/consultas/02_reporte_agregado.sql` — 3 reportes de gestión con filtros de fecha
-- [x] `sql/consultas/03_avanzada.sql` — 4 consultas avanzadas (2× HAVING + 2× NOT EXISTS)
+- [x] `sql/consultas/02_reporte_agregado.sql` — 6 reportes de gestión con filtros de fecha
+- [x] `sql/consultas/03_avanzada.sql` — 5 consultas avanzadas (2× HAVING + 2× NOT EXISTS + proveedores)
 - [x] `docs/etapa-04/ETAPA_04.md` — Esta documentación
 
 **Fecha de entrega:** **16 de octubre de 2026** · GitHub · Manifiesto individual por AV Moodle.

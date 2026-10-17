@@ -1,9 +1,12 @@
 -- ============================================================================
 -- ETAPA IV - 03 CONSULTAS AVANZADAS (JOINs + HAVING / SUBCONSULTAS) - REPARADO
 -- Sistema: X Motors - Grupo 49. Motor: SQL Server. Base [X MOTORS] cargada.
--- Descripcion: Dos consultas de analisis de negocio con >=3 JOINs cada una.
+-- Descripcion: Consultas de analisis de negocio con >=3 JOINs cada una.
 --   1. Clientes recurrentes (HAVING) - Fidelizacion / VIP
 --   2. Cotizaciones vencidas sin concretar (NOT EXISTS) - Oportunidades perdidas RN12
+--   3. Vendedores estrella con ventas de accesorios (HAVING)
+--   4. Motos fisicas sin historial comercial (NOT EXISTS) - Stock estancado
+--   5. Proveedores con mayor variedad y valor de stock suministrado (JOINs)
 -- FIX: Consulta 3 usaba vd.legajo (no existe en vendedor) -> eliminado.
 --      HAVING >= 1 -> >= 2 (coherente con el comentario "al menos 2 ventas").
 -- ============================================================================
@@ -129,62 +132,41 @@ GO
 
 
 -- ============================================================================
--- CONSULTA 5: PROOVEDORES CON MAYOR VARIEDAD Y VALOR DE STOCK SUMINISTRADO
+-- CONSULTA 5: PROVEEDORES CON MAYOR VARIEDAD Y VALOR DE STOCK SUMINISTRADO
 -- Objetivo: Analizar qué proveedores abastecen una mayor cantidad de modelos
 -- de motocicletas y accesorios, sumando el valor total potencial de lista de
 -- sus productos para evaluar alianzas comerciales.
+-- NOTA: Los agregados de modelos y de accesorios se calculan por separado y
+--       luego se combinan. Evita el "fan-out" de unir provision_motocicleta
+--       con provision_accesorio en la misma consulta (que multiplicaba el
+--       SUM(precio_lista) por la cantidad de accesorios del proveedor).
 -- ============================================================================
 
-SELECT 
+SELECT
     p.cuit_proveedor,
     p.razon_social,
-    COUNT(DISTINCT pm.id_modelo) AS cantidad_modelos_provistos,
-    COUNT(DISTINCT pa.id_accesorio) AS cantidad_accesorios_provistos,
-    ISNULL(SUM(m.precio_lista), 0) AS valor_total_modelos_lista
+    ISNULL(mod.cantidad_modelos, 0)    AS cantidad_modelos_provistos,
+    ISNULL(acc.cantidad_accesorios, 0) AS cantidad_accesorios_provistos,
+    ISNULL(mod.valor_modelos_lista, 0) AS valor_total_modelos_lista
 FROM proveedor AS p
-LEFT JOIN provision_motocicleta AS pm ON pm.cuit_proveedor = p.cuit_proveedor
-LEFT JOIN modelo_motocicleta AS m ON m.id_modelo = pm.id_modelo
-LEFT JOIN provision_accesorio AS pa ON pa.cuit_proveedor = p.cuit_proveedor
-GROUP BY p.cuit_proveedor, p.razon_social
+LEFT JOIN (
+    -- Modelos provistos y valor potencial de lista (por proveedor).
+    SELECT
+        pm.cuit_proveedor,
+        COUNT(*) AS cantidad_modelos,
+        SUM(m.precio_lista) AS valor_modelos_lista
+    FROM provision_motocicleta AS pm
+    JOIN modelo_motocicleta AS m ON m.id_modelo = pm.id_modelo
+    GROUP BY pm.cuit_proveedor
+) AS mod ON mod.cuit_proveedor = p.cuit_proveedor
+LEFT JOIN (
+    -- Cantidad de accesorios provistos (por proveedor).
+    SELECT
+        pa.cuit_proveedor,
+        COUNT(*) AS cantidad_accesorios
+    FROM provision_accesorio AS pa
+    GROUP BY pa.cuit_proveedor
+) AS acc ON acc.cuit_proveedor = p.cuit_proveedor
 ORDER BY cantidad_modelos_provistos DESC, valor_total_modelos_lista DESC;
 GO
 
-
--- ============================================================================
--- CONSULTA 6: MODELOS DE MOTOCICLETAS CON MAYOR IMPACTO EN VENTAS
--- Objetivo: Determinar cuáles son los modelos que generan mayor recaudación 
--- real para la empresa mediante ventas efectuadas.
--- ============================================================================
-
-SELECT 
-    mo.id_modelo,
-    mo.marca,
-    mo.nombre_modelo,
-    COUNT(v.cod_venta) AS total_unidades_vendidas,
-    SUM(v.precio_venta_moto) AS recaudacion_total_motos,
-    CAST(AVG(v.precio_venta_moto) AS DECIMAL(12,2)) AS precio_venta_promedio
-FROM modelo_motocicleta AS mo
-JOIN motocicleta AS m ON m.id_modelo = mo.id_modelo
-JOIN venta AS v ON v.numero_chasis = m.numero_chasis AND v.estado = 'efectuada'
-GROUP BY mo.id_modelo, mo.marca, mo.nombre_modelo
-ORDER BY recaudacion_total_motos DESC;
-GO
-
-
--- ============================================================================
--- CONSULTA 7: ANÁLISIS DE MÉTODOS DE PAGO MÁS UTILIZADOS Y VOLUMEN RECAUDADO
--- Objetivo: Conocer las preferencias de pago de los clientes al concretar la 
--- compra de una moto para negociar comisiones o acuerdos con entidades 
--- financieras o pasarelas de pago.
--- ============================================================================
-
-SELECT 
-    metodo_pago,
-    COUNT(cod_venta) AS cantidad_operaciones,
-    SUM(monto_total) AS monto_total_recaudado,
-    CAST(AVG(monto_total) AS DECIMAL(12,2)) AS ticket_promedio_operacion
-FROM venta
-WHERE estado = 'efectuada'
-GROUP BY metodo_pago
-ORDER BY monto_total_recaudado DESC;
-GO
