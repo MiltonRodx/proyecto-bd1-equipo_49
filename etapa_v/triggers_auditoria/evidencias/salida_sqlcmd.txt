@@ -1,0 +1,95 @@
+Changed database context to 'X MOTORS'.
+=== Contexto de ejecucion ===
+version_motor                                                                                                                                                                                            base_de_datos                                                                                                                    usuario_de_bd                                                                                                                    fecha_hora                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
+	Oct 15 2026 19:55:26 
+	Copyright (C) 2025 Microsoft Corporation
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64>     X MOTORS                                                                                                                         dbo                                                                                                                                         2026-10-27 18:53:10.3999388
+=== HISTORIAL 1. Estado inicial ===
+historial_total_antes
+---------------------
+                   36
+id_modelo   precio_lista
+----------- ------------
+          1   3850000.00
+=== HISTORIAL 2. sp_actualizar_precio_modelo: 3.850.000 -> 3.950.000 ===
+id_historial id_modelo   precio_anterior precio_nuevo   fecha_modificacion
+------------ ----------- --------------- -------------- ------------------
+          37           1      3850000.00     3950000.00         2026-10-27
+          36           1      3950000.00     3850000.00         2026-10-27
+=== HISTORIAL 3. Restauracion: 3.950.000 -> 3.850.000 ===
+historial_total_despues
+-----------------------
+                     38
+id_modelo   precio_restaurado
+----------- -----------------
+          1        3850000.00
+=== AUDITORIA VENTA 1. Estado inicial ===
+auditoria_venta_antes
+---------------------
+                    0
+=== AUDITORIA VENTA 2. sp_registrar_venta (INSERT en venta) ===
+cod_venta_generado
+------------------
+                34
+cod_venta   numero_chasis                                                                                        precio_venta_moto monto_total    estado                        
+----------- ---------------------------------------------------------------------------------------------------- ----------------- -------------- ------------------------------
+         34 KAWZ400001                                                                                                 10500000.00    10598000.00 efectuada                     
+id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
+------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
+=== AUDITORIA VENTA 3. Cancelacion de la venta demo (UPDATE en venta) ===
+cod_venta   estado                         monto_total   
+----------- ------------------------------ --------------
+         34 cancelada                         10598000.00
+id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
+------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
+           6          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:11
+id_modelo   stock_modelo_14
+----------- ---------------
+         14               2
+id_accesorio stock_accesorio_2
+------------ -----------------
+           2                11
+=== AUDITORIA VENTA 4. Limpieza de la venta demo (DELETE en venta) ===
+id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
+------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
+           6          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:11
+           7          34 DELETE     cancelada                      NULL                              10598000.00           NULL dbo                                                                                                                                                 2026-10-27 18:53:11
+ventas_restantes_demo registros_auditoria_demo
+--------------------- ------------------------
+                    0                        3
+=== AUDITORIA CLIENTE 1. Estado inicial ===
+auditoria_cliente_antes
+-----------------------
+                      0
+dni_cliente estado                                                                                              
+----------- ----------------------------------------------------------------------------------------------------
+   42111222 interesado                                                                                          
+=== AUDITORIA CLIENTE 2. interesado -> comprador ===
+id_auditoria dni_cliente estado_anterior                                                                                      estado_nuevo                                                                                         usuario                                                                                                                          fecha_hora                            
+------------ ----------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+           3    42111222 interesado                                                                                           comprador                                                                                            dbo                                                                                                                                                 2026-10-27 18:53:11
+=== AUDITORIA CLIENTE 3. UPDATE que NO cambia el estado ===
+registros_tras_update_sin_cambio
+--------------------------------
+                               1
+=== AUDITORIA CLIENTE 4. Restauracion: comprador -> interesado ===
+auditoria_cliente_registros_demo estado_restaurado                                                                                   
+-------------------------------- ----------------------------------------------------------------------------------------------------
+                               2 interesado                                                                                          
+=== Estado final de la base ===
+historial_total auditoria_venta_total auditoria_cliente_total stock_modelo_14 stock_accesorio_2 precio_modelo_1
+--------------- --------------------- ----------------------- --------------- ----------------- ---------------
+             38                     3                       2               2                11      3850000.00
+name                                                                                                                             type_desc                                                   
+-------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------
+trg_auditoria_cliente_estado                                                                                                     SQL_TRIGGER                                                 
+trg_auditoria_venta                                                                                                              SQL_TRIGGER                                                 
+trg_historial_precio_modelo                                                                                                      SQL_TRIGGER                                                 
+auditoria_cliente                                                                                                                USER_TABLE                                                  
+auditoria_venta                                                                                                                  USER_TABLE                                                  
+=== Fin de las pruebas de triggers ===

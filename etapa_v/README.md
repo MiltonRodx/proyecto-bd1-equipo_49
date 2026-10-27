@@ -54,15 +54,22 @@ etapa_v/
 │       ├── salida_sqlcmd.txt
 │       └── resultados.md
 └── triggers_auditoria/
-    ├── 01_tablas_auditoria.sql          # pendiente (Ejecución 3)
-    ├── 02_trg_historial_precio_modelo.sql
-    ├── 03_trg_auditoria_venta.sql
-    ├── 04_trg_auditoria_cliente_estado.sql
+    ├── 01_tablas_auditoria.sql          # IMPLEMENTADO (Ejecución 3)
+    ├── 02_trg_historial_precio_modelo.sql # IMPLEMENTADO (Ejecución 3)
+    ├── 03_trg_auditoria_venta.sql       # IMPLEMENTADO (Ejecución 3)
+    ├── 04_trg_auditoria_cliente_estado.sql # IMPLEMENTADO (Ejecución 3)
+    ├── investigacion.md                 # IMPLEMENTADO (Ejecución 3)
     └── evidencias/
-        └── .gitkeep
+        ├── .gitkeep
+        ├── 01_pruebas_triggers.sql
+        ├── salida_sqlcmd.txt
+        ├── 01_historial_precio.txt
+        ├── 02_auditoria_venta.txt
+        ├── 03_auditoria_cliente.txt
+        └── resultados.md
 ```
 
-> **Estado actual (Ejecución 2 completada):** existen `01_funciones.sql`, `02_procedimientos.sql`, `transacciones/01_sp_registrar_venta.sql`, `transacciones/02_sp_cambiar_estado_venta.sql`, `transacciones/scripts.sql`, `transacciones/investigacion.md` y las evidencias de funciones, procedimientos y transacciones. La revisión de la Ejecución 1 corrigió validaciones, bloqueos y el orden de cálculo de `monto_total`. Quedan pendientes los triggers de auditoría (Ejecución 3), seguridad e índices (anexos). Seguridad e índices se agrupan en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada; sus evidencias van en `procedimientos_funciones/evidencias/`.
+> **Estado actual (Ejecución 3 completada):** existen los 3 temas obligatorios — `procedimientos_funciones/` (7 funciones y 2 procedimientos de catálogo/reportes), `transacciones/` (ventas/cancelaciones transaccionales + demos ACID) y `triggers_auditoria/` (2 tablas de auditoría + 3 triggers con `investigacion.md` y evidencias). Cada `investigacion.md` cubre los 5 puntos de la consigna. Quedan pendientes los anexos de seguridad e índices (Ejecución 4), agrupados en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada.
 
 ### 2.2 Secuencia obligatoria
 
