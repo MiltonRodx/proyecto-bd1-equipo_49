@@ -11,6 +11,11 @@
 
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
 GO
 
 USE [X MOTORS];
@@ -28,23 +33,29 @@ CREATE OR ALTER PROCEDURE dbo.sp_actualizar_precio_modelo
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET XACT_ABORT ON;
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.modelo_motocicleta WHERE id_modelo = @id_modelo)
-        THROW 50017, 'Modelo inexistente', 1;
-
-    IF @nuevo_precio IS NULL OR @nuevo_precio <= 0
+    IF @nuevo_precio IS NULL
+       OR @nuevo_precio <= 0
+       OR @nuevo_precio > 99999999.99
         THROW 50016, 'Precio de modelo invalido', 1;
+
+    SET XACT_ABORT ON;
 
     BEGIN TRY
         BEGIN TRAN;
 
-        IF EXISTS (
-            SELECT 1
-            FROM dbo.modelo_motocicleta
-            WHERE id_modelo = @id_modelo
-              AND precio_lista = @nuevo_precio
-        )
+        -- Bloquear la fila antes de comparar y actualizar. Asi dos
+        -- ejecuciones concurrentes no se pisan el precio ni el historial.
+        DECLARE @precio_actual DECIMAL(12,2);
+
+        SELECT @precio_actual = precio_lista
+        FROM dbo.modelo_motocicleta WITH (UPDLOCK, HOLDLOCK)
+        WHERE id_modelo = @id_modelo;
+
+        IF @@ROWCOUNT = 0 OR @precio_actual IS NULL
+            THROW 50017, 'Modelo inexistente', 1;
+
+        IF @precio_actual = @nuevo_precio
         BEGIN
             COMMIT;
             SELECT 'El precio no cambia; no se actualiza.' AS mensaje;
@@ -54,6 +65,9 @@ BEGIN
         UPDATE dbo.modelo_motocicleta
         SET precio_lista = @nuevo_precio
         WHERE id_modelo = @id_modelo;
+
+        IF @@ROWCOUNT <> 1
+            THROW 50017, 'No se pudo actualizar el precio del modelo', 1;
 
         COMMIT;
     END TRY
