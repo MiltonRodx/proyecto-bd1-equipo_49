@@ -1,0 +1,112 @@
+Changed database context to 'X MOTORS'.
+=== Contexto de ejecucion ===
+version_motor                                                                                                                                                                                            base_de_datos                                                                                                                    usuario_de_bd                                                                                                                    fecha_hora                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
+	Oct 15 2026 19:55:26 
+	Copyright (C) 2025 Microsoft Corporation
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64>     X MOTORS                                                                                                                         dbo                                                                                                                                         2026-10-27 19:02:26.4441113
+=== Seguridad 0. Principales y permisos ===
+principal                                                                                                                        type_desc                                                    authentication_type_desc                                    
+-------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------ ------------------------------------------------------------
+rol_xmotors_admin                                                                                                                DATABASE_ROLE                                                NONE                                                        
+rol_xmotors_consulta                                                                                                             DATABASE_ROLE                                                NONE                                                        
+rol_xmotors_vendedor                                                                                                             DATABASE_ROLE                                                NONE                                                        
+usr_xmotors_admin                                                                                                                SQL_USER                                                     NONE                                                        
+usr_xmotors_consulta                                                                                                             SQL_USER                                                     NONE                                                        
+usr_xmotors_vendedor                                                                                                             SQL_USER                                                     NONE                                                        
+rol                                                                                                                              miembro                                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------
+rol_xmotors_admin                                                                                                                usr_xmotors_admin                                                                                                               
+rol_xmotors_vendedor                                                                                                             usr_xmotors_vendedor                                                                                                            
+rol_xmotors_consulta                                                                                                             usr_xmotors_consulta                                                                                                            
+usuario_actual_cn                                                                                                                permisos_concedidos_a_roles
+-------------------------------------------------------------------------------------------------------------------------------- ---------------------------
+dbo                                                                                                                                                       28
+=== Seguridad 1. Vendedor: SELECT de catalogo (permitido) ===
+id_modelo   nombre_modelo                                                                                        marca                                                                                                precio_lista stock_disponible
+----------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ------------ ----------------
+          1 CB 125F Twister                                                                                      Honda                                                                                                  3850000.00                1
+          2 XR 150L                                                                                              Honda                                                                                                  4900000.00                0
+          3 Smash 110                                                                                            Gilera                                                                                                 2650000.00                1
+contexto                                                                                                                        
+--------------------------------------------------------------------------------------------------------------------------------
+usr_xmotors_vendedor                                                                                                            
+=== Seguridad 2. Vendedor: INSERT directo en venta (negado, esperado 229) ===
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The INSERT permission was denied on the object 'venta', database 'X MOTORS', schema 'dbo'.                                                                                                              
+=== Seguridad 3. Vendedor: UPDATE directo (negado) y auditoria (negada) ===
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The UPDATE permission was denied on the object 'cliente', database 'X MOTORS', schema 'dbo'.                                                                                                            
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The SELECT permission was denied on the object 'auditoria_venta', database 'X MOTORS', schema 'dbo'.                                                                                                    
+=== Seguridad 4. Vendedor: EXEC sp_reporte_ventas_periodo (permitido) ===
+dni_vendedor vendedor                                                                                                                                                                                                  cantidad_ventas monto_total      ticket_promedio 
+------------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- --------------- ---------------- ----------------
+    43567890 Irina Balenzuela                                                                                                                                                                                                        1      15725000.00      15725000.00
+    36543210 Micaela Cabrera                                                                                                                                                                                                         1      14077750.00      14077750.00
+    34567890 Julieta Ramirez                                                                                                                                                                                                         1      10868200.00      10868200.00
+    41234567 Tobias Balenzuela                                                                                                                                                                                                       1      10620000.00      10620000.00
+    28777888 Carlos Lopez                                                                                                                                                                                                            1       9275000.00       9275000.00
+    30111222 Juan Perez                                                                                                                                                                                                              1       8755000.00       8755000.00
+    29876543 Carlos Medina                                                                                                                                                                                                           2       7867750.00       3933875.00
+    10889900 Martin Castro                                                                                                                                                                                                           1       7610000.00       7610000.00
+    11001122 Andres Ruiz                                                                                                                                                                                                             1       6232000.00       6232000.00
+    10333444 Esteban Martinez                                                                                                                                                                                                        1       6050000.00       6050000.00
+    40987654 Ignacio Arce                                                                                                                                                                                                            1       5405000.00       5405000.00
+    38456789 Juan Balenzuela                                                                                                                                                                                                         1       5130000.00       5130000.00
+    39876543 Santiago Villalba                                                                                                                                                                                                       1       5125000.00       5125000.00
+    10444555 Lucia Fernandez                                                                                                                                                                                                         1       4980000.00       4980000.00
+    42654321 Cyntia Ruiz                                                                                                                                                                                                             1       4685000.00       4685000.00
+    10111222 Carlos Gomez                                                                                                                                                                                                            1       4620000.00       4620000.00
+    10778899 Paula Diaz                                                                                                                                                                                                              1       4115000.00       4115000.00
+    31222333 Ana Villalba                                                                                                                                                                                                            1       3877000.00       3877000.00
+    10556677 Jorge Perez                                                                                                                                                                                                             1       3635000.00       3635000.00
+    10667788 Santiago Nunez                                                                                                                                                                                                          1       3490000.00       3490000.00
+    10222333 Mariana Lopez                                                                                                                                                                                                           1       3235000.00       3235000.00
+    30999888 Pablo Ortiz                                                                                                                                                                                                             1       3138000.00       3138000.00
+    32109876 Federico Aguirre                                                                                                                                                                                                        1       2429000.00       2429000.00
+contexto                                                                                                                        
+--------------------------------------------------------------------------------------------------------------------------------
+usr_xmotors_vendedor                                                                                                            
+=== Seguridad 5. Consulta: lectura de negocio (permitida) ===
+cod_venta   fecha            estado                         monto_total   
+----------- ---------------- ------------------------------ --------------
+         30       2026-03-10 efectuada                          6232000.00
+         29       2026-03-09 cancelada                          8972000.00
+         28       2026-03-08 efectuada                          7610000.00
+contexto                                                                                                                        
+--------------------------------------------------------------------------------------------------------------------------------
+usr_xmotors_consulta                                                                                                            
+=== Seguridad 6. Consulta: auditoria e historial (negados, esperado 230) ===
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The SELECT permission was denied on the object 'auditoria_venta', database 'X MOTORS', schema 'dbo'.                                                                                                    
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The SELECT permission was denied on the object 'historial_de_precio', database 'X MOTORS', schema 'dbo'.                                                                                                
+=== Seguridad 7. Consulta: EXEC sp_registrar_venta (negado) ===
+error       mensaje                                                                                                                                                                                                 
+----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        229 The EXECUTE permission was denied on the object 'sp_registrar_venta', database 'X MOTORS', schema 'dbo'.                                                                                                
+=== Seguridad 8. Admin: lectura y EXEC de administracion (permitidos) ===
+total_ventas
+------------
+          30
+total_auditoria
+---------------
+             12
+mensaje                              
+-------------------------------------
+El precio no cambia; no se actualiza.
+contexto                                                                                                                        
+--------------------------------------------------------------------------------------------------------------------------------
+usr_xmotors_admin                                                                                                               
+=== Seguridad 9. Estado final ===
+ventas_prueba_restantes cliente_28345672_intacto                                                                             precio_modelo_1
+----------------------- ---------------------------------------------------------------------------------------------------- ---------------
+                      0 comprador                                                                                                 3850000.00
+=== Fin de las pruebas de seguridad ===

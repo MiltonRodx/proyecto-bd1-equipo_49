@@ -37,7 +37,7 @@ Las tablas de auditoría no tienen claves foráneas: sobreviven al borrado del r
 | Total de filas | `36 → 38` |
 | Precio final del modelo 1 | `$3.850.000,00` (restaurado) |
 
-Nota: las filas `35`/`36` corresponden a una corrida previa de validación con la versión antigua de `sp_actualizar_precio_modelo`; son evidencia válida del mismo trigger. En la reconstrucción final de la base (Ejecución 5) el lote parte de cero.
+Nota: las filas `35`/`36` son la contribución de la prueba de la Ejecución 1 (`02_procedimientos_pruebas.sql`, que también actualiza y restaura el precio del modelo 1); las filas `37`/`38` son de esta prueba. En la base reconstruida desde cero (Ejecución 5) todos los disparos provienen de la misma `sp_actualizar_precio_modelo`, verificando que también el procedimiento de la Ejecución 1 queda alineado con el trigger.
 
 ---
 
@@ -51,9 +51,9 @@ Registro de auditoría de la venta demo, en orden:
 
 | id | Acción | Estado anterior | Estado nuevo | Monto anterior | Monto nuevo |
 |---|---|---|---|---|---|
-| 5 | `INSERT` | — | `efectuada` | — | `$10.598.000` |
-| 6 | `UPDATE` | `efectuada` | `cancelada` | `$10.598.000` | `$10.598.000` |
-| 7 | `DELETE` | `cancelada` | — | `$10.598.000` | — |
+| 10 | `INSERT` | — | `efectuada` | — | `$10.598.000` |
+| 11 | `UPDATE` | `efectuada` | `cancelada` | `$10.598.000` | `$10.598.000` |
+| 12 | `DELETE` | `cancelada` | — | `$10.598.000` | — |
 
 - La saneada correcta se registra una sola vez: el procedimiento calcula `monto_total` **antes** del `INSERT`, así el trigger no ve ninguna actualización intermedia.
 - La cancelación por `sp_cambiar_estado_venta` registra el `UPDATE` de `efectuada → cancelada` con el monto invariante.
@@ -80,7 +80,7 @@ Total de la demo: 2 registros, y el cliente quedó con su estado original `inter
 | Verificación | Valor |
 |---|---|
 | `historial_de_precio` | 38 filas (34 del DML + 4 de la prueba) |
-| `auditoria_venta` | 3 filas (todas de la venta demo `34`) |
+| `auditoria_venta` | 12 filas al cierre de esta prueba: 3 de la venta demo `34` de este script y 9 de los tres ciclos de demo de venta (`31`, `32`, `33`) que la prueba ampliada de la Ejecución 1 corrió antes sobre la misma base reconstruida |
 | `auditoria_cliente` | 2 filas (todas del cliente `42111222`) |
 | Stock modelo 14 | `2` (original) |
 | Stock accesorio 2 | `11` (original) |

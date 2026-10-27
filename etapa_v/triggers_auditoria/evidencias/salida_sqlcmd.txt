@@ -5,7 +5,7 @@ version_motor                                                                   
 Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
 	Oct 15 2026 19:55:26 
 	Copyright (C) 2025 Microsoft Corporation
-	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64>     X MOTORS                                                                                                                         dbo                                                                                                                                         2026-10-27 18:53:10.3999388
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64>     X MOTORS                                                                                                                         dbo                                                                                                                                         2026-10-27 19:02:25.8802069
 === HISTORIAL 1. Estado inicial ===
 historial_total_antes
 ---------------------
@@ -28,7 +28,7 @@ id_modelo   precio_restaurado
 === AUDITORIA VENTA 1. Estado inicial ===
 auditoria_venta_antes
 ---------------------
-                    0
+                    9
 === AUDITORIA VENTA 2. sp_registrar_venta (INSERT en venta) ===
 cod_venta_generado
 ------------------
@@ -38,15 +38,15 @@ cod_venta   numero_chasis                                                       
          34 KAWZ400001                                                                                                 10500000.00    10598000.00 efectuada                     
 id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
 ------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
-           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
+          10          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 19:02:26
 === AUDITORIA VENTA 3. Cancelacion de la venta demo (UPDATE en venta) ===
 cod_venta   estado                         monto_total   
 ----------- ------------------------------ --------------
          34 cancelada                         10598000.00
 id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
 ------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
-           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
-           6          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:11
+          10          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 19:02:26
+          11          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 19:02:26
 id_modelo   stock_modelo_14
 ----------- ---------------
          14               2
@@ -56,9 +56,9 @@ id_accesorio stock_accesorio_2
 === AUDITORIA VENTA 4. Limpieza de la venta demo (DELETE en venta) ===
 id_auditoria cod_venta   accion     estado_anterior                estado_nuevo                   monto_anterior monto_nuevo    usuario                                                                                                                          fecha_hora                            
 ------------ ----------- ---------- ------------------------------ ------------------------------ -------------- -------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
-           5          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:10
-           6          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 18:53:11
-           7          34 DELETE     cancelada                      NULL                              10598000.00           NULL dbo                                                                                                                                                 2026-10-27 18:53:11
+          10          34 INSERT     NULL                           efectuada                                NULL    10598000.00 dbo                                                                                                                                                 2026-10-27 19:02:26
+          11          34 UPDATE     efectuada                      cancelada                         10598000.00    10598000.00 dbo                                                                                                                                                 2026-10-27 19:02:26
+          12          34 DELETE     cancelada                      NULL                              10598000.00           NULL dbo                                                                                                                                                 2026-10-27 19:02:26
 ventas_restantes_demo registros_auditoria_demo
 --------------------- ------------------------
                     0                        3
@@ -72,7 +72,7 @@ dni_cliente estado
 === AUDITORIA CLIENTE 2. interesado -> comprador ===
 id_auditoria dni_cliente estado_anterior                                                                                      estado_nuevo                                                                                         usuario                                                                                                                          fecha_hora                            
 ------------ ----------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
-           3    42111222 interesado                                                                                           comprador                                                                                            dbo                                                                                                                                                 2026-10-27 18:53:11
+           1    42111222 interesado                                                                                           comprador                                                                                            dbo                                                                                                                                                 2026-10-27 19:02:26
 === AUDITORIA CLIENTE 3. UPDATE que NO cambia el estado ===
 registros_tras_update_sin_cambio
 --------------------------------
@@ -84,7 +84,7 @@ auditoria_cliente_registros_demo estado_restaurado
 === Estado final de la base ===
 historial_total auditoria_venta_total auditoria_cliente_total stock_modelo_14 stock_accesorio_2 precio_modelo_1
 --------------- --------------------- ----------------------- --------------- ----------------- ---------------
-             38                     3                       2               2                11      3850000.00
+             38                    12                       2               2                11      3850000.00
 name                                                                                                                             type_desc                                                   
 -------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------
 trg_auditoria_cliente_estado                                                                                                     SQL_TRIGGER                                                 

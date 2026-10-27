@@ -20,7 +20,7 @@
 | II. Modelado | ¿Cómo representamos la información? | [`docs/etapa-02/`](docs/etapa-02/) | [`ETAPA_02.md`](docs/etapa-02/ETAPA_02.md) + DER + relacional 3FN | ✅ Entregada (11/09) |
 | III. Implementación | ¿Cómo construimos la BD? | [`docs/etapa-03/`](docs/etapa-03/) + [`sql/ddl/`](sql/ddl/) + [`sql/dml/`](sql/dml/) | DDL + DML | ✅ Entregada (30/09) |
 | IV. Consultas | ¿Cómo obtenemos información? | [`docs/etapa-04/`](docs/etapa-04/) + [`sql/consultas/`](sql/consultas/) | Factura, reporte agregado, consulta avanzada | ✅ Entregada (16/10) |
-| V. Temas técnicos | ¿Cómo la hacemos robusta? | [`docs/etapa-05/`](docs/etapa-05/) + [`sql/tecnico/`](sql/tecnico/) | Procedimientos, transacciones, triggers, seguridad, índices | ⏳ Pendiente |
+| V. Temas técnicos | ¿Cómo la hacemos robusta? | [`etapa_v/`](etapa_v/) | Procedimientos y funciones, transacciones, triggers de auditoría, seguridad e índices | ✅ Entregada (27/10) |
 
 Documentos fuente por etapa:
 
@@ -32,19 +32,16 @@ Documentos fuente por etapa:
 ```
 proyecto-bd1-equipo_49/
 ├── README.md
-├── docs/
-│   ├── etapa-01/  ETAPA_01.md + PDF
-│   ├── etapa-02/  ETAPA_02.md + PDF + PNG + .erdplus + .txt Chen
+├── etapa_v/            Etapa V: scripts, investigaciones y evidencias (ver etapa_v/README.md)
+├── docs/               Documentos fuente por etapa (I a IV)
+│   ├── etapa-01/
+│   ├── etapa-02/
 │   ├── etapa-03/
-│   ├── etapa-04/
-│   └── etapa-05/
-├── sql/
-│   ├── ddl/
-│   ├── dml/
-│   ├── consultas/
-│   └── tecnico/
-└── modelos/
-    └── der/
+│   └── etapa-04/
+└── sql/
+    ├── ddl/
+    ├── dml/
+    └── consultas/
 ```
 
 ## Cómo clonar y usar

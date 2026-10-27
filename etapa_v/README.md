@@ -43,6 +43,7 @@ etapa_v/
 │       ├── 01_funciones_salida.txt
 │       ├── 02_procedimientos_pruebas.sql
 │       ├── 02_procedimientos_salida.txt
+│       ├── 02_procedimientos_salida_docker.txt
 │       ├── 03_seguridad_pruebas.sql
 │       ├── 03_seguridad_salida.txt
 │       ├── 04_indices_consultas.sql
@@ -56,6 +57,7 @@ etapa_v/
 │   └── evidencias/
 │       ├── .gitkeep
 │       ├── salida_sqlcmd.txt
+│       ├── salida_sqlcmd_docker.txt
 │       └── resultados.md
 └── triggers_auditoria/
     ├── 01_tablas_auditoria.sql          # IMPLEMENTADO (Ejecución 3)
@@ -73,7 +75,7 @@ etapa_v/
         └── resultados.md
 ```
 
-> **Estado actual (Ejecución 4 completada):** existen los 3 temas obligatorios y los 2 anexos — `procedimientos_funciones/` (7 funciones, 2 procedimientos de catálogo/reportes, `03_seguridad.sql` con 3 roles + 3 usuarios `WITHOUT LOGIN` y `04_indices.sql` con 10 índices), `transacciones/` (ventas/cancelaciones transaccionales + demos ACID) y `triggers_auditoria/` (2 tablas de auditoría + 3 triggers). Cada `investigacion.md` cubre los 5 puntos de la consigna y los anexos están documentados como secciones del mismo archivo. Solo queda el cierre final (Ejecución 5): reconstrucción de la base desde cero, README final e índice de evidencias.
+> **Estado actual (Etapa V completa — Ejecución 5):** los 3 temas obligatorios y los 2 anexos están implementados y documentados. La base `[X MOTORS]` fue **recreada desde cero** (DROP → DDL → DML → todos los scripts de Etapa V) en SQL Server 2025 Express bajo Docker, en el orden de esta sección, sin errores, y todas las demos se volvieron a correr sobre ella. También existen réplicas Docker de los flujos que el grupo documentó desde otro SQL Server (Windows): `transacciones/evidencias/salida_sqlcmd_docker.txt` y `procedimientos_funciones/evidencias/02_procedimientos_salida_docker.txt`; los archivos originales commiteados del grupo se conservan tal cual. Verificación de factura de Etapa IV sobre lote reconstruido: `OK`. El README raíz del repositorio y sus placeholders se actualizaron para apuntar a `etapa_v/`.
 
 ### 2.2 Secuencia obligatoria
 
@@ -718,16 +720,35 @@ git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
 
 ## 10. Commits sugeridos
 
-### Ejecución 0
+### Por ejecución
 
 ```text
 (add) etapaV: crear estructura base y contrato de objetos
-```
-
-### Ejecución 1
-
-```text
 feat(etapa-v): creacion de procedimientos y funciones de clientes y ventas
-test(etapa-v): modificacion de evidencias de los procedimientos y funciones
-docs(etapa-v): documentacion de los procedimientos y funciones realizados
+feat(etapa-v): demos de transacciones ACID
+feat(etapa-v): tablas de auditoria y triggers
+feat(etapa-v): anexos de seguridad e indices
+docs(etapa-v): README final, indice de evidencias y cierre
 ```
+
+---
+
+## 11. Resumen final de resultados (cierre de la Ejecución 5)
+
+Base `[X MOTORS]` recreada desde cero el 2026-10-27 en SQL Server 2025 Express (Docker), ejecutando la secuencia completa de la sección 2.2 y volviendo a correr todas las demostraciones.
+
+| Tema / Anexo | Objetos | Resultado clave | Evidencia |
+|---|---|---|---|
+| Tema 1 — Procedimientos y funciones | 7 funciones + `sp_actualizar_precio_modelo`, `sp_reporte_ventas_periodo` y 2 transaccionales | Venta demo `31`: `precio_venta_moto = 7.650.000`, `monto_total = 7.877.000`, control de factura **OK**, stock restaurado tras cancelación; errores 50001–50019 controlados | `procedimientos_funciones/evidencias/` |
+| Tema 2 — Transacciones | `scripts.sql` con 3 demos ACID | `COMMIT` correcto, `ROLLBACK` por stock 50004 y por FK 547; `XACT_STATE()`/`@@TRANCOUNT` verificados; venta demo `38` cancelada | `transacciones/evidencias/` |
+| Tema 3 — Triggers | 2 tablas de auditoría + 3 triggers | Historial de precios 34→38 filas; ciclo completo de venta `34` (`INSERT`/`UPDATE`/`DELETE`) en `auditoria_venta`; estados del cliente `42111222` auditaron snapshot; `UPDATE` sin cambio no registra | `triggers_auditoria/evidencias/` |
+| Anexo A — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining | `procedimientos_funciones/evidencias/03_seguridad_*` |
+| Anexo B — Índices | 10 índices idempotentes | Medición ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs; escaneos en 2–9 páginas con el lote actual, índices disponibles para la escala real | `procedimientos_funciones/evidencias/04_indices_*` |
+
+**Estado final de la base tras todas las demostraciones** (consistente con el contrato del grupo):
+
+- 31 filas en `venta` (30 del DML + la demo cancelada `38` de transacciones sobre `HONCB500F004`).
+- `auditoria_venta` con 25 filas y `auditoria_cliente` con 2: constancia de todas las operaciones demos.
+- Stocks originales intactos: modelo 1 = `1`, modelo 2 = `0`, modelo 11 = `3`, modelo 14 = `2`; accesorios 1 = `11`, 2 = `11`, 3 = `18`.
+- Precio modelo 1 restaurado a `$3.850.000`; lote de Etapa III sin modificaciones de negocio.
+- DDL, DML y consultas de etapas anteriores sin cambios.
