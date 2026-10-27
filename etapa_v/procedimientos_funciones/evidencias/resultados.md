@@ -92,7 +92,7 @@ Reporte de ventas efectuadas del 2026 agrupado por vendedor. Ejemplo de filas de
 | DNI vendedor | Vendedor | Cantidad | Monto total | Ticket promedio |
 |---|---|---|---|---|
 | `43567890` | Irina Balenzuela | 1 | `$15.725.000,00` | `$15.725.000,00` |
-| `36543210` | Micaela Cabrera | 1 | `$14.077.750,00` | `$14.077.750,00` |
+| `36546710` | Micaela Cabrera | 1 | `$14.077.750,00` | `$14.077.750,00` |
 | `34567890` | Julieta Ramirez | 1 | `$10.868.200,00` | `$10.868.200,00` |
 | `29876543` | Carlos Medina | 2 | `$7.867.750,00` | `$3.933.875,00` |
 
@@ -114,7 +114,7 @@ Accesorios:   1 × Casco integral ABS ($185.000) + 1 × Guantes de cuero ($42.00
 
 | Campo | Valor |
 |---|---|
-| `cod_venta` generado | `32` |
+| `cod_venta` generado | `67` |
 | `precio_venta_moto` | `$7.650.000,00` |
 | Total accesorios | `$227.000,00` |
 | `monto_total` | `$7.877.000,00` |
@@ -137,7 +137,7 @@ precio_venta_moto + total_accesorios = monto_total
 
 | Acción | Resultado |
 |---|---|
-| Cancelar la venta `32` | `estado = cancelada` |
+| Cancelar la venta `67` | `estado = cancelada` |
 | Stock modelo 11 | `2 → 3` |
 | Stock accesorio 1 | `10 → 11` |
 | Stock accesorio 3 | `17 → 18` |
@@ -154,7 +154,20 @@ La venta demo se eliminó al final (detalle + cabecera) para dejar el lote de Et
 | Modelo 2 sin stock (chasis `9C2HON00000000003`) | `50004` | Error `50004` — Sin stock disponible de la moto |
 | Accesorio 1 con cantidad `9999` | `50008` | Error `50008` — Sin stock suficiente de accesorio |
 
-En los tres casos el procedimiento revierte la transacción y no deja venta, detalle ni descuento de stock.
+En los tres casos el procedimiento revierte la transacción y no deja venta, detalle ni descuento de stock. La prueba de accesorios sin stock se ejecutó con `HONCB500F002` para no compartir chasis con la demo de transacciones (`HONCB500F004`).
+
+### 2.6 Regresiones de la revisión
+
+| Caso | Resultado |
+|---|---|
+| `@metodo_pago = NULL` | Error `50011` — Metodo de pago invalido |
+| Accesorio con `precio_pactado = -1` | Error `50018` — Precio de accesorio invalido |
+| Cliente con 10 % de descuento y `@porcentaje_descuento = 11` | Error `50009` — Porcentaje de descuento mayor al permitido |
+| Venta sin `@porcentaje_descuento` (cliente `35123903`) | Descuento automático del 10 %: `precio_venta_moto = monto_total = $7.650.000,00` |
+| Venta con `ANSI_WARNINGS OFF`, `CONCAT_NULL_YIELDS_NULL OFF` y `NUMERIC_ROUNDABORT ON` | `VENTA OK CON OPCIONES HOSTILES`; la venta se canceló y se eliminó al final |
+| Cancelación con las mismas opciones hostiles | `CANCEL OK CON OPCIONES HOSTILES`; stock restaurado |
+
+Las opciones SET hostiles se probaron porque el índice filtrado `ux_venta_chasis_vigente` exige `ANSI_WARNINGS`, `CONCAT_NULL_YIELDS_NULL` y `NUMERIC_ROUNDABORT` correctos. El procedimiento fija esas opciones y ejecuta el `INSERT`/`UPDATE` de `venta` mediante `sp_executesql`; así el lote hijo las hereda y no aparece el error `1934`.
 
 ---
 
@@ -162,7 +175,7 @@ En los tres casos el procedimiento revierte la transacción y no deja venta, det
 
 | Verificación | Valor |
 |---|---|
-| Ventas nuevas sobre `HONCB500F003` / `HONCB500F004` | `0` |
+| Ventas nuevas sobre `HONCB500F003` / `HONCB500F002` | `0` |
 | Stock modelo 11 | `3` |
 | Stock accesorio 1 | `11` |
 | Stock accesorio 3 | `18` |
@@ -178,4 +191,5 @@ En los tres casos el procedimiento revierte la transacción y no deja venta, det
 - La venta demo respetó la regla de oro: **el descuento se aplicó sobre `precio_venta_moto`**, no sobre `monto_total`.
 - La factura de Etapa IV sigue devolviendo `OK`.
 - Los casos negativos revirtieron la transacción y no dejaron datos parciales.
+- Las regresiones de la revisión (método `NULL`, precio negativo, descuento excesivo y opciones SET hostiles) devolvieron los códigos controlados o completaron la venta sin `1934`.
 - La cancelación reintegró el stock una sola vez; la doble cancelación fue rechazada.

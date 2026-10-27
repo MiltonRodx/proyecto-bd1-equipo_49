@@ -11,6 +11,11 @@
 SET NOCOUNT ON;
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
 GO
 
 USE [X MOTORS];
@@ -226,7 +231,7 @@ BEGIN TRY
     EXEC dbo.sp_registrar_venta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
-        @numero_chasis        = 'HONCB500F004',
+        @numero_chasis        = 'HONCB500F002',
         @metodo_pago          = 'efectivo',
         @porcentaje_descuento = 0.00,
         @accesorios_json      = N'[{"id_accesorio":1,"cantidad":9999}]',
@@ -237,9 +242,141 @@ BEGIN CATCH
 END CATCH;
 GO
 
+-- ============================================================================
+-- 9. Regresiones de las validaciones corregidas
+-- ============================================================================
+PRINT '=== sp_registrar_venta: metodo de pago NULL (error esperado 50011) ===';
+BEGIN TRY
+    DECLARE @cod_negocio INT;
+    EXEC dbo.sp_registrar_venta
+        @dni_cliente          = 35123903,
+        @dni_vendedor         = 31222333,
+        @numero_chasis        = 'HONCB500F003',
+        @metodo_pago          = NULL,
+        @porcentaje_descuento = 0.00,
+        @cod_venta            = @cod_negocio OUTPUT;
+END TRY
+BEGIN CATCH
+    SELECT ERROR_NUMBER() AS error, CAST(ERROR_MESSAGE() AS VARCHAR(200)) AS mensaje;
+END CATCH;
+GO
+
+PRINT '=== sp_registrar_venta: precio de accesorio negativo (error esperado 50018) ===';
+BEGIN TRY
+    DECLARE @cod_negocio INT;
+    EXEC dbo.sp_registrar_venta
+        @dni_cliente          = 35123903,
+        @dni_vendedor         = 31222333,
+        @numero_chasis        = 'HONCB500F003',
+        @metodo_pago          = 'efectivo',
+        @porcentaje_descuento = 0.00,
+        @accesorios_json      = N'[{"id_accesorio":1,"cantidad":1,"precio_pactado":-1}]',
+        @cod_venta            = @cod_negocio OUTPUT;
+END TRY
+BEGIN CATCH
+    SELECT ERROR_NUMBER() AS error, CAST(ERROR_MESSAGE() AS VARCHAR(200)) AS mensaje;
+END CATCH;
+GO
+
+PRINT '=== sp_registrar_venta: descuento mayor al permitido (error esperado 50009) ===';
+BEGIN TRY
+    DECLARE @cod_negocio INT;
+    EXEC dbo.sp_registrar_venta
+        @dni_cliente          = 35123903,
+        @dni_vendedor         = 31222333,
+        @numero_chasis        = 'HONCB500F003',
+        @metodo_pago          = 'efectivo',
+        @porcentaje_descuento = 11.00,
+        @cod_venta            = @cod_negocio OUTPUT;
+END TRY
+BEGIN CATCH
+    SELECT ERROR_NUMBER() AS error, CAST(ERROR_MESSAGE() AS VARCHAR(200)) AS mensaje;
+END CATCH;
+GO
+
+-- ============================================================================
+-- 10. Descuento automatico por historial y venta sin accesorios
+--     Cliente 35123903: 10 %. Se omite @porcentaje_descuento.
+--     Resultado esperado: precio_venta_moto = monto_total = $7.650.000
+-- ============================================================================
+PRINT '=== sp_registrar_venta: descuento automatico sin accesorios ===';
+DECLARE @cod_auto INT;
+
+EXEC dbo.sp_registrar_venta
+    @dni_cliente          = 35123903,
+    @dni_vendedor         = 31222333,
+    @numero_chasis        = 'HONCB500F003',
+    @metodo_pago          = 'efectivo',
+    @accesorios_json      = NULL,
+    @cod_venta            = @cod_auto OUTPUT;
+
+SELECT
+    cod_venta,
+    precio_venta_moto,
+    monto_total,
+    CASE
+        WHEN precio_venta_moto = 7650000.00 AND monto_total = 7650000.00
+        THEN 'OK'
+        ELSE 'DIFERENCIA'
+    END AS control_descuento_automatico
+FROM dbo.venta
+WHERE cod_venta = @cod_auto;
+
+EXEC dbo.sp_cambiar_estado_venta @cod_venta = @cod_auto, @nuevo_estado = 'cancelada';
+DELETE FROM dbo.detalle_venta_accesorio WHERE cod_venta = @cod_auto;
+DELETE FROM dbo.venta WHERE cod_venta = @cod_auto;
+GO
+
+-- ============================================================================
+-- 11. Opciones SET hostiles: el procedimiento debe fijar las opciones que
+--     exige el indice filtrado y completar la venta sin error 1934.
+-- ============================================================================
+PRINT '=== sp_registrar_venta: opciones SET hostiles (indice filtrado) ===';
+DECLARE @cod_set INT;
+DECLARE @cancel_ok BIT = 0;
+
+SET ARITHABORT OFF;
+SET ANSI_WARNINGS OFF;
+SET CONCAT_NULL_YIELDS_NULL OFF;
+SET NUMERIC_ROUNDABORT ON;
+
+BEGIN TRY
+    EXEC dbo.sp_registrar_venta
+        @dni_cliente          = 35123903,
+        @dni_vendedor         = 31222333,
+        @numero_chasis        = 'HONCB500F003',
+        @metodo_pago          = 'efectivo',
+        @accesorios_json      = NULL,
+        @cod_venta            = @cod_set OUTPUT;
+
+    SELECT 'VENTA OK CON OPCIONES HOSTILES' AS resultado;
+
+    IF @cod_set IS NOT NULL
+    BEGIN
+        EXEC dbo.sp_cambiar_estado_venta @cod_venta = @cod_set, @nuevo_estado = 'cancelada';
+        SELECT 'CANCEL OK CON OPCIONES HOSTILES' AS resultado;
+        SET @cancel_ok = 1;
+    END
+END TRY
+BEGIN CATCH
+    SELECT ERROR_NUMBER() AS error, CAST(ERROR_MESSAGE() AS VARCHAR(200)) AS mensaje;
+END CATCH;
+
+SET ARITHABORT ON;
+SET ANSI_WARNINGS ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
+
+IF @cod_set IS NOT NULL AND @cancel_ok = 1
+BEGIN
+    DELETE FROM dbo.detalle_venta_accesorio WHERE cod_venta = @cod_set;
+    DELETE FROM dbo.venta WHERE cod_venta = @cod_set;
+END
+GO
+
 PRINT '=== Estado final: sin ventas nuevas y stock intacto ===';
 SELECT
-    (SELECT COUNT(*) FROM dbo.venta WHERE numero_chasis IN ('HONCB500F003', 'HONCB500F004')) AS ventas_nuevas_restantes,
+    (SELECT COUNT(*) FROM dbo.venta WHERE numero_chasis IN ('HONCB500F003', 'HONCB500F002')) AS ventas_nuevas_restantes,
     (SELECT stock_disponible FROM dbo.modelo_motocicleta WHERE id_modelo = 11) AS stock_modelo_11,
     (SELECT stock FROM dbo.accesorio WHERE id_accesorio = 1) AS stock_accesorio_1,
     (SELECT stock FROM dbo.accesorio WHERE id_accesorio = 3) AS stock_accesorio_3;

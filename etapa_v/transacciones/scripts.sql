@@ -43,6 +43,7 @@ GO
 PRINT '============================================================';
 PRINT ' ETAPA V - TEMA 2: DEMOS DE TRANSACCIONES';
 PRINT '============================================================';
+PRINT 'Version       : ' + CAST(@@VERSION AS VARCHAR(200));
 PRINT 'Base de datos : ' + DB_NAME();
 PRINT 'Usuario       : ' + USER_NAME();
 PRINT 'Fecha/hora    : ' + CONVERT(VARCHAR(19), SYSDATETIME(), 120);

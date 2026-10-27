@@ -4,7 +4,7 @@
 **Base:** `[X MOTORS]`
 **Motor:** SQL Server 2025 Express (17.0.1000.7)
 **Cliente:** `sqlcmd` 17.0.1000.7
-**Fecha de ejecución:** 2026-10-27 15:09:10
+**Fecha de ejecución:** 2026-10-27 15:34:02
 **Script:** [`../scripts.sql`](../scripts.sql)
 **Salida completa:** [`salida_sqlcmd.txt`](salida_sqlcmd.txt)
 
@@ -67,7 +67,7 @@ La limpieza inicial deja el escenario en este estado. El chasis `HONCB500F004` e
 
 | Campo | Valor |
 |---|---|
-| `cod_venta` | **52** |
+| `cod_venta` | **64** |
 | Fecha | 2026-10-27 |
 | Método de pago | efectivo |
 | `precio_venta_moto` | 8.500.000,00 |
@@ -91,7 +91,7 @@ La limpieza inicial deja el escenario en este estado. El chasis `HONCB500F004` e
 **Salida real:**
 
 ```text
-COMMIT OK. cod_venta = 52
+COMMIT OK. cod_venta = 64
 Venta y detalle insertados; stock descontado.
 momento|ventas|detalles|stock_modelo_11|stock_accesorio_1|ventas_chasis_demo
 DESPUES DEMO 1|31|39|2|10|1
@@ -205,7 +205,7 @@ The INSERT statement conflicted with the FOREIGN KEY constraint "fk_venta_client
 
 ## 6. Cancelación de la venta commiteada
 
-Para restaurar el stock se ejecutó una transacción de cancelación sobre la venta 52:
+Para restaurar el stock se ejecutó una transacción de cancelación sobre la venta 64:
 
 1. `UPDATE dbo.venta SET estado = 'cancelada'` (solo si estaba `efectuada`).
 2. `+1` a `modelo_motocicleta.stock_disponible` del modelo 11.
@@ -216,7 +216,7 @@ Para restaurar el stock se ejecutó una transacción de cancelación sobre la ve
 
 | Campo | Valor |
 |---|---|
-| `cod_venta` | 52 |
+| `cod_venta` | 64 |
 | Estado final | **cancelada** |
 | `precio_venta_moto` | 8.500.000,00 |
 | `monto_total` | 8.685.000,00 |
@@ -232,7 +232,7 @@ Para restaurar el stock se ejecutó una transacción de cancelación sobre la ve
 **Salida real:**
 
 ```text
-Cancelacion OK. Venta 52 quedo en estado cancelada.
+Cancelacion OK. Venta 64 quedo en estado cancelada.
 FINAL|31|39|3|11|11|1|0|0|0
 ESTADO TRAN FINAL|0|0
 ```
@@ -243,8 +243,8 @@ ESTADO TRAN FINAL|0|0
 
 | Métrica | Baseline | Final | Diferencia | Interpretación |
 |---|---:|---:|---:|---|
-| Ventas | 30 | 31 | **+1** | Queda la venta 52, ahora `cancelada` |
-| Detalles | 38 | 39 | **+1** | Queda el detalle de la venta 52 |
+| Ventas | 30 | 31 | **+1** | Queda la venta 64, ahora `cancelada` |
+| Detalles | 38 | 39 | **+1** | Queda el detalle de la venta 64 |
 | Stock modelo 11 | 3 | 3 | **0** | Restaurado por la cancelación |
 | Stock accesorio 1 | 11 | 11 | **0** | Restaurado por la cancelación |
 | Stock accesorio 2 | 11 | 11 | **0** | No se modificó |
@@ -264,9 +264,9 @@ OK|OK|OK|OK|OK|OK|OK
 
 ## 8. Interpretación
 
-1. **`COMMIT` confirma:** la venta 52, su detalle y los descuentos de stock quedaron registrados. Las consultas posteriores los ven.
+1. **`COMMIT` confirma:** la venta 64, su detalle y los descuentos de stock quedaron registrados. Las consultas posteriores los ven.
 2. **`ROLLBACK` revierte:** los demos 2 y 3 no dejaron ventas, detalles, motos ficticias ni descuentos de stock. Los conteos se mantuvieron en 31 ventas / 39 detalles, que era el estado posterior al demo 1.
-3. **El único cambio permanente es la venta cancelada:** la venta 52 y su detalle quedan como evidencia; el stock se restauró a 3 / 11 / 11. No se borra la venta para poder auditar la operación.
+3. **El único cambio permanente es la venta cancelada:** la venta 64 y su detalle quedan como evidencia; el stock se restauró a 3 / 11 / 11. No se borra la venta para poder auditar la operación.
 4. **`XACT_STATE()` distingue los casos:** el error de negocio del demo 2 deja la transacción confirmable (`1`); la violación de FK del demo 3 con `XACT_ABORT ON` la deja no confirmable (`-1`). En ambos casos el `ROLLBACK` la limpia (`0`).
 5. **El script es repetible:** la limpieza inicial elimina la venta demo anterior y la unidad ficticia, y restaura el stock si hubiera quedado una venta `efectuada`. Al inicio de una nueva ejecución el escenario vuelve al baseline 30 / 38 / 3 / 11 / 11; al finalizar, el script deja nuevamente 31 ventas / 39 detalles con la nueva venta cancelada y el stock restaurado.
 
@@ -278,4 +278,4 @@ OK|OK|OK|OK|OK|OK|OK
 - El error 547 del demo 3 es **intencional**. `sqlcmd` sin `-b` continúa con el siguiente batch y permite llegar a la cancelación final. Si se ejecutara con `-b`, el proceso se detendría en el demo 3.
 - El demo 2 usa una unidad ficticia para no chocar con el índice filtrado ni con las ventas reales del lote. La unidad se elimina con el `ROLLBACK`.
 - No se modificaron `sql/ddl/`, `sql/dml/` ni `sql/consultas/`.
-- La venta 52 queda `cancelada`; si se quiere dejar la base exactamente en el baseline, ejecutar la limpieza inicial del script o eliminar la venta 52 y su detalle después de tomar la evidencia.
+- La venta 64 queda `cancelada`; si se quiere dejar la base exactamente en el baseline, ejecutar la limpieza inicial del script o eliminar la venta 64 y su detalle después de tomar la evidencia.
