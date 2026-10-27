@@ -1,0 +1,83 @@
+Changed database context to 'X MOTORS'.
+============================================================
+ ETAPA V - TEMA 2: DEMOS DE TRANSACCIONES
+============================================================
+Base de datos : X MOTORS
+Usuario       : dbo
+Fecha/hora    : 2026-10-27 15:09:10
+Chasis demo   : HONCB500F004
+
+--- 0. LIMPIEZA INICIAL DEL ESCENARIO ---
+Limpieza inicial: OK
+momento|ventas|detalles|stock_modelo_11|stock_accesorio_1|stock_accesorio_2|ventas_chasis_demo
+-------|------|--------|---------------|-----------------|-----------------|------------------
+BASELINE|30|38|3|11|11|0
+
+--- 1. VENTA CORRECTA: BEGIN TRAN + COMMIT ---
+trancount_dentro_demo1
+----------------------
+1
+COMMIT OK. cod_venta = 52
+Venta y detalle insertados; stock descontado.
+momento|ventas|detalles|stock_modelo_11|stock_accesorio_1|ventas_chasis_demo
+-------|------|--------|---------------|-----------------|------------------
+DESPUES DEMO 1|31|39|2|10|1
+momento|xact_state|trancount
+-------|----------|---------
+ESTADO TRAN POST DEMO 1|0|0
+cod_venta|fecha|metodo_pago|precio_venta_moto|monto_total|estado|numero_chasis|id_accesorio|cantidad|precio_pactado
+---------|-----|-----------|-----------------|-----------|------|-------------|------------|--------|--------------
+52|2026-10-27|efectivo|8500000.00|8685000.00|efectuada|HONCB500F004|1|1|185000.00
+
+--- 2. STOCK INSUFICIENTE: BEGIN TRAN + ROLLBACK ---
+trancount_dentro_demo2
+----------------------
+1
+paso|error_number|error_message|xact_state_en_catch|trancount_en_catch|xact_state_post_rollback|trancount_post_rollback
+----|------------|-------------|-------------------|------------------|------------------------|-----------------------
+DEMO 2 - ERROR CONTROLADO|50004|Sin stock disponible para el modelo 2 (XR 150L).|1|1|0|0
+momento|ventas|detalles|stock_modelo_2|stock_accesorio_1|stock_accesorio_2|ventas_test|detalles_test|motos_test
+-------|------|--------|--------------|-----------------|-----------------|-----------|-------------|----------
+DESPUES DEMO 2|31|39|0|10|11|0|0|0
+momento|xact_state|trancount
+-------|----------|---------
+ESTADO TRAN POST DEMO 2|0|0
+
+--- 3. ERROR DE INTEGRIDAD: BEGIN TRAN + ROLLBACK + THROW ---
+trancount_dentro_demo3
+----------------------
+1
+paso|error_number|error_message|error_line|xact_state_en_catch|trancount_en_catch
+----|------------|-------------|----------|-------------------|------------------
+DEMO 3 - ERROR DE INTEGRIDAD|547|The INSERT statement conflicted with the FOREIGN KEY constraint "fk_venta_cliente". The conflict occurred in database "X MOTORS", table "dbo.cliente", column 'dni_cliente'.|17|-1|1
+paso|xact_state_post_rollback|trancount_post_rollback
+----|------------------------|-----------------------
+DEMO 3 - DESPUES DEL ROLLBACK|0|0
+Msg 547, Level 16, State 1, Server DESKTOP-DQ7DOJB\SQLEXPRESS, Line 17
+The INSERT statement conflicted with the FOREIGN KEY constraint "fk_venta_cliente". The conflict occurred in database "X MOTORS", table "dbo.cliente", column 'dni_cliente'.
+
+--- 3b. VERIFICACION DEL ROLLBACK DEL DEMO 3 ---
+momento|ventas|detalles|stock_modelo_11|stock_accesorio_1|stock_accesorio_2|ventas_invalidas
+-------|------|--------|---------------|-----------------|-----------------|----------------
+DESPUES DEMO 3|31|39|2|10|11|0
+momento|xact_state|trancount
+-------|----------|---------
+ESTADO TRAN POST DEMO 3|0|0
+
+--- 4. CANCELACION DE LA VENTA COMMITEADA (RESTAURA STOCK) ---
+Cancelacion OK. Venta 52 quedo en estado cancelada.
+momento|ventas|detalles|stock_modelo_11|stock_accesorio_1|stock_accesorio_2|ventas_chasis_demo|ventas_invalidas|ventas_test|motos_test
+-------|------|--------|---------------|-----------------|-----------------|------------------|----------------|-----------|----------
+FINAL|31|39|3|11|11|1|0|0|0
+momento|xact_state|trancount
+-------|----------|---------
+ESTADO TRAN FINAL|0|0
+cod_venta|fecha|metodo_pago|precio_venta_moto|monto_total|estado|numero_chasis
+---------|-----|-----------|-----------------|-----------|------|-------------
+52|2026-10-27|efectivo|8500000.00|8685000.00|cancelada|HONCB500F004
+ventas_baseline|ventas_final|detalles_baseline|detalles_final|stock_modelo_baseline|stock_modelo_final|stock_accesorio_1_baseline|stock_accesorio_1_final|stock_accesorio_2_baseline|stock_accesorio_2_final
+---------------|------------|-----------------|--------------|---------------------|------------------|--------------------------|-----------------------|--------------------------|-----------------------
+30|31|38|39|3|3|11|11|11|11
+venta_demo_cancelada|stock_modelo_restaurado|stock_accesorio_1_restaurado|stock_accesorio_2_restaurado|sin_venta_stock_insuficiente|sin_detalle_stock_insuficiente|sin_venta_error_integridad
+--------------------|-----------------------|----------------------------|----------------------------|----------------------------|------------------------------|--------------------------
+OK|OK|OK|OK|OK|OK|OK
