@@ -7,6 +7,7 @@ USE [X MOTORS];
 GO
 
 -- Definimos la variable con el código de venta que queremos consultar
+-- SELECCIONAR ESTE JUNTO AL DE ABAJO!
 DECLARE @cod_venta INT = 5;
 
 -- 1. ENCABEZADO: Datos generales de la venta, cliente, vendedor y moto
@@ -32,6 +33,7 @@ FROM venta AS v
   JOIN modelo_motocicleta AS mo ON mo.id_modelo = m.id_modelo
 WHERE v.cod_venta = @cod_venta;
 
+DECLARE @cod_venta INT = 5;
 -- 2. DETALLE: Listado de accesorios comprados (si no tiene, no devuelve filas - RN10)
 SELECT
   a.id_accesorio,
@@ -45,6 +47,7 @@ FROM detalle_venta_accesorio AS d
 WHERE d.cod_venta = @cod_venta
 ORDER BY a.descripcion;
 
+DECLARE @cod_venta INT = 5;
 -- 3. VERIFICACIÓN: Comprueba que la moto + accesorios sumen exactamente el monto total guardado
 SELECT
   v.cod_venta,
