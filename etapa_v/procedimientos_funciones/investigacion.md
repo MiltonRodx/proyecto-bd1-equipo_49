@@ -396,3 +396,129 @@ La implementación cumple los cinco puntos de la consigna:
 5. **Script y resultados:** scripts reproducibles y evidencias reales en `evidencias/`.
 
 El descuento se aplicó sobre `precio_venta_moto`, la factura de Etapa IV sigue devolviendo `OK` y los casos negativos no dejaron datos parciales.
+
+---
+
+# Anexo A — Seguridad
+
+> Los temas obligatorios (funciones, transacciones y triggers) van antes; este anexo incorpora el eje de seguridad (RNF1, RNF2, RNF3) con los mismos 5 puntos de la consigna.
+
+## 1. Definición y objetivo
+
+El **modelo de seguridad** de una base define quién puede hacer qué. En SQL Server conviven dos niveles: **logins** (identidad en el servidor) y **usuarios** (identidad en una base); los **roles** agrupan usuarios y reciben permisos, para no asignar privilegios persona por persona. El principio rector es el de **mínimo privilegio**: cada rol solo puede hacer lo que su tarea exige.
+
+En X Motors hay tres perfiles reales: el administrador del sistema, el vendedor de salón y una persona que consulta para responder llamados. Cada uno obtiene su rol, y ni el vendedor ni el consultor tocan los datos contables ni el nivel técnico interno.
+
+## 2. Ventajas y aplicaciones
+
+| Ventaja | Cómo se aplica en X Motors |
+|---|---|
+| Permisos por **rol**, no por persona | El equipo puede cambiar de personas sin re-vistar permisos |
+| **Mínimo privilegio** | El vendedor vende; ni borra personas ni mira la auditoría |
+| **Ownership chaining** | Los SP de `dbo` operan tablas de `dbo` sin dar permisos directos de escritura al vendedor |
+| **Auditable** | `USER_NAME()` dentro de un `EXECUTE AS` es el autor real en las tablas de auditoría |
+| Sin cuentas reales de prueba | Los usuarios son `WITHOUT LOGIN`: nadie puede loguearse con ellos |
+
+## 3. Implementación en SQL Server Express
+
+`03_seguridad.sql` crea roles, usuarios y permisos de forma idempotente (`IF NOT EXISTS` sobre `sys.database_principals`). Todo lo probado usa `EXECUTE AS USER` + `REVERT`, lo que no exige cuentas de servidor ni contraseñas.
+
+```sql
+CREATE ROLE rol_xmotors_vendedor;
+CREATE USER usr_xmotors_vendedor WITHOUT LOGIN;
+ALTER ROLE rol_xmotors_vendedor ADD MEMBER usr_xmotors_vendedor;
+
+GRANT SELECT ON OBJECT::dbo.modelo_motocicleta  TO rol_xmotors_vendedor;
+GRANT EXECUTE ON OBJECT::dbo.sp_registrar_venta TO rol_xmotors_vendedor;
+DENY  INSERT, UPDATE, DELETE ON SCHEMA::dbo     TO rol_xmotors_vendedor;
+
+GRANT SELECT ON SCHEMA::dbo              TO rol_xmotors_consulta;
+DENY  SELECT ON OBJECT::dbo.auditoria_venta TO rol_xmotors_consulta;
+```
+
+Los `DENY` **preceden** a los `GRANT` de esquema: sobre `dbo` el rol de consulta tiene lectura, pero el esquema interno técnico (auditoría e historial) le queda vetado. El `DENY` siempre gana sobre el `GRANT`.
+
+## 4. Caso concreto aplicado al sistema de ventas
+
+| Prueba | Rol | Resultado |
+|---|---|---|
+| `SELECT` de catálogo de modelos | vendedor | OK |
+| `INSERT` directo en `venta` ("= registrar sin el SP") | vendedor | **Negado** (229) |
+| `UPDATE` directo en `cliente` | vendedor | **Negado** (229) |
+| `SELECT` sobre `auditoria_venta` | vendedor | **Negado** (229) |
+| `EXEC sp_reporte_ventas_periodo` | vendedor | OK (ownership chaining) |
+| `SELECT` de ventas | consulta | OK |
+| `SELECT` sobre `auditoria_venta` / `historial_de_precio` | consulta | **Negado** (229) |
+| `EXEC sp_registrar_venta` | consulta | **Negado** (229) |
+| `SELECT` de todo + `EXEC` de administración | admin | OK |
+
+Ninguna prueba dejó datos: el `EXEC` de admin se corrió con `sp_actualizar_precio_modelo` con el mismo precio (la lógica evita el UPDATE si no hay cambios) y el lote quedó intacto.
+
+> **Observación honesta:** para que el vendedor ejecute `sp_registrar_venta` en producción (que internamente llama a `sp_executesql` con el `INSERT`), los SP con SQL dinámico deben crearse con `WITH EXECUTE AS OWNER`, ya que el ownership chaining no cruza batches dinámicos. En este lote se demuestra el `GRANT EXECUTE` y el `DENY` de DML directo; la combinación completa (vendedor ejecutando la venta real) se documenta pero no se fuerza en la demostración para no escribir datos bajo otro contexto de seguridad que después complicaría la limpieza del lote.
+
+## 5. Script y resultados
+
+- Script: [`03_seguridad.sql`](03_seguridad.sql)
+- Pruebas reproducibles: [`evidencias/03_seguridad_pruebas.sql`](evidencias/03_seguridad_pruebas.sql)
+- Salida completa con fecha y usuario: [`evidencias/03_seguridad_salida.txt`](evidencias/03_seguridad_salida.txt)
+
+---
+
+# Anexo B — Índices
+
+## 1. Definición y objetivo
+
+Un **índice** es una estructura auxiliar (en SQL Server, un árbol B+) que mantiene copias ordenadas de pocas columnas con un puntero a la fila completa.Sirve para que las consultas que filtran/juntas/ordenan por esas columnas lleguen a los resultados por **seek** en lugar de escaner toda la tabla.
+
+En X Motors el dataset actual ocupa 30–40 filas por tabla (1–9 páginas). A esa escala **ningún índice muestra su verdadero valor**: el objetivo es dejar creados y puestos los índices correctos para el tipo de consultas que la etapa III/IV acotó (reportes por fecha, ranking por vendedor, cotizaciones por vencimiento, evolución de precios), tal como se utilizarián si el lote creciera tres órdenes de magnitud.
+
+## 2. Ventajas y aplicaciones
+
+| Ventaja | Se refleja en |
+|---|---|
+| Menos lecturas en consultas filtradas | índice de entrada por rango de fechas en `venta` |
+| Menos I/O con `INCLUDE` (covering) | no hay que ir a buscar la fila completa porque las columnas pedidas ya están en el índice |
+| Mejores ordenamientos | `ORDER BY` alineado con la cola del índice (por ejemplo, `historial_de_precio` DESC) |
+| Menos trabas para el optimizador | el estimador elige seek en lugar de escanear cuando sí conviene |
+
+El costo se paga en escrituras: cada `INSERT`/`UPDATE` también actualiza todos los índices. Por eso el anexo crea solo 10 índices (los que cubren consultas reales) y no uno por columna.
+
+## 3. Implementación en SQL Server Express
+
+`04_indices.sql` crea los 10 índices declarados en el contrato (`etapa_v/README.md` §3.6), con guard `IF NOT EXISTS` sobre `sys.indexes`, columnas explícitas en la clave e `INCLUDE` para las columnas cubiertas.
+
+```sql
+CREATE INDEX ix_venta_fecha_estado
+    ON dbo.venta (fecha, estado)
+    INCLUDE (monto_total, dni_cliente, dni_vendedor);
+```
+
+Los nombres siguen la convención de la etapa (`ix_`), no llevan `WHERE` (salvo el índice filtrado `ux_venta_chasis_vigente` que ya existía) y son índices no agrupados, para no mover el clustering físico (que sostiene las FKs).
+
+## 4. Caso concreto y medición ANTES/DESPUÉS
+
+El anexo corrió `SET STATISTICS IO ON; SET STATISTICS TIME ON` sobre 5 consultas representativas (reporte por vendedor y período, historial por cliente, ranking de vendedor, accesorios más vendidos, stock físico, cotizaciones por vencimiento, proveedores por accesorio). Resultado honesto sobre el lote actual:
+
+| Consulta | Tabla dominante | ANTES | DESPUÉS |
+|---|---|---|---|
+| Ranking de vendedores 2026 | `venta` | 2 páginas | 2 páginas |
+| Historial de un cliente | `venta` | 2 páginas | 6 páginas |
+| Ranking de un vendedor | `venta` | 2 páginas | 2 páginas |
+| Accesorios más vendidos | `detalle_venta_accesorio` | 2 páginas | 2 páginas |
+| Cotizaciones de un cliente | `cotizacion` | 2 páginas | 4 páginas |
+| Cotizaciones vencidas | `cotizacion` | 2 páginas | 2 páginas |
+| Historial de precios de un modelo | `historial_de_precio` | 2 páginas | 2 páginas |
+| Stock físico por modelo (anti-join con `venta`) | `venta`/`motocicleta` | 9 + 2 | 9 + 2 |
+| Proveedores por accesorio | `provision_accesorio` | 7 páginas | 6 páginas |
+
+Es poca tabla: la lectura lógica se mide en unidades de página (cada tabla entera cabe en 2 páginas, en algunos casos hasta 6 con el monto de cabecera); el optimizador elige el plan barato y muchas veces sigue escaneando. Los `DMV` (`sys.dm_db_index_usage_stats`) confirman que **los índices se usan** cuando dan ventaja (por ejemplo `ix_cotizacion_cliente_vencimiento`, `ix_motocicleta_modelo`, `ix_provision_accesorio_accesorio` con `user_seeks = 1`, y `ix_detalle_venta_accesorio_accesorio` aparece como scan en la consulta de agregación), pero también que hay índices aún no elegidos por plan (por ejemplo los tres de `venta`) porque con 30 filas el escaneo del agrupado cuesta igual o menos. `sys.dm_db_missing_index_details` a la fecha no sugiere índices faltantes adicionales sobre las columnas del anexo.
+
+**Conclusión honesta de la medición:** con el lote de prueba no se puede demostrar una mejora dramática; se demuestra que (a) los índices existen, (b) el optimizador los usa en varias consultas, y (c) la diferencia real aparecerá con órdenes de magnitud de más datos, que es cuando el scan del agrupado dejará de ser el plan más barato.
+
+## 5. Script y resultados
+
+- Script: [`04_indices.sql`](04_indices.sql)
+- Consultas de medición: [`evidencias/04_indices_consultas.sql`](evidencias/04_indices_consultas.sql)
+- Evidencia ANTES/DESPUÉS completa (incluye el `DROP` inicial, la corrida sin índices, la corrida con índices y las DMVs): [`evidencias/04_indices_antes_despues.txt`](evidencias/04_indices_antes_despues.txt)
+
+Las 10 tablas quedan con sus índices y **ninguna consulta de Etapa IV cambió de comportamiento externo**: los resultados de las mismas son idénticos antes y después.

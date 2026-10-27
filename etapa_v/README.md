@@ -34,15 +34,19 @@ etapa_v/
 ├── procedimientos_funciones/
 │   ├── 01_funciones.sql                 # IMPLEMENTADO (Ejecución 1)
 │   ├── 02_procedimientos.sql            # IMPLEMENTADO (Ejecución 1)
-│   ├── 03_seguridad.sql                 # pendiente (anexo)
-│   ├── 04_indices.sql                   # pendiente (anexo)
-│   ├── investigacion.md                 # IMPLEMENTADO (Ejecución 1)
+│   ├── 03_seguridad.sql                 # IMPLEMENTADO (Ejecución 4)
+│   ├── 04_indices.sql                   # IMPLEMENTADO (Ejecución 4)
+│   ├── investigacion.md                 # IMPLEMENTADO (Ejecuciones 1 y 4)
 │   └── evidencias/
 │       ├── .gitkeep
 │       ├── 01_funciones_pruebas.sql
 │       ├── 01_funciones_salida.txt
 │       ├── 02_procedimientos_pruebas.sql
 │       ├── 02_procedimientos_salida.txt
+│       ├── 03_seguridad_pruebas.sql
+│       ├── 03_seguridad_salida.txt
+│       ├── 04_indices_consultas.sql
+│       ├── 04_indices_antes_despues.txt
 │       └── resultados.md
 ├── transacciones/
 │   ├── 01_sp_registrar_venta.sql        # IMPLEMENTADO (Ejecución 1, revisado)
@@ -69,7 +73,7 @@ etapa_v/
         └── resultados.md
 ```
 
-> **Estado actual (Ejecución 3 completada):** existen los 3 temas obligatorios — `procedimientos_funciones/` (7 funciones y 2 procedimientos de catálogo/reportes), `transacciones/` (ventas/cancelaciones transaccionales + demos ACID) y `triggers_auditoria/` (2 tablas de auditoría + 3 triggers con `investigacion.md` y evidencias). Cada `investigacion.md` cubre los 5 puntos de la consigna. Quedan pendientes los anexos de seguridad e índices (Ejecución 4), agrupados en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada.
+> **Estado actual (Ejecución 4 completada):** existen los 3 temas obligatorios y los 2 anexos — `procedimientos_funciones/` (7 funciones, 2 procedimientos de catálogo/reportes, `03_seguridad.sql` con 3 roles + 3 usuarios `WITHOUT LOGIN` y `04_indices.sql` con 10 índices), `transacciones/` (ventas/cancelaciones transaccionales + demos ACID) y `triggers_auditoria/` (2 tablas de auditoría + 3 triggers). Cada `investigacion.md` cubre los 5 puntos de la consigna y los anexos están documentados como secciones del mismo archivo. Solo queda el cierre final (Ejecución 5): reconstrucción de la base desde cero, README final e índice de evidencias.
 
 ### 2.2 Secuencia obligatoria
 
