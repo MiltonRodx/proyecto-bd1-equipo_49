@@ -45,11 +45,14 @@ etapa_v/
 │       ├── 02_procedimientos_salida.txt
 │       └── resultados.md
 ├── transacciones/
-│   ├── 01_sp_registrar_venta.sql        # IMPLEMENTADO (Ejecución 1)
-│   ├── 02_sp_cambiar_estado_venta.sql   # IMPLEMENTADO (Ejecución 1)
-│   ├── 03_pruebas_acid.sql              # pendiente (Ejecución 2)
+│   ├── 01_sp_registrar_venta.sql        # IMPLEMENTADO (Ejecución 1, revisado)
+│   ├── 02_sp_cambiar_estado_venta.sql   # IMPLEMENTADO (Ejecución 1, revisado)
+│   ├── scripts.sql                      # IMPLEMENTADO (Ejecución 2)
+│   ├── investigacion.md                 # IMPLEMENTADO (Ejecución 2)
 │   └── evidencias/
-│       └── .gitkeep
+│       ├── .gitkeep
+│       ├── salida_sqlcmd.txt
+│       └── resultados.md
 └── triggers_auditoria/
     ├── 01_tablas_auditoria.sql          # pendiente (Ejecución 3)
     ├── 02_trg_historial_precio_modelo.sql
@@ -59,7 +62,7 @@ etapa_v/
         └── .gitkeep
 ```
 
-> **Estado actual (Ejecución 1 completada):** existen `01_funciones.sql`, `02_procedimientos.sql`, `transacciones/01_sp_registrar_venta.sql`, `transacciones/02_sp_cambiar_estado_venta.sql`, `investigacion.md` y las evidencias de funciones/procedimientos. Quedan pendientes las pruebas ACID/concurrencia (Ejecución 2), los triggers de auditoría (Ejecución 3), seguridad e índices (anexos). Seguridad e índices se agrupan en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada; sus evidencias van en `procedimientos_funciones/evidencias/`.
+> **Estado actual (Ejecución 2 completada):** existen `01_funciones.sql`, `02_procedimientos.sql`, `transacciones/01_sp_registrar_venta.sql`, `transacciones/02_sp_cambiar_estado_venta.sql`, `transacciones/scripts.sql`, `transacciones/investigacion.md` y las evidencias de funciones, procedimientos y transacciones. La revisión de la Ejecución 1 corrigió validaciones, bloqueos y el orden de cálculo de `monto_total`. Quedan pendientes los triggers de auditoría (Ejecución 3), seguridad e índices (anexos). Seguridad e índices se agrupan en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada; sus evidencias van en `procedimientos_funciones/evidencias/`.
 
 ### 2.2 Secuencia obligatoria
 
@@ -72,12 +75,13 @@ etapa_v/
 | 5 | `etapa_v/procedimientos_funciones/02_procedimientos.sql` | Crea `sp_actualizar_precio_modelo` y `sp_reporte_ventas_periodo` | No |
 | 6 | `etapa_v/transacciones/01_sp_registrar_venta.sql` | Crea `sp_registrar_venta` | No |
 | 7 | `etapa_v/transacciones/02_sp_cambiar_estado_venta.sql` | Crea `sp_cambiar_estado_venta` | No |
-| 8 | `etapa_v/triggers_auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
-| 9 | `etapa_v/triggers_auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
-| 10 | `etapa_v/triggers_auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
-| 11 | `etapa_v/procedimientos_funciones/03_seguridad.sql` | Crea roles, usuarios y permisos | No |
-| 12 | `etapa_v/procedimientos_funciones/04_indices.sql` | Crea los índices de performance | No |
-| 13 | `etapa_v/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK` al final |
+| 8 | `etapa_v/transacciones/scripts.sql` | Ejecuta las demos de `COMMIT`/`ROLLBACK` y la cancelación final | Sí, con limpieza/cancelación |
+| 9 | `etapa_v/triggers_auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
+| 10 | `etapa_v/triggers_auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
+| 11 | `etapa_v/triggers_auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
+| 12 | `etapa_v/procedimientos_funciones/03_seguridad.sql` | Crea roles, usuarios y permisos | No |
+| 13 | `etapa_v/procedimientos_funciones/04_indices.sql` | Crea los índices de performance | No |
+| 14 | `etapa_v/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
 
 **Reglas de ejecución:**
 
@@ -229,7 +233,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_actualizar_precio_modelo
     @nuevo_precio DECIMAL(12,2)
 ```
 
-- Valida que el modelo exista y que `@nuevo_precio > 0`.
+- Valida que el modelo exista y que `@nuevo_precio > 0` (además del máximo de la columna).
+- Bloquea la fila con `UPDLOCK, HOLDLOCK` antes de comparar y actualizar.
 - Actualiza `modelo_motocicleta.precio_lista`.
 - **No inserta en `historial_de_precio`**: de eso se encarga `trg_historial_precio_modelo`.
 - Si el precio no cambia, no hace nada y devuelve un mensaje informativo.
@@ -253,7 +258,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
     @dni_vendedor         INT,
     @numero_chasis        VARCHAR(100),
     @metodo_pago          VARCHAR(50),
-    @porcentaje_descuento DECIMAL(5,2) = 0,
+    @porcentaje_descuento DECIMAL(5,2) = NULL,
     @accesorios_json      NVARCHAR(MAX) = NULL,
     @fecha                DATE = NULL,
     @cod_venta            INT OUTPUT
@@ -264,6 +269,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
 - `@accesorios_json` es un arreglo JSON; `NULL` o `'[]'` significa venta sin accesorios.
 - `@fecha` por defecto es la fecha actual (`CAST(GETDATE() AS DATE)`).
 - `@cod_venta` devuelve el `cod_venta` generado por `IDENTITY`.
+- Si `@porcentaje_descuento` es `NULL`, se aplica el descuento por historial de `fn_descuento_cliente`. Un valor explícito puede ser igual o menor al permitido, pero nunca mayor (`50009`).
+- `monto_total` se calcula antes del `INSERT`; el procedimiento no hace un `UPDATE` posterior de la cabecera.
 
 Archivo: `etapa_v/transacciones/02_sp_cambiar_estado_venta.sql`.
 
@@ -417,8 +424,9 @@ financiamiento
 **Fórmula de la venta:**
 
 ```text
-precio_venta_moto = fn_precio_con_descuento(modelo_motocicleta.precio_lista, @porcentaje_descuento)
-monto_total       = precio_venta_moto + fn_total_accesorios_venta(@cod_venta)
+porcentaje        = ISNULL(@porcentaje_descuento, fn_descuento_cliente(@dni_cliente))
+precio_venta_moto = fn_precio_con_descuento(modelo_motocicleta.precio_lista, porcentaje)
+monto_total       = precio_venta_moto + suma(accesorios del JSON)
 ```
 
 > El descuento se aplica **solo** al precio de la moto. No se aplica sobre los accesorios ni sobre `monto_total`. `venta.precio_venta_moto` guarda el precio final de la moto **ya con descuento**; el descuento se calcula sobre `modelo_motocicleta.precio_lista`.
@@ -429,22 +437,25 @@ monto_total       = precio_venta_moto + fn_total_accesorios_venta(@cod_venta)
 
 **Pasos transaccionales:**
 
-1. Validar cliente, vendedor, chasis y método de pago.
-2. Leer el modelo y bloquear su fila de stock con `UPDLOCK, HOLDLOCK`.
+1. Validar cliente, vendedor, chasis, método de pago y descuento permitido.
+2. Bloquear la `motocicleta` por chasis y su `modelo_motocicleta` con `UPDLOCK, HOLDLOCK`.
 3. Verificar que `stock_disponible >= 1` y que el chasis no tenga otra venta `efectuada`.
-4. Calcular `precio_venta_moto` con el descuento.
-5. Insertar `venta` con estado `efectuada` y `monto_total` provisorio igual al precio de la moto.
-6. Insertar cada accesorio en `detalle_venta_accesorio`, validando y descontando stock.
-7. Actualizar `modelo_motocicleta.stock_disponible = stock_disponible - 1`.
-8. Actualizar `cliente.estado = 'comprador'` si corresponde.
-9. Recalcular `venta.monto_total` con la suma de accesorios.
-10. `COMMIT`; ante cualquier error, `ROLLBACK` y `THROW`.
+4. Bloquear los accesorios en orden de `id_accesorio` y verificar stock.
+5. Calcular `precio_venta_moto` con el descuento.
+6. Calcular `monto_total = precio_venta_moto + accesorios` antes de insertar.
+7. Insertar `venta` con estado `efectuada` y el `monto_total` definitivo.
+8. Insertar cada accesorio en `detalle_venta_accesorio` y descontar stock.
+9. Actualizar `modelo_motocicleta.stock_disponible = stock_disponible - 1`.
+10. Actualizar `cliente.estado = 'comprador'` si corresponde.
+11. Verificar `fn_total_venta(...) = monto_total`; si no coincide, `50019`.
+12. `COMMIT`; ante cualquier error, `ROLLBACK` y `THROW`.
 
 **Bloqueos y concurrencia:**
 
 - `SET XACT_ABORT ON` y `SET NOCOUNT ON`.
 - Bloqueo pesimista de stock con `UPDLOCK, HOLDLOCK`.
-- Orden de bloqueo: `modelo_motocicleta` → `motocicleta` → `accesorio` (por `id_accesorio`) → `venta` → `detalle_venta_accesorio` → `cliente`.
+- Orden de bloqueo: `motocicleta` → `modelo_motocicleta` → `accesorio` (por `id_accesorio`) → `venta` → `detalle_venta_accesorio` → `cliente`.
+- Los accesorios se bloquean con un cursor ordenado por `id_accesorio` para que dos ventas concurrentes adquieran los bloqueos en el mismo orden.
 - Aislamiento: `READ COMMITTED` (el bloqueo explícito cubre la carrera por el stock).
 - La venta de una moto y el descuento de stock ocurren en la misma transacción: no puede quedar una venta sin stock descontado.
 
@@ -460,9 +471,9 @@ efectuada → reembolsada
 **Pasos transaccionales (mismo orden de bloqueo que `sp_registrar_venta`):**
 
 1. Leer la venta y sus detalles sin bloqueo para obtener el chasis, el modelo y los accesorios.
-2. Bloquear `modelo_motocicleta` → `motocicleta` → `accesorio` (por `id_accesorio`), en ese orden.
-3. Bloquear la venta con `UPDLOCK, HOLDLOCK` y revalidar que siga en estado `efectuada`.
-4. Actualizar `venta.estado` al nuevo estado.
+2. Bloquear `motocicleta` → `modelo_motocicleta` → `accesorio` (por `id_accesorio`), en ese orden.
+3. Bloquear la venta con `UPDLOCK, HOLDLOCK` y revalidar que siga en estado `efectuada` y con el mismo chasis.
+4. Actualizar `venta.estado` al nuevo estado; verificar que se actualizó exactamente una fila.
 5. Reintegrar `+1` a `modelo_motocicleta.stock_disponible` de la moto vendida.
 6. Reintegrar a `accesorio.stock` la cantidad de cada línea de `detalle_venta_accesorio`.
 7. `COMMIT`; ante cualquier error, `ROLLBACK` y `THROW`.
@@ -524,7 +535,7 @@ Rango reservado: `50001`–`50099`. Mensajes sin tildes para evitar problemas de
 | `50006` | Accesorio inexistente |
 | `50007` | Cantidad de accesorio inválida |
 | `50008` | Sin stock suficiente de accesorio |
-| `50009` | Porcentaje de descuento inválido |
+| `50009` | Porcentaje de descuento inválido o mayor al permitido |
 | `50010` | JSON de accesorios inválido o con IDs duplicados |
 | `50011` | Método de pago inválido |
 | `50012` | Venta inexistente |
@@ -533,6 +544,8 @@ Rango reservado: `50001`–`50099`. Mensajes sin tildes para evitar problemas de
 | `50015` | Rango de fechas inválido |
 | `50016` | Precio de modelo inválido |
 | `50017` | Modelo inexistente |
+| `50018` | Precio de accesorio inválido |
+| `50019` | Total o código de venta inconsistente |
 
 ---
 
@@ -543,18 +556,21 @@ Rango reservado: `50001`–`50099`. Mensajes sin tildes para evitar problemas de
 | Tema | Chasis reservado | Modelo | Cliente | Vendedor | Accesorio | Prueba esperada |
 |---|---|---|---|---|---|---|
 | Procedimientos y funciones | `HONCB500F003` | 11 — CB500F | `35123903` | `31222333` | `1` y `3` | Venta con 10 % de descuento: `precio_venta_moto = 7.650.000,00`, `monto_total = 7.877.000,00` |
-| Transacciones | `YAMMT03002` | 12 — MT-03 2025 | `28345672` | `29876543` | `8` × 1 | `COMMIT` correcto y prueba de `ROLLBACK` con accesorio inexistente o cantidad `9999` |
+| Transacciones | `HONCB500F004` | 11 — CB500F | `30456781` | `31222333` | `1` × 1 | `COMMIT` correcto, `ROLLBACK` por stock insuficiente y por FK inválida; cancelación final |
 | Triggers y auditoría | `KAWZ400001` | 14 — Z400 | `40234567` | `32109876` | `2` × 1 | Venta + cancelación: stock de modelo `+1`, stock de accesorio `+1`, auditoría `INSERT` y `UPDATE` |
 | Concurrencia | `9C2KAW00000000014` | 10 — Ninja 400 | `35123903` | `34567890` | — | Dos sesiones simultáneas: solo una venta `efectuada`; la otra recibe `50004` o `50005` |
 | Funciones sin venta | — | — | — | — | — | `fn_cotizacion_vigente` con cotizaciones existentes; `fn_stock_disponible_modelo` con modelos del DML |
 | Seguridad | — | — | — | — | — | `EXECUTE AS USER` sobre `usr_xmotors_vendedor` y `usr_xmotors_consulta` |
 | Índices | — | — | — | — | — | `SET STATISTICS IO/TIME ON` y plan de ejecución antes/después |
 
+> La prueba negativa de accesorios sin stock usa `HONCB500F002` para no compartir chasis con la demo de transacciones (`HONCB500F004`).
+
 **Chasis adicionales reservados para pruebas de Etapa V** (no usar en otros temas):
 
 ```text
 HONCB500F002        (modelo 11, stock 3)
 HONCB500F003        (modelo 11, stock 3)
+HONCB500F004        (modelo 11, stock 3)
 YAMMT03002          (modelo 12, stock 2)
 YAMMT03003          (modelo 12, stock 2)
 KAWZ400001          (modelo 14, stock 2)
@@ -572,7 +588,7 @@ CHS89123409         (modelo 30, stock 1, venta cancelada)
 - Vendedores: `31222333`, `29876543`, `32109876`, `34567890`, `36543210`, `30999888`, `37111444`.
 - Accesorios con stock: `1` (11), `2` (11), `8` (6).
 
-**Limpieza:** las pruebas deben ejecutarse con `BEGIN TRAN ... ROLLBACK`. Si alguna prueba se confirma, limpiar en este orden:
+**Limpieza:** las pruebas de procedimientos cancelan la venta demo y luego eliminan sus filas; las demos de transacciones hacen `COMMIT` y cancelan la venta al final para restaurar el stock. Si alguna prueba se confirma, limpiar en este orden:
 
 1. `DELETE FROM dbo.detalle_venta_accesorio WHERE cod_venta = @cod_venta;`
 2. `DELETE FROM dbo.venta WHERE cod_venta = @cod_venta;`
@@ -622,12 +638,12 @@ Cada carpeta `evidencias/` conserva su `.gitkeep` para que Git versione la estru
 | Carpeta | Archivos |
 |---|---|
 | `procedimientos_funciones/evidencias/` | `01_funciones_pruebas.sql`, `01_funciones_salida.txt`, `02_procedimientos_pruebas.sql`, `02_procedimientos_salida.txt`, `03_seguridad_pruebas.sql`, `03_seguridad_salida.txt`, `04_indices_antes_despues.txt` |
-| `transacciones/evidencias/` | `01_venta_commit.txt`, `02_rollback.txt`, `03_concurrencia_sesion_a.txt`, `03_concurrencia_sesion_b.txt` |
+| `transacciones/evidencias/` | `salida_sqlcmd.txt`, `resultados.md` |
 | `triggers_auditoria/evidencias/` | `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt` |
 
 **Contenido mínimo de cada evidencia:**
 
-1. `SELECT @@VERSION;`, `SELECT DB_NAME();`, `SELECT USER_NAME();` y `SELECT SYSDATETIME();`.
+1. Versión (`@@VERSION`), base (`DB_NAME()`), usuario (`USER_NAME()`) y fecha/hora (`SYSDATETIME()`).
 2. Script ejecutado y resultado obtenido.
 3. Para transacciones: cantidad de filas afectadas, `@@TRANCOUNT` antes/después y mensaje de error si corresponde.
 4. Para triggers: `SELECT` de la tabla de auditoría antes y después del cambio.

@@ -129,7 +129,7 @@ Funciones útiles dentro del `CATCH`:
 | `OFF` (default) | Algunos errores abortan solo la instrucción; la transacción puede seguir abierta y ser confirmable. |
 | `ON` | Un error de ejecución aborta el batch y deja la transacción en estado no confirmable; el `CATCH` debe hacer `ROLLBACK`. |
 
-**Recomendación:** usar `SET XACT_ABORT ON` al inicio de procedimientos que modifican datos. Evita que un error intermedio deje una transacción abierta y que el cliente confirme datos parciales.
+**Recomendación:** usar `SET XACT_ABORT ON` antes de abrir la transacción, después de validar las entradas. Evita que un error intermedio deje una transacción abierta y que el cliente confirme datos parciales, sin arrastrar al llamador cuando el error es solo de validación.
 
 **Ejemplo del script:** el demo 3 usa `SET XACT_ABORT ON`. La violación de FK deja `XACT_STATE() = -1` y `@@TRANCOUNT = 1` dentro del `CATCH`; después del `ROLLBACK`, ambos vuelven a `0`.
 
@@ -343,7 +343,7 @@ Un deadlock ocurre cuando dos sesiones se bloquean mutuamente y ninguna puede av
 
 Prevención:
 
-1. **Orden consistente de bloqueo:** bloquear siempre `modelo_motocicleta` → `motocicleta` → `accesorio` (por `id_accesorio`) → `venta`.
+1. **Orden consistente de bloqueo:** bloquear siempre `motocicleta` → `modelo_motocicleta` → `accesorio` (por `id_accesorio`) → `venta`.
 2. Transacciones cortas: no abrir una transacción y esperar interacción del usuario.
 3. Índices adecuados: menos filas leídas, menos bloqueos.
 4. Reintentar la transacción víctima con lógica de retry.

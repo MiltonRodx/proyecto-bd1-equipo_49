@@ -40,7 +40,7 @@ La idea central es que **la regla viva en un solo lugar** y que todos los usuari
 
 | Ventaja | Cómo se aplica en X Motors |
 |---|---|
-| **Reutilización** | `fn_precio_con_descuento` y `fn_total_venta` se usan en la venta, en la factura y en los controles. |
+| **Reutilización** | `fn_precio_con_descuento`, `fn_descuento_cliente` y `fn_total_venta` se usan en la venta y en los controles. La factura de Etapa IV es anterior y no invoca estas funciones. |
 | **Mantenibilidad** | Si cambia un umbral de descuento, se modifica una función y no todas las consultas. |
 | **Centralización de reglas** | La venta, el stock y el estado del cliente se resuelven en `sp_registrar_venta`, no en cada aplicación. |
 | **Seguridad** | Un usuario puede recibir solo `EXECUTE` sobre el procedimiento, sin permisos directos sobre las tablas. |
@@ -79,6 +79,7 @@ La idea central es que **la regla viva en un solo lugar** y que todos los usuari
 - Nivel de compatibilidad **130 o mayor** para `OPENJSON` (usado en `sp_registrar_venta`).
 - Esquema `dbo.` explícito.
 - `SET ANSI_NULLS ON` y `SET QUOTED_IDENTIFIER ON` al inicio de cada script.
+- En los procedimientos que modifican `venta`, se fijan además `ANSI_PADDING`, `ANSI_WARNINGS`, `ARITHABORT`, `CONCAT_NULL_YIELDS_NULL` y `NUMERIC_ROUNDABORT` para el índice filtrado.
 - Un objeto por lote, separado con `GO`; `CREATE OR ALTER` debe ser la primera instrucción del lote.
 
 La validación se hizo sobre **SQL Server 2025 Express** en Docker. Todos los objetos usados son compatibles con **SQL Server Express 2022** y versiones anteriores con compatibilidad 130+.
@@ -151,7 +152,7 @@ Se reserva el rango `50001`–`50099`. Los mensajes van sin tildes para evitar p
 | `50006` | Accesorio inexistente |
 | `50007` | Cantidad de accesorio inválida |
 | `50008` | Sin stock suficiente de accesorio |
-| `50009` | Porcentaje de descuento inválido |
+| `50009` | Porcentaje de descuento inválido o mayor al permitido |
 | `50010` | JSON de accesorios inválido o con IDs duplicados |
 | `50011` | Método de pago inválido |
 | `50012` | Venta inexistente |
@@ -160,6 +161,8 @@ Se reserva el rango `50001`–`50099`. Los mensajes van sin tildes para evitar p
 | `50015` | Rango de fechas inválido |
 | `50016` | Precio de modelo inválido |
 | `50017` | Modelo inexistente |
+| `50018` | Precio de accesorio inválido |
+| `50019` | Total o código de venta inconsistente |
 
 ---
 
@@ -208,7 +211,7 @@ dbo.sp_registrar_venta
     @dni_vendedor         INT,
     @numero_chasis        VARCHAR(100),
     @metodo_pago          VARCHAR(50),
-    @porcentaje_descuento DECIMAL(5,2) = 0,
+    @porcentaje_descuento DECIMAL(5,2) = NULL,
     @accesorios_json      NVARCHAR(MAX) = NULL,
     @fecha                DATE = NULL,
     @cod_venta            INT OUTPUT
@@ -218,16 +221,19 @@ Pasos:
 
 1. Valida cliente, vendedor, chasis, porcentaje y método de pago.
 2. Normaliza el método de pago (`transferencia` → `transferencia bancaria`).
-3. Parsea el JSON de accesorios con `OPENJSON`.
-4. Bloquea la moto, el modelo y los accesorios con `UPDLOCK, HOLDLOCK`.
-5. Verifica stock de la moto y de cada accesorio.
-6. Verifica que el chasis no tenga otra venta `efectuada`.
-7. Calcula `precio_venta_moto = fn_precio_con_descuento(precio_lista, porcentaje)`.
-8. Inserta la cabecera y el detalle con el precio pactado congelado.
-9. Descuenta stock de la moto y de los accesorios.
-10. Pasa al cliente a `comprador` (RN5).
-11. Recalcula `monto_total = fn_total_venta(precio_venta_moto, cod_venta)`.
-12. `COMMIT`; ante cualquier error, `ROLLBACK` y `THROW`.
+3. Si el porcentaje es `NULL`, toma el descuento por historial de `fn_descuento_cliente`; un valor explícito no puede superar ese máximo.
+4. Parsea el JSON de accesorios con `OPENJSON` y rechaza precios negativos (`50018`).
+5. Bloquea la moto, el modelo y los accesorios con `UPDLOCK, HOLDLOCK`, en orden ascendente de `id_accesorio`.
+6. Verifica stock de la moto y de cada accesorio.
+7. Verifica que el chasis no tenga otra venta `efectuada`.
+8. Calcula `precio_venta_moto = fn_precio_con_descuento(precio_lista, porcentaje)`.
+9. Calcula `monto_total = precio_venta_moto + accesorios` antes de insertar.
+10. Inserta la cabecera con el total definitivo y el detalle con el precio pactado congelado.
+11. Descuenta stock de la moto y de los accesorios; pasa al cliente a `comprador` (RN5).
+12. Verifica `fn_total_venta(precio_venta_moto, cod_venta) = monto_total`; si no coincide, `50019`.
+13. `COMMIT`; ante cualquier error, `ROLLBACK` y `THROW`.
+
+**Opciones SET e índice filtrado:** el índice `ux_venta_chasis_vigente` exige `ANSI_WARNINGS`, `CONCAT_NULL_YIELDS_NULL` y `NUMERIC_ROUNDABORT` correctos. El procedimiento fija esas opciones y ejecuta el `INSERT` de `venta` con `sp_executesql`; el lote hijo hereda la configuración y evita el error `1934` aunque el llamador tenga opciones hostiles.
 
 **Regla de oro:**
 
@@ -338,7 +344,7 @@ Accesorios:   1 × Casco integral ABS ($185.000) + 1 × Guantes de cuero ($42.00
 
 | Campo | Valor |
 |---|---|
-| `cod_venta` | `32` |
+| `cod_venta` | `67` |
 | `precio_venta_moto` | `$7.650.000,00` |
 | Total accesorios | `$227.000,00` |
 | `monto_total` | `$7.877.000,00` |
@@ -353,7 +359,7 @@ Accesorios:   1 × Casco integral ABS ($185.000) + 1 × Guantes de cuero ($42.00
 
 | Acción | Resultado |
 |---|---|
-| Cancelar la venta `32` | `estado = cancelada` |
+| Cancelar la venta `67` | `estado = cancelada` |
 | Stock modelo 11 | `2 → 3` |
 | Stock accesorio 1 | `10 → 11` |
 | Stock accesorio 3 | `17 → 18` |
@@ -369,12 +375,15 @@ La venta demo se eliminó al final para dejar el lote de Etapa III como estaba.
 | Chasis `HONCB500F001` ya vendido | `50005` | Rechazado, sin venta nueva |
 | Modelo 2 sin stock | `50004` | Rechazado, sin venta nueva |
 | Accesorio 1 con cantidad `9999` | `50008` | Rechazado, sin venta nueva |
+| Método de pago `NULL` | `50011` | Rechazado, sin venta nueva |
+| Accesorio con precio `-1` | `50018` | Rechazado, sin venta nueva |
+| Descuento explícito mayor al permitido | `50009` | Rechazado, sin venta nueva |
 
-En todos los casos la transacción se revirtió y no quedaron filas parciales.
+En todos los casos la transacción se revirtió y no quedaron filas parciales. La prueba de accesorios sin stock usa `HONCB500F002` para no compartir chasis con la demo de transacciones (`HONCB500F004`).
 
 ### 5.6 Nota sobre los datos de prueba
 
-El `README.md` de la Ejecución 0 asignaba al tema 1 el cliente `30456781` y el chasis `HONCB500F002`, esperando un descuento del 10 %. Al verificar los datos reales, `30456781` acumula `$7.015.000` en ventas `efectuada`, por lo que le corresponde **5 %**, no 10 %. Para demostrar el umbral del 10 % se usó el cliente `35123903` (2 ventas, `$24.945.950`) y el chasis `HONCB500F003`, tal como indica la consigna de la Ejecución 1. El cálculo de `$7.650.000` y `$7.877.000` es correcto para ese cliente.
+El `README.md` de la Ejecución 0 asignaba al tema 1 el cliente `30456781` y el chasis `HONCB500F002`, esperando un descuento del 10 %. Al verificar los datos reales, `30456781` acumula `$7.015.000` en ventas `efectuada`, por lo que le corresponde **5 %**, no 10 %. Para demostrar el umbral del 10 % se usó el cliente `35123903` (2 ventas, `$24.945.950`) y el chasis `HONCB500F003`, tal como indica la consigna de la Ejecución 1. El cálculo de `$7.650.000` y `$7.877.000` es correcto para ese cliente. `HONCB500F002` quedó reservado para la prueba negativa de stock de accesorios.
 
 ### 5.7 Conclusión
 
