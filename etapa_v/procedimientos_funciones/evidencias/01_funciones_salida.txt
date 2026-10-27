@@ -1,0 +1,43 @@
+Changed database context to 'X MOTORS'.
+=== Contexto de ejecucion ===
+version_motor                                                                                                                                                                                            base_de_datos                                                                                                                    usuario                                                                                                                          fecha_hora                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
+Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
+	Oct 15 2026 19:55:26 
+	Copyright (C) 2025 Microsoft Corporation
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64>     X MOTORS                                                                                                                         dbo                                                                                                                                         2026-10-27 18:04:57.4360959
+=== fn_precio_con_descuento: 10 %, 5 %, 0 % y casos invalidos ===
+precio_con_10  precio_con_5   precio_sin_descuento precio_negativo porcentaje_invalido
+-------------- -------------- -------------------- --------------- -------------------
+    7650000.00     8075000.00           8500000.00            NULL                NULL
+=== fn_descuento_cliente: umbrales 10 %, 5 %, 0 % y cliente inexistente ===
+descuento_35123903 descuento_30456781 descuento_28345672 descuento_cliente_inexistente
+------------------ ------------------ ------------------ -----------------------------
+             10.00               5.00                .00                          NULL
+=== fn_resumen_cliente: cantidad de compras, monto acumulado y descuento ===
+dni_cliente cantidad_ventas monto_acumulado  descuento
+----------- --------------- ---------------- ---------
+   35123903               2      24945950.00     10.00
+dni_cliente cantidad_ventas monto_acumulado  descuento
+----------- --------------- ---------------- ---------
+   30456781               2       7015000.00      5.00
+dni_cliente cantidad_ventas monto_acumulado  descuento
+----------- --------------- ---------------- ---------
+   28345672               1       2811750.00       .00
+=== fn_total_accesorios_venta y fn_total_venta ===
+accesorios_venta_1 accesorios_venta_sin_detalle accesorios_venta_inexistente total_venta_1  total_venta_inexistente
+------------------ ---------------------------- ---------------------------- -------------- -----------------------
+         227000.00                          .00                         NULL     3877000.00                    NULL
+=== fn_stock_disponible_modelo ===
+stock_modelo_11 stock_modelo_2 stock_modelo_inexistente
+--------------- -------------- ------------------------
+              3              0                     NULL
+=== fn_cotizacion_vigente: vencidas y inexistente ===
+cotizacion_1 cotizacion_10 cotizacion_inexistente
+------------ ------------- ----------------------
+           0             0                   NULL
+=== fn_cotizacion_vigente: cotizacion temporal vigente (se revierte) ===
+id_cotizacion_temporal vigente
+---------------------- -------
+                    34       1
+=== Fin de las pruebas de funciones ===

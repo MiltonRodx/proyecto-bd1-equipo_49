@@ -32,20 +32,26 @@
 etapa_v/
 ├── README.md
 ├── procedimientos_funciones/
-│   ├── 01_funciones.sql                 # pendiente de implementación
-│   ├── 02_procedimientos.sql            # pendiente de implementación
-│   ├── 03_seguridad.sql                 # DDL de soporte: roles, usuarios y permisos
-│   ├── 04_indices.sql                   # DDL de soporte: índices de performance
+│   ├── 01_funciones.sql                 # IMPLEMENTADO (Ejecución 1)
+│   ├── 02_procedimientos.sql            # IMPLEMENTADO (Ejecución 1)
+│   ├── 03_seguridad.sql                 # pendiente (anexo)
+│   ├── 04_indices.sql                   # pendiente (anexo)
+│   ├── investigacion.md                 # IMPLEMENTADO (Ejecución 1)
 │   └── evidencias/
-│       └── .gitkeep
+│       ├── .gitkeep
+│       ├── 01_funciones_pruebas.sql
+│       ├── 01_funciones_salida.txt
+│       ├── 02_procedimientos_pruebas.sql
+│       ├── 02_procedimientos_salida.txt
+│       └── resultados.md
 ├── transacciones/
-│   ├── 01_sp_registrar_venta.sql        # pendiente de implementación
-│   ├── 02_sp_cambiar_estado_venta.sql   # pendiente de implementación
-│   ├── 03_pruebas_acid.sql              # evidencia de commit / rollback / concurrencia
+│   ├── 01_sp_registrar_venta.sql        # IMPLEMENTADO (Ejecución 1)
+│   ├── 02_sp_cambiar_estado_venta.sql   # IMPLEMENTADO (Ejecución 1)
+│   ├── 03_pruebas_acid.sql              # pendiente (Ejecución 2)
 │   └── evidencias/
 │       └── .gitkeep
 └── triggers_auditoria/
-    ├── 01_tablas_auditoria.sql          # tablas nuevas de auditoría
+    ├── 01_tablas_auditoria.sql          # pendiente (Ejecución 3)
     ├── 02_trg_historial_precio_modelo.sql
     ├── 03_trg_auditoria_venta.sql
     ├── 04_trg_auditoria_cliente_estado.sql
@@ -53,7 +59,7 @@ etapa_v/
         └── .gitkeep
 ```
 
-> **Estado actual:** solo existen este `README.md` y los tres `.gitkeep`. Los archivos `.sql` se incorporan en las ejecuciones siguientes. Seguridad e índices se agrupan en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada; sus evidencias van en `procedimientos_funciones/evidencias/`.
+> **Estado actual (Ejecución 1 completada):** existen `01_funciones.sql`, `02_procedimientos.sql`, `transacciones/01_sp_registrar_venta.sql`, `transacciones/02_sp_cambiar_estado_venta.sql`, `investigacion.md` y las evidencias de funciones/procedimientos. Quedan pendientes las pruebas ACID/concurrencia (Ejecución 2), los triggers de auditoría (Ejecución 3), seguridad e índices (anexos). Seguridad e índices se agrupan en `procedimientos_funciones/` para no ampliar la estructura de tres carpetas acordada; sus evidencias van en `procedimientos_funciones/evidencias/`.
 
 ### 2.2 Secuencia obligatoria
 
@@ -189,6 +195,29 @@ CREATE OR ALTER FUNCTION dbo.fn_stock_disponible_modelo (
 - Devuelve `modelo_motocicleta.stock_disponible`.
 - Devuelve `NULL` si el modelo no existe.
 - No recalcula el stock: lee la columna mantenida por los procedimientos de venta/anulación.
+
+```sql
+CREATE OR ALTER FUNCTION dbo.fn_descuento_cliente (
+    @dni_cliente INT
+) RETURNS DECIMAL(5,2)
+```
+
+- Devuelve `10.00`, `5.00` o `0.00` según el monto acumulado en ventas `efectuada`.
+- Umbrales: más de `$10.000.000` → 10 %, más de `$5.000.000` → 5 %, resto → 0 %.
+- Las ventas `cancelada` y `reembolsada` no suman.
+- Devuelve `NULL` si el cliente no existe.
+
+```sql
+CREATE OR ALTER FUNCTION dbo.fn_resumen_cliente (
+    @dni_cliente INT
+) RETURNS TABLE
+```
+
+- Función inline table-valued.
+- Devuelve `dni_cliente`, `cantidad_ventas`, `monto_acumulado` y `descuento`.
+- Es la vista de apoyo para explicar la regla de descuento en la demostración.
+
+> Estas dos funciones se agregaron en la Ejecución 1 para cubrir explícitamente la regla de descuento por historial que pide la consigna. No reemplazan a `fn_precio_con_descuento`: esta última aplica el porcentaje que recibe, mientras que `fn_descuento_cliente` decide el porcentaje según las compras del cliente.
 
 ### 3.3 Procedimientos
 
@@ -513,7 +542,7 @@ Rango reservado: `50001`–`50099`. Mensajes sin tildes para evitar problemas de
 
 | Tema | Chasis reservado | Modelo | Cliente | Vendedor | Accesorio | Prueba esperada |
 |---|---|---|---|---|---|---|
-| Procedimientos y funciones | `HONCB500F002` | 11 — CB500F | `30456781` | `31222333` | `1` × 1 | Venta con 10 % de descuento: `precio_venta_moto = 7.650.000,00`, `monto_total = 7.835.000,00` |
+| Procedimientos y funciones | `HONCB500F003` | 11 — CB500F | `35123903` | `31222333` | `1` y `3` | Venta con 10 % de descuento: `precio_venta_moto = 7.650.000,00`, `monto_total = 7.877.000,00` |
 | Transacciones | `YAMMT03002` | 12 — MT-03 2025 | `28345672` | `29876543` | `8` × 1 | `COMMIT` correcto y prueba de `ROLLBACK` con accesorio inexistente o cantidad `9999` |
 | Triggers y auditoría | `KAWZ400001` | 14 — Z400 | `40234567` | `32109876` | `2` × 1 | Venta + cancelación: stock de modelo `+1`, stock de accesorio `+1`, auditoría `INSERT` y `UPDATE` |
 | Concurrencia | `9C2KAW00000000014` | 10 — Ninja 400 | `35123903` | `34567890` | — | Dos sesiones simultáneas: solo una venta `efectuada`; la otra recibe `50004` o `50005` |
@@ -660,8 +689,18 @@ git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
 
 ---
 
-## 10. Commit sugerido
+## 10. Commits sugeridos
+
+### Ejecución 0
 
 ```text
 (add) etapaV: crear estructura base y contrato de objetos
+```
+
+### Ejecución 1
+
+```text
+feat(etapa-v): creacion de procedimientos y funciones de clientes y ventas
+test(etapa-v): modificacion de evidencias de los procedimientos y funciones
+docs(etapa-v): documentacion de los procedimientos y funciones realizados
 ```
