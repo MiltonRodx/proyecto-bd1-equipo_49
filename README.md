@@ -1,6 +1,12 @@
-# X Motors — Sistema de Gestión de Ventas de Motos | BD1 Grupo 49
+# 🏍️ X Motors — Sistema de Gestión de Ventas de Motos · BD1 Grupo 49
 
-> Base de Datos I — FaCENA (UNNE). Base relacional en 3FN para una agencia de motos 0 km: stock por modelo, unidades por chasis, ventas de 1 moto + 0..N accesorios, precios pactados congelados.
+[![Etapa V](https://img.shields.io/badge/etapas-I--V%20completas-2EA44F)](#estado-de-las-etapas)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server%20Express-2016%20%2B%20·%20verificado%202025-CC2927?logo=microsoftsqlserver&logoColor=white)](#c%C3%B3mo-usar-y-reproducir)
+[![T-SQL](https://img.shields.io/badge/lenguaje-T--SQL-blue)](sql/)
+[![BD1](https://img.shields.io/badge/Base%20de%20Datos%20I-FaCENA%20·%20UNNE-6A1B9A)](#equipo)
+[![Licencia](https://img.shields.io/github/license/MiltonRodx/proyecto-bd1-equipo_49)](LICENSE)
+
+> Proyecto integrador de **Base de Datos I — FaCENA (UNNE)**: base relacional en 3FN para una agencia de motos 0 km (stock por modelo, unidades por chasis, ventas de 1 moto + 0..N accesorios, precios pactados congelados), llevada hasta robustez con temas técnicos de etapa V.
 
 ## Equipo
 
@@ -12,7 +18,7 @@
 | Veglia Marcos Daniel | 45845762 |
 | Zarate Arturo Alan | 44212316 |
 
-## Estado de las etapas
+## 📌 Estado de las etapas
 
 | Etapa | Pregunta | Carpeta | Contenido | Estado |
 |---|---|---|---|---|
@@ -25,48 +31,80 @@
 Documentos fuente por etapa:
 
 * Etapa I: [ETAPA_01.md](docs/etapa-01/ETAPA_01.md) · [PDF entregable](docs/etapa-01/BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf)
-* Etapa II: [ETAPA_02.md](docs/etapa-02/ETAPA_02.md) · [Esquema relacional (PNG)](docs/etapa-02/ESQUEMA%20RELACIONAL%20ETAPA%202.png) · [ERDPlus](docs/etapa-02/archivo_erdplus_relacional.erdplus) · [Notación Chen (TXT)](docs/etapa-02/Notacion%20chen-%20diagrama%20relacional.txt) · [PDF](docs/etapa-02/BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf)
+* Etapa II: [ETAPA_02.md](docs/etapa-02/ETAPA_02.md) · [Esquema relacional (PNG)](docs/etapa-02/esquema_relacional_etapa_02.png) · [ERDPlus](docs/etapa-02/archivos_erdplus/archivo_erdplus_relacional.erdplus) · [Notación Chen (TXT)](docs/etapa-02/notacion_chen_RS.txt) · [PDF](docs/etapa-02/BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf)
 
-## Estructura del repositorio
+## 🗂️ Estructura del repositorio
 
 ```
 proyecto-bd1-equipo_49/
 ├── README.md
 ├── docs/               Documentación por etapa (de la I a la V)
-│   ├── etapa-01/
-│   ├── etapa-02/
-│   ├── etapa-03/
-│   ├── etapa-04/
-│   └── etapa-05/       Etapa V: scripts, investigaciones y evidencias (ver docs/etapa-05/README.md)
+│   ├── etapa-01/       Requerimientos y reglas de negocio
+│   ├── etapa-02/       DER (Chen/ERDPlus) + modelo relacional 3FN
+│   ├── etapa-03/       Documentación del DDL/DML
+│   ├── etapa-04/       Documentación de las consultas
+│   └── etapa-05/       Temas técnicos: 5 carpetas numeradas, un tema por carpeta
+│       ├── 01-procedimientos-funciones/
+│       ├── 02-transacciones/
+│       ├── 03-triggers-auditoria/
+│       ├── 04-seguridad/
+│       └── 05-indices/
 └── sql/
-    ├── ddl/
-    ├── dml/
-    └── consultas/
+    ├── ddl/            DDL (15 tablas, PK/FK/CHECK, índices de negocio)
+    ├── dml/            DML (lote de prueba)
+    └── consultas/      Factura, reportes agregados y consulta avanzada
 ```
 
-## Cómo clonar y usar
+## 🚀 Cómo usar y reproducir
 
-Requisitos: `git`, visor de PDF/PNG y navegador para [ERDPlus](https://erdplus.com).
+Requisitos: `git`, SQL Server Express 2016 SP1+ (o Docker), `sqlcmd` / SSMS.
 
 ```bash
-git clone <url-del-repo>
+git clone https://github.com/MiltonRodx/proyecto-bd1-equipo_49.git
 cd proyecto-bd1-equipo_49
-ls docs/etapa-01 docs/etapa-02
 ```
 
-* Lectura rápida: empezá por [`docs/etapa-01/ETAPA_01.md`](docs/etapa-01/ETAPA_01.md) y [`docs/etapa-02/ETAPA_02.md`](docs/etapa-02/ETAPA_02.md).
-* Entregables firmados: PDFs en cada carpeta de etapa.
-* Diagramas: abrí la imagen PNG directamente o importá el `.erdplus` en ERDPlus; el `.txt` de Etapa II describe el DER en notación Chen.
+### Reconstruir la base `[X MOTORS]`
 
-## Nota de diseño vigente
+```bash
+# 1. Base + lote (orden obligatorio: DDL asume tablas vacías)
+sqlcmd -S <server> -d "X MOTORS" -i sql/ddl/DDL_Script_X_Motors.sql
+sqlcmd -S <server> -d "X MOTORS" -i sql/dml/DML_Script_X_Motors.sql
 
-En Etapa II `VENTA.metodo_pago` es un `VARCHAR`. La tabla normalizada `METODO_PAGO` (con recargo/descuento) se crea en Etapa III. Las Etapas I–II no se modifican por esto.
+# 2. Temas técnicos (en el orden de docs/etapa-05/README.md §2.2)
+for f in docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql \
+         docs/etapa-05/01-procedimientos-funciones/01_funciones.sql \
+         docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql \
+         docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql \
+         docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql \
+         docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql \
+         docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql \
+         docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql \
+         docs/etapa-05/04-seguridad/01_seguridad.sql \
+         docs/etapa-05/05-indices/01_indices.sql; do
+    sqlcmd -S <server> -d "X MOTORS" -i "$f"
+done
+```
 
-### Actualización de documentación
+* **Lectura rápida:** [`docs/etapa-01/ETAPA_01.md`](docs/etapa-01/ETAPA_01.md) → [`ETAPA_02`](docs/etapa-02/ETAPA_02.md) → [`ETAPA_03`](docs/etapa-03/ETAPA-03.md) → [`ETAPA_04`](docs/etapa-04/ETAPA_04.md) → [`ETAPA_05`](docs/etapa-05/ETAPA_05.md).
+* **Demostraciones y evidencias:** cada carpeta `*/evidencias/` conserva sus scripts reproducibles y salidas con `@@VERSION`, usuario y fecha; los scripts de datos corren con `ROLLBACK` para conservar el lote.
+* **Diagramas:** abrí el PNG directamente o importá el `.erdplus` en ERDPlus; el `.txt` de Etapa II describe el DER en notación Chen.
 
+## 🎯 Lo destacado de la Etapa V
 
-Se realizo una revision de la estructura del repositorio y de la documentacion correspondiente a las estapas del proyecto, tambien se verifico la 
-organizacion de los archivos y entregrables para facilitar el manejo en siguientes etapas. 
+* **Procedimientos y funciones:** la operación completa de venta en `sp_registrar_venta` (descuentos, accesorios vía JSON, stock y errores de negocio `50001–50019`); venta demo verificada con la factura de Etapa IV (`OK`).
+* **Transacciones:** demos ACID con `COMMIT`/`ROLLBACK` (stock insuficiente y FK inválida) que nunca dejan ventas parciales.
+* **Auditoría:** triggers sobre `modelo_motocicleta`, `venta` y `cliente.estado` con tablas de auditoría propias y soporte multilínea.
+* **Seguridad:** 3 roles con principio de mínimo privilegio; la demo de la consigna v2 con logins reales efímeros dio **5/5 pruebas** conforme (2 denegaciones 229, 3 OKs).
+* **Índices:** 10 índices de negocio + prueba de escala exigida por la consigna con **1.000.000 de filas**: `Table Scan` (3.585 lecturas, CPU 107 ms) → `Clustered Index Seek` (230) → `Index Seek` con cobertura (162).
+
+## ℹ️ Nota de diseño vigente
+
+`venta.metodo_pago` quedó como `VARCHAR(50)` validado a nivel de aplicación (la tabla normalizada `METODO_PAGO` mencionada en los primeros análisis se descartó para no romper el contrato de etapas anteriores). Los procedimientos de la etapa V (`sp_registrar_venta`) normalizan y validan los métodos de pago admitidos (`efectivo`, `transferencia bancaria`, `tarjeta de credito/debito`, `financiamiento`) con errores de negocio dedicados.
+
+## Licencia
+
+[MIT](LICENSE)
 
 <details>
 <summary>Consigna completa del proyecto (Etapas I–V)</summary>
@@ -112,6 +150,6 @@ Procedimientos y funciones, transacciones, triggers de auditoría, seguridad e �
 | II. Modelado | DER + relacional + 3FN | viernes 11/09 |
 | III. Implementación | DDL + DML | miércoles 30/09 |
 | IV. Consultas | SQL + casos de uso | 16/10 |
-| V. Temas técnicos | Robustez | — |
+| V. Temas técnicos | Robustez | 03/11 |
 
 </details>

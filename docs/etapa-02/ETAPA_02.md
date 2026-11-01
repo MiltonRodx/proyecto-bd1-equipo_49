@@ -12,9 +12,9 @@
 | Archivo | Descripción |
 |---|---|
 | [BDI Proyecto Integrador _ Grupo 49.pdf](BDI%20Proyecto%20Integrador%20_%20Grupo%2049.pdf) | PDF archivado en esta carpeta |
-| [ESQUEMA RELACIONAL ETAPA 2.png](ESQUEMA%20RELACIONAL%20ETAPA%202.png) | Diagrama relacional (ver imagen abajo) |
-| [archivo_erdplus_relacional.erdplus](archivo_erdplus_relacional.erdplus) | Fuente editable para [ERDPlus](https://erdplus.com) |
-| [Notacion chen- diagrama relacional.txt](Notacion%20chen-%20diagrama%20relacional.txt) | DER en notación Chen (texto) |
+| [esquema_relacional_etapa_02.png](esquema_relacional_etapa_02.png) | Diagrama relacional (ver imagen abajo) |
+| [archivos_erdplus/archivo_erdplus_relacional.erdplus](archivos_erdplus/archivo_erdplus_relacional.erdplus) | Fuente editable para [ERDPlus](https://erdplus.com) |
+| [notacion_chen_RS.txt](notacion_chen_RS.txt) | DER en notación Chen (texto) |
 
 > Cómo leer: este MD es la lectura rápida. El diagrama válido es el PNG + `.erdplus`. El `.txt` detalla entidades, atributos y cardinalidades.
 > Volver al [README general](../../README.md) · Anterior: [Etapa I](../etapa-01/ETAPA_01.md).
@@ -127,15 +127,15 @@ El diseño relacional presentado en esta etapa cumple de forma estricta con la *
 
 ### Esquema relacional
 
-![Esquema relacional Etapa 2](ESQUEMA%20RELACIONAL%20ETAPA%202.V2.png)
+![Esquema relacional Etapa 2](esquema_relacional_etapa_02.png)
 
-Fuente editable: [archivo_erdplus_relacional.erdplus](archivo_erdplus_relacional.erdplus) (abrir en [ERDPlus](https://erdplus.com)).
+Fuente editable: [archivo_erdplus_relacional.erdplus](archivos_erdplus/archivo_erdplus_relacional.erdplus) (abrir en [ERDPlus](https://erdplus.com)).
 
 Tablas del diagrama: `PERSONA`, `CLIENTE`, `VENDEDOR`, `DIRECCION_CLIENTE`, `DIRECCION_PROVEEDOR`, `PROVEEDOR`, `MODELO_MOTOCICLETA`, `MOTOCICLETA`, `ACCESORIO`, `VENTA`, `DETALLE_VENTA_ACCESORIO`, `PROVISION_MOTOCICLETA`, `PROVISION_ACCESORIO`, `HISTORIAL_DE_PRECIO`, `COTIZACION`.
 
 ### DER en notación Chen
 
-Ver [Notacion chen- diagrama relacional.txt](Notacion%20chen-%20diagrama%20relacional.txt): entidades, atributos (PK con `*`), relaciones y cardinalidades (1:1, 1:N, M:N), incluida la herencia `PERSONA → CLIENTE / VENDEDOR`.
+Ver [notacion_chen_RS.txt](notacion_chen_RS.txt): entidades, atributos (PK con `*`), relaciones y cardinalidades (1:1, 1:N, M:N), incluida la herencia `PERSONA → CLIENTE / VENDEDOR`.
 
 ## 8. Notas de diseño
 
