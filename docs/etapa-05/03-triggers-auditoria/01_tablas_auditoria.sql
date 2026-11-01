@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 3: TABLAS DE AUDITORIA
--- Archivo: etapa_v/triggers_auditoria/01_tablas_auditoria.sql
+-- Archivo: docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Tablas de auditoria SIN claves foraneas: la auditoria debe sobrevivir al

@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - ANEXO A: SEGURIDAD (ROLES, USUARIOS Y PERMISOS)
--- Archivo: etapa_v/procedimientos_funciones/03_seguridad.sql
+-- Archivo: docs/etapa-05/04-seguridad/01_seguridad.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Modelo de minimo privilegio:
@@ -123,5 +123,5 @@ DENY EXECUTE ON OBJECT::dbo.sp_cambiar_estado_venta    TO rol_xmotors_consulta;
 DENY EXECUTE ON OBJECT::dbo.sp_actualizar_precio_modelo TO rol_xmotors_consulta;
 GO
 
-PRINT '03_seguridad.sql ejecutado: roles, usuarios y permisos creados.';
+PRINT '01_seguridad.sql ejecutado: roles, usuarios y permisos creados.';
 GO

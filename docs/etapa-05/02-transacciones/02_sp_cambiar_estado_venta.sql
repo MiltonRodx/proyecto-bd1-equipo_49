@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 1 / TEMA 2: PROCEDIMIENTO TRANSACCIONAL DE CANCELACION
--- Archivo: etapa_v/transacciones/02_sp_cambiar_estado_venta.sql
+-- Archivo: docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Permite unicamente:

@@ -1,11 +1,11 @@
 -- ============================================================================
 -- ETAPA V - EVIDENCIA: PRUEBAS DE PROCEDIMIENTOS (TEMA 1)
--- Archivo: etapa_v/procedimientos_funciones/evidencias/02_procedimientos_pruebas.sql
+-- Archivo: docs/etapa-05/01-procedimientos-funciones/evidencias/02_procedimientos_pruebas.sql
 -- Ejecutar despues de:
 --   01_funciones.sql
 --   02_procedimientos.sql
---   transacciones/01_sp_registrar_venta.sql
---   transacciones/02_sp_cambiar_estado_venta.sql
+--   02-transacciones/01_sp_registrar_venta.sql
+--   02-transacciones/02_sp_cambiar_estado_venta.sql
 -- ============================================================================
 
 SET NOCOUNT ON;

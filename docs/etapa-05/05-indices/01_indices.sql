@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - ANEXO B: INDICES DE PERFORMANCE
--- Archivo: etapa_v/procedimientos_funciones/04_indices.sql
+-- Archivo: docs/etapa-05/05-indices/01_indices.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Indices de cobertura sobre las tablas mas consultadas. Idempotente:
@@ -86,5 +86,5 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'ix_provision_accesorio_ac
         INCLUDE (cuit_proveedor);
 GO
 
-PRINT '04_indices.sql ejecutado: 10 indices disponibles en dbo.';
+PRINT '01_indices.sql ejecutado: 10 indices disponibles en dbo.';
 GO

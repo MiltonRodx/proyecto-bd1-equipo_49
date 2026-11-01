@@ -1,7 +1,7 @@
 -- ============================================================================
 -- ETAPA V - EVIDENCIA: PRUEBAS DE SEGURIDAD (ANEXO A)
--- Archivo: etapa_v/procedimientos_funciones/evidencias/03_seguridad_pruebas.sql
--- Ejecutar despues de 03_seguridad.sql.
+-- Archivo: docs/etapa-05/04-seguridad/evidencias/01_seguridad_pruebas.sql
+-- Ejecutar despues de 01_seguridad.sql.
 -- Cada prueba usa EXECUTE AS USER ... REVERT. Los errores esperados se capturan
 -- con TRY/CATCH para que el script siga avanzando y sirva de evidencia.
 -- ============================================================================

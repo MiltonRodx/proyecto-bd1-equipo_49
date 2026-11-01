@@ -2,7 +2,7 @@
 ETAPA V - ANEXO B: INDICES - EVIDENCIA ANTES/DESPUES (sqlcmd)
 Base: [X MOTORS] reconstruida desde cero / SQL Server 2025 Express / 2026-10-27
 Secuencia: (1) DROP los 10 indices -> (2) consultas STATISTICS IO/TIME (ANTES) ->
-            (3) 04_indices.sql -> (4) mismas consultas (DESPUES) -> (5) DMVs
+            (3) 01_indices.sql -> (4) mismas consultas (DESPUES) -> (5) DMVs
 ================================================================================
 
 ############ PASO 1: BORRADO DE INDICES ############
@@ -175,9 +175,9 @@ Table 'accesorio'. Scan count 3, logical reads 6, physical reads 0, page server 
  SQL Server Execution Times:
    CPU time = 1 ms,  elapsed time = 0 ms.
 
-############ PASO 3: EJECUCION DE 04_indices.sql ############
+############ PASO 3: EJECUCION DE 01_indices.sql ############
 Changed database context to 'X MOTORS'.
-04_indices.sql ejecutado: 10 indices disponibles en dbo.
+01_indices.sql ejecutado: 10 indices disponibles en dbo.
 
 ############ PASO 4: MISMAS CONSULTAS CON INDICES (DESPUES) ############
 Changed database context to 'X MOTORS'.

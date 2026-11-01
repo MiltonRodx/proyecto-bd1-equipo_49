@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - EVIDENCIA: PRUEBAS DE FUNCIONES (TEMA 1)
--- Archivo: etapa_v/procedimientos_funciones/evidencias/01_funciones_pruebas.sql
+-- Archivo: docs/etapa-05/01-procedimientos-funciones/evidencias/01_funciones_pruebas.sql
 -- Ejecutar despues de 01_funciones.sql.
 -- ============================================================================
 

@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 1 / TEMA 2: PROCEDIMIENTO TRANSACCIONAL DE VENTA
--- Archivo: etapa_v/transacciones/01_sp_registrar_venta.sql
+-- Archivo: docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Registra una venta completa de forma atomica:

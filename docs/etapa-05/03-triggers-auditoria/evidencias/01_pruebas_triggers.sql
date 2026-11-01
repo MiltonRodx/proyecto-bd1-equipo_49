@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - EVIDENCIA: PRUEBAS DE TRIGGERS DE AUDITORIA (TEMA 3)
--- Archivo: etapa_v/triggers_auditoria/evidencias/01_pruebas_triggers.sql
+-- Archivo: docs/etapa-05/03-triggers-auditoria/evidencias/01_pruebas_triggers.sql
 -- Ejecutar despues de:
 --   01_tablas_auditoria.sql
 --   02_trg_historial_precio_modelo.sql

@@ -1,12 +1,12 @@
 -- ============================================================================
 -- ETAPA V - TEMA 1: PROCEDIMIENTOS Y FUNCIONES ALMACENADAS
--- Archivo: etapa_v/procedimientos_funciones/02_procedimientos.sql
+-- Archivo: docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Procedimientos de administracion de catalogo y reportes.
 -- Los procedimientos transaccionales de venta/cancelacion estan en:
---   etapa_v/transacciones/01_sp_registrar_venta.sql
---   etapa_v/transacciones/02_sp_cambiar_estado_venta.sql
+--   docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql
+--   docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql
 -- ============================================================================
 
 SET ANSI_NULLS ON;

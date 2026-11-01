@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 3: TRIGGER DE AUDITORIA DE ESTADOS DEL CLIENTE
--- Archivo: etapa_v/triggers_auditoria/04_trg_auditoria_cliente_estado.sql
+-- Archivo: docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Registra en auditoria_cliente cada cambio de la columna estado. Si el

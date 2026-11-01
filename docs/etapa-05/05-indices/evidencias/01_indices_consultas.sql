@@ -1,10 +1,10 @@
 -- ============================================================================
 -- ETAPA V - EVIDENCIA: CONSULTAS DE MEDICION DE INDICES (ANEXO B)
--- Archivo: etapa_v/procedimientos_funciones/evidencias/04_indices_consultas.sql
+-- Archivo: docs/etapa-05/05-indices/evidencias/01_indices_consultas.sql
 --
 -- Se ejecuta DOS veces sobre la misma sesion:
 --   1. ANTES  : con los 10 indices NO existentes (se borran con IF EXISTS).
---   2. DESPUES: una vez ejecutado 04_indices.sql.
+--   2. DESPUES: una vez ejecutado 01_indices.sql.
 -- Compara lecturas logicas (SET STATISTICS IO) y tiempos (SET STATISTICS TIME).
 -- Cada consulta justifica uno de los indices del anexo.
 -- ============================================================================

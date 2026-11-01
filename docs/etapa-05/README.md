@@ -29,14 +29,12 @@
 ### 2.1 Estructura acordada
 
 ```text
-etapa_v/
+docs/etapa-05/
 ├── README.md
-├── procedimientos_funciones/
-│   ├── 01_funciones.sql                 # IMPLEMENTADO (Ejecución 1)
-│   ├── 02_procedimientos.sql            # IMPLEMENTADO (Ejecución 1)
-│   ├── 03_seguridad.sql                 # IMPLEMENTADO (Ejecución 4)
-│   ├── 04_indices.sql                   # IMPLEMENTADO (Ejecución 4)
-│   ├── investigacion.md                 # IMPLEMENTADO (Ejecuciones 1 y 4)
+├── 01-procedimientos-funciones/          # Tema 1 (Ejecuciones 1 y 4)
+│   ├── 01_funciones.sql
+│   ├── 02_procedimientos.sql
+│   ├── investigacion.md
 │   └── evidencias/
 │       ├── .gitkeep
 │       ├── 01_funciones_pruebas.sql
@@ -44,38 +42,46 @@ etapa_v/
 │       ├── 02_procedimientos_pruebas.sql
 │       ├── 02_procedimientos_salida.txt
 │       ├── 02_procedimientos_salida_docker.txt
-│       ├── 03_seguridad_pruebas.sql
-│       ├── 03_seguridad_salida.txt
-│       ├── 04_indices_consultas.sql
-│       ├── 04_indices_antes_despues.txt
 │       └── resultados.md
-├── transacciones/
-│   ├── 01_sp_registrar_venta.sql        # IMPLEMENTADO (Ejecución 1, revisado)
-│   ├── 02_sp_cambiar_estado_venta.sql   # IMPLEMENTADO (Ejecución 1, revisado)
-│   ├── scripts.sql                      # IMPLEMENTADO (Ejecución 2)
-│   ├── investigacion.md                 # IMPLEMENTADO (Ejecución 2)
+├── 02-transacciones/                     # Tema 2 (Ejecuciones 1 y 2)
+│   ├── 01_sp_registrar_venta.sql
+│   ├── 02_sp_cambiar_estado_venta.sql
+│   ├── scripts.sql
+│   ├── investigacion.md
 │   └── evidencias/
 │       ├── .gitkeep
 │       ├── salida_sqlcmd.txt
 │       ├── salida_sqlcmd_docker.txt
 │       └── resultados.md
-└── triggers_auditoria/
-    ├── 01_tablas_auditoria.sql          # IMPLEMENTADO (Ejecución 3)
-    ├── 02_trg_historial_precio_modelo.sql # IMPLEMENTADO (Ejecución 3)
-    ├── 03_trg_auditoria_venta.sql       # IMPLEMENTADO (Ejecución 3)
-    ├── 04_trg_auditoria_cliente_estado.sql # IMPLEMENTADO (Ejecución 3)
-    ├── investigacion.md                 # IMPLEMENTADO (Ejecución 3)
+├── 03-triggers-auditoria/                # Tema 3 (Ejecución 3)
+│   ├── 01_tablas_auditoria.sql
+│   ├── 02_trg_historial_precio_modelo.sql
+│   ├── 03_trg_auditoria_venta.sql
+│   ├── 04_trg_auditoria_cliente_estado.sql
+│   ├── investigacion.md
+│   └── evidencias/
+│       ├── .gitkeep
+│       ├── 01_pruebas_triggers.sql
+│       ├── 01_historial_precio.txt
+│       ├── 02_auditoria_venta.txt
+│       ├── 03_auditoria_cliente.txt
+│       ├── salida_sqlcmd.txt
+│       └── resultados.md
+├── 04-seguridad/                         # Tema 4 (Ejecución 4)
+│   ├── 01_seguridad.sql
+│   ├── investigacion.md
+│   └── evidencias/
+│       ├── 01_seguridad_pruebas.sql
+│       └── 01_seguridad_salida.txt
+└── 05-indices/                           # Tema 5 (Ejecución 4)
+    ├── 01_indices.sql
+    ├── investigacion.md
     └── evidencias/
-        ├── .gitkeep
-        ├── 01_pruebas_triggers.sql
-        ├── salida_sqlcmd.txt
-        ├── 01_historial_precio.txt
-        ├── 02_auditoria_venta.txt
-        ├── 03_auditoria_cliente.txt
-        └── resultados.md
+        ├── 01_indices_consultas.sql
+        └── 01_indices_antes_despues.txt
 ```
 
-> **Estado actual (Etapa V completa — Ejecución 5):** los 3 temas obligatorios y los 2 anexos están implementados y documentados. La base `[X MOTORS]` fue **recreada desde cero** (DROP → DDL → DML → todos los scripts de Etapa V) en SQL Server 2025 Express bajo Docker, en el orden de esta sección, sin errores, y todas las demos se volvieron a correr sobre ella. También existen réplicas Docker de los flujos que el grupo documentó desde otro SQL Server (Windows): `transacciones/evidencias/salida_sqlcmd_docker.txt` y `procedimientos_funciones/evidencias/02_procedimientos_salida_docker.txt`; los archivos originales commiteados del grupo se conservan tal cual. Verificación de factura de Etapa IV sobre lote reconstruido: `OK`. El README raíz del repositorio y sus placeholders se actualizaron para apuntar a `etapa_v/`.
+> **Estado actual (Etapa V completa — Ejecución 5):** los 5 temas obligatorios están implementados y documentados. La base `[X MOTORS]` fue **recreada desde cero** (DROP → DDL → DML → todos los scripts de Etapa V) en SQL Server 2025 Express bajo Docker, en el orden de esta sección, sin errores, y todas las demos se volvieron a correr sobre ella. También existen réplicas Docker de los flujos que el grupo documentó desde otro SQL Server (Windows): `02-transacciones/evidencias/salida_sqlcmd_docker.txt` y `01-procedimientos-funciones/evidencias/02_procedimientos_salida_docker.txt`; los archivos originales commiteados del grupo se conservan tal cual. Verificación de factura de Etapa IV sobre lote reconstruido: `OK`. El README raíz del repositorio y sus placeholders se actualizaron para apuntar a `docs/etapa-05/`.
 
 ### 2.2 Secuencia obligatoria
 
@@ -83,18 +89,18 @@ etapa_v/
 |---|---|---|---|
 | 1 | `sql/ddl/DDL_Script_X_Motors.sql` | Crea la base `[X MOTORS]` y las 15 tablas base | No |
 | 2 | `sql/dml/DML_Script_X_Motors.sql` | Puebla el lote de prueba | Sí (lote inicial) |
-| 3 | `etapa_v/triggers_auditoria/01_tablas_auditoria.sql` | Crea `auditoria_venta` y `auditoria_cliente` | No |
-| 4 | `etapa_v/procedimientos_funciones/01_funciones.sql` | Crea las funciones `fn_*` | No |
-| 5 | `etapa_v/procedimientos_funciones/02_procedimientos.sql` | Crea `sp_actualizar_precio_modelo` y `sp_reporte_ventas_periodo` | No |
-| 6 | `etapa_v/transacciones/01_sp_registrar_venta.sql` | Crea `sp_registrar_venta` | No |
-| 7 | `etapa_v/transacciones/02_sp_cambiar_estado_venta.sql` | Crea `sp_cambiar_estado_venta` | No |
-| 8 | `etapa_v/transacciones/scripts.sql` | Ejecuta las demos de `COMMIT`/`ROLLBACK` y la cancelación final | Sí, con limpieza/cancelación |
-| 9 | `etapa_v/triggers_auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
-| 10 | `etapa_v/triggers_auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
-| 11 | `etapa_v/triggers_auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
-| 12 | `etapa_v/procedimientos_funciones/03_seguridad.sql` | Crea roles, usuarios y permisos | No |
-| 13 | `etapa_v/procedimientos_funciones/04_indices.sql` | Crea los índices de performance | No |
-| 14 | `etapa_v/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
+| 3 | `docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql` | Crea `auditoria_venta` y `auditoria_cliente` | No |
+| 4 | `docs/etapa-05/01-procedimientos-funciones/01_funciones.sql` | Crea las funciones `fn_*` | No |
+| 5 | `docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql` | Crea `sp_actualizar_precio_modelo` y `sp_reporte_ventas_periodo` | No |
+| 6 | `docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql` | Crea `sp_registrar_venta` | No |
+| 7 | `docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql` | Crea `sp_cambiar_estado_venta` | No |
+| 8 | `docs/etapa-05/02-transacciones/scripts.sql` | Ejecuta las demos de `COMMIT`/`ROLLBACK` y la cancelación final | Sí, con limpieza/cancelación |
+| 9 | `docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
+| 10 | `docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
+| 11 | `docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
+| 12 | `docs/etapa-05/04-seguridad/01_seguridad.sql` | Crea roles, usuarios y permisos | No |
+| 13 | `docs/etapa-05/05-indices/01_indices.sql` | Crea los índices de performance | No |
+| 14 | `docs/etapa-05/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
 
 **Reglas de ejecución:**
 
@@ -111,7 +117,7 @@ etapa_v/
 
 ### 3.1 Tablas de auditoría
 
-Se crean en `etapa_v/triggers_auditoria/01_tablas_auditoria.sql`. No se agregan FK: la auditoría debe sobrevivir al borrado del registro auditado.
+Se crean en `docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql`. No se agregan FK: la auditoría debe sobrevivir al borrado del registro auditado.
 
 ```sql
 CREATE TABLE dbo.auditoria_venta (
@@ -158,7 +164,7 @@ CREATE INDEX ix_auditoria_cliente_dni
 
 ### 3.2 Funciones
 
-Archivo: `etapa_v/procedimientos_funciones/01_funciones.sql`.
+Archivo: `docs/etapa-05/01-procedimientos-funciones/01_funciones.sql`.
 
 ```sql
 CREATE OR ALTER FUNCTION dbo.fn_precio_con_descuento (
@@ -238,7 +244,7 @@ CREATE OR ALTER FUNCTION dbo.fn_resumen_cliente (
 
 ### 3.3 Procedimientos
 
-Archivo: `etapa_v/procedimientos_funciones/02_procedimientos.sql`.
+Archivo: `docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql`.
 
 ```sql
 CREATE OR ALTER PROCEDURE dbo.sp_actualizar_precio_modelo
@@ -263,7 +269,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_reporte_ventas_periodo
 - Valida `@fecha_desde <= @fecha_hasta` cuando ambos están informados.
 - Columnas del result set: `dni_vendedor`, `vendedor`, `cantidad_ventas`, `monto_total`, `ticket_promedio`.
 
-Archivo: `etapa_v/transacciones/01_sp_registrar_venta.sql`.
+Archivo: `docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql`.
 
 ```sql
 CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
@@ -285,7 +291,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
 - Si `@porcentaje_descuento` es `NULL`, se aplica el descuento por historial de `fn_descuento_cliente`. Un valor explícito puede ser igual o menor al permitido, pero nunca mayor (`50009`).
 - `monto_total` se calcula antes del `INSERT`; el procedimiento no hace un `UPDATE` posterior de la cabecera.
 
-Archivo: `etapa_v/transacciones/02_sp_cambiar_estado_venta.sql`.
+Archivo: `docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql`.
 
 ```sql
 CREATE OR ALTER PROCEDURE dbo.sp_cambiar_estado_venta
@@ -301,7 +307,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_cambiar_estado_venta
 
 ### 3.4 Triggers
 
-Archivo: `etapa_v/triggers_auditoria/02_trg_historial_precio_modelo.sql`.
+Archivo: `docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql`.
 
 ```sql
 CREATE OR ALTER TRIGGER dbo.trg_historial_precio_modelo
@@ -314,7 +320,7 @@ AFTER UPDATE
 - Soporta actualizaciones de varias filas en un mismo `UPDATE`.
 - No modifica `modelo_motocicleta` (evita recursión).
 
-Archivo: `etapa_v/triggers_auditoria/03_trg_auditoria_venta.sql`.
+Archivo: `docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql`.
 
 ```sql
 CREATE OR ALTER TRIGGER dbo.trg_auditoria_venta
@@ -327,7 +333,7 @@ AFTER INSERT, UPDATE, DELETE
 - Usa `inserted` y `deleted`; está preparado para operaciones multi-fila.
 - No modifica `venta`.
 
-Archivo: `etapa_v/triggers_auditoria/04_trg_auditoria_cliente_estado.sql`.
+Archivo: `docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql`.
 
 ```sql
 CREATE OR ALTER TRIGGER dbo.trg_auditoria_cliente_estado
@@ -341,7 +347,7 @@ AFTER UPDATE
 
 ### 3.5 Seguridad
 
-Archivo: `etapa_v/procedimientos_funciones/03_seguridad.sql`.
+Archivo: `docs/etapa-05/04-seguridad/01_seguridad.sql`.
 
 | Objeto | Tipo | Propósito |
 |---|---|---|
@@ -388,7 +394,7 @@ rol_xmotors_consulta
 
 ### 3.6 Índices
 
-Archivo: `etapa_v/procedimientos_funciones/04_indices.sql`.
+Archivo: `docs/etapa-05/05-indices/01_indices.sql`.
 
 | Índice | Tabla | Claves | Include | Consulta que justifica |
 |---|---|---|---|---|
@@ -644,15 +650,17 @@ INCORRECTO: monto_total = (precio_venta_moto + accesorios) * (1 - porcentaje / 1
 
 ## 7. Evidencias
 
-Cada carpeta `evidencias/` conserva su `.gitkeep` para que Git versione la estructura aunque todavía no haya archivos.
+Las carpetas `evidencias/` de los temas 1–3 conservan su `.gitkeep` (histórico); los temas 4 y 5 tienen evidencias reales, así que no lo necesitan.
 
 **Nombres previstos:**
 
 | Carpeta | Archivos |
 |---|---|
-| `procedimientos_funciones/evidencias/` | `01_funciones_pruebas.sql`, `01_funciones_salida.txt`, `02_procedimientos_pruebas.sql`, `02_procedimientos_salida.txt`, `03_seguridad_pruebas.sql`, `03_seguridad_salida.txt`, `04_indices_antes_despues.txt` |
-| `transacciones/evidencias/` | `salida_sqlcmd.txt`, `resultados.md` |
-| `triggers_auditoria/evidencias/` | `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt` |
+| `01-procedimientos-funciones/evidencias/` | `01_funciones_pruebas.sql`, `01_funciones_salida.txt`, `02_procedimientos_pruebas.sql`, `02_procedimientos_salida.txt`, `02_procedimientos_salida_docker.txt`, `resultados.md` |
+| `02-transacciones/evidencias/` | `salida_sqlcmd.txt`, `salida_sqlcmd_docker.txt`, `resultados.md` |
+| `03-triggers-auditoria/evidencias/` | `01_pruebas_triggers.sql`, `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt`, `salida_sqlcmd.txt`, `resultados.md` |
+| `04-seguridad/evidencias/` | `01_seguridad_pruebas.sql`, `01_seguridad_salida.txt` |
+| `05-indices/evidencias/` | `01_indices_consultas.sql`, `01_indices_antes_despues.txt` |
 
 **Contenido mínimo de cada evidencia:**
 
@@ -670,13 +678,13 @@ Desde la raíz del repositorio:
 
 ```powershell
 # 1. Estructura
-Get-ChildItem -Recurse -Force etapa_v | Select-Object FullName, Length
+Get-ChildItem -Recurse -Force docs/etapa-05 | Select-Object FullName, Length
 
-# 2. Los tres .gitkeep existen y están vacíos
-Get-ChildItem -Recurse -Force etapa_v -Filter .gitkeep | Select-Object FullName, Length
+# 2. Los tres .gitkeep de los temas 1 a 3 existen y están vacíos
+Get-ChildItem -Recurse -Force docs/etapa-05 -Filter .gitkeep | Select-Object FullName, Length
 
 # 3. Los archivos locales siguen ignorados
-git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
+git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md guia_v2_etapaV_proyecto_bdi.md plan_agentico.md
 
 # 4. Estado del repositorio
 git status --short
@@ -685,20 +693,20 @@ git status --short
 Resultado esperado:
 
 ```text
-etapa_v\procedimientos_funciones\evidencias\.gitkeep
-etapa_v\transacciones\evidencias\.gitkeep
-etapa_v\triggers_auditoria\evidencias\.gitkeep
+docs\etapa-05\01-procedimientos-funciones\evidencias\.gitkeep
+docs\etapa-05\02-transacciones\evidencias\.gitkeep
+docs\etapa-05\03-triggers-auditoria\evidencias\.gitkeep
 
-.gitignore:2:etapa5_guia_oficial.md    etapa5_guia_oficial.md
+.gitignore:2:etapa5_guia_oficial.md          etapa5_guia_oficial.md
 .gitignore:3:plan_etapa5.md             plan_etapa5.md
 
-?? etapa_v/
+?? docs/etapa-05/
 ```
 
 En Git Bash también se puede usar:
 
 ```bash
-tree etapa_v
+tree docs/etapa-05
 git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
 ```
 
@@ -706,7 +714,7 @@ git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
 
 ## 9. Recordatorios
 
-1. **No modificar** `sql/ddl/`, `sql/dml/`, `sql/consultas/` ni la documentación de las etapas I–IV. La Etapa V agrega objetos desde `etapa_v/`.
+1. **No modificar** `sql/ddl/`, `sql/dml/`, `sql/consultas/` ni la documentación de las etapas I–IV. La Etapa V agrega objetos desde `docs/etapa-05/`.
 2. **No crear `METODO_PAGO`** en esta etapa: `venta.metodo_pago` sigue siendo `VARCHAR(50)`. Si se decide normalizar, será un cambio posterior que impacta DDL, DML y consultas.
 3. **El descuento se aplica sobre `precio_venta_moto`, no sobre `monto_total`.**
 4. **`monto_total = precio_venta_moto + accesorios`**; el precio de la moto ya incluye el descuento.
@@ -737,13 +745,13 @@ docs(etapa-v): README final, indice de evidencias y cierre
 
 Base `[X MOTORS]` recreada desde cero el 2026-10-27 en SQL Server 2025 Express (Docker), ejecutando la secuencia completa de la sección 2.2 y volviendo a correr todas las demostraciones.
 
-| Tema / Anexo | Objetos | Resultado clave | Evidencia |
+| Tema | Objetos | Resultado clave | Evidencia |
 |---|---|---|---|
-| Tema 1 — Procedimientos y funciones | 7 funciones + `sp_actualizar_precio_modelo`, `sp_reporte_ventas_periodo` y 2 transaccionales | Venta demo `31`: `precio_venta_moto = 7.650.000`, `monto_total = 7.877.000`, control de factura **OK**, stock restaurado tras cancelación; errores 50001–50019 controlados | `procedimientos_funciones/evidencias/` |
-| Tema 2 — Transacciones | `scripts.sql` con 3 demos ACID | `COMMIT` correcto, `ROLLBACK` por stock 50004 y por FK 547; `XACT_STATE()`/`@@TRANCOUNT` verificados; venta demo `38` cancelada | `transacciones/evidencias/` |
-| Tema 3 — Triggers | 2 tablas de auditoría + 3 triggers | Historial de precios 34→38 filas; ciclo completo de venta `34` (`INSERT`/`UPDATE`/`DELETE`) en `auditoria_venta`; estados del cliente `42111222` auditaron snapshot; `UPDATE` sin cambio no registra | `triggers_auditoria/evidencias/` |
-| Anexo A — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining | `procedimientos_funciones/evidencias/03_seguridad_*` |
-| Anexo B — Índices | 10 índices idempotentes | Medición ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs; escaneos en 2–9 páginas con el lote actual, índices disponibles para la escala real | `procedimientos_funciones/evidencias/04_indices_*` |
+| Tema 1 — Procedimientos y funciones | 7 funciones + `sp_actualizar_precio_modelo`, `sp_reporte_ventas_periodo` y 2 transaccionales | Venta demo `31`: `precio_venta_moto = 7.650.000`, `monto_total = 7.877.000`, control de factura **OK**, stock restaurado tras cancelación; errores 50001–50019 controlados | `01-procedimientos-funciones/evidencias/` |
+| Tema 2 — Transacciones | `scripts.sql` con 3 demos ACID | `COMMIT` correcto, `ROLLBACK` por stock 50004 y por FK 547; `XACT_STATE()`/`@@TRANCOUNT` verificados; venta demo `38` cancelada | `02-transacciones/evidencias/` |
+| Tema 3 — Triggers | 2 tablas de auditoría + 3 triggers | Historial de precios 34→38 filas; ciclo completo de venta `34` (`INSERT`/`UPDATE`/`DELETE`) en `auditoria_venta`; estados del cliente `42111222` auditaron snapshot; `UPDATE` sin cambio no registra | `03-triggers-auditoria/evidencias/` |
+| Tema 4 — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining | `04-seguridad/evidencias/01_seguridad_*` |
+| Tema 5 — Índices | 10 índices idempotentes | Medición ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs; escaneos en 2–9 páginas con el lote actual, índices disponibles para la escala real | `05-indices/evidencias/01_indices_*` |
 
 **Estado final de la base tras todas las demostraciones** (consistente con el contrato del grupo):
 

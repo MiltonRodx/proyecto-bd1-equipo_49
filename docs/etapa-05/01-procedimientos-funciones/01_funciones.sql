@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 1: PROCEDIMIENTOS Y FUNCIONES ALMACENADAS
--- Archivo: etapa_v/procedimientos_funciones/01_funciones.sql
+-- Archivo: docs/etapa-05/01-procedimientos-funciones/01_funciones.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 -- Motor: SQL Server Express (validado en SQL Server 2025 Express)
 --

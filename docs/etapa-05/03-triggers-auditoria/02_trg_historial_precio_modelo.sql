@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 3: TRIGGER DE HISTORIAL DE PRECIOS (RN7)
--- Archivo: etapa_v/triggers_auditoria/02_trg_historial_precio_modelo.sql
+-- Archivo: docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Cada vez que cambia precio_lista de un modelo, registra el precio anterior

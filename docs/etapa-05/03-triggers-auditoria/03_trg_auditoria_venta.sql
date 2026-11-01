@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 3: TRIGGER DE AUDITORIA DE VENTAS
--- Archivo: etapa_v/triggers_auditoria/03_trg_auditoria_venta.sql
+-- Archivo: docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Registra en auditoria_venta cada INSERT, UPDATE y DELETE sobre dbo.venta.

@@ -14,8 +14,8 @@
 
 ```powershell
 sqlcmd -S ".\SQLEXPRESS" -E -C -I -d "X MOTORS" `
-  -i "etapa_v\transacciones\scripts.sql" `
-  -o "etapa_v\transacciones\evidencias\salida_sqlcmd.txt" `
+  -i "docs\etapa-05\transacciones\scripts.sql" `
+  -o "docs\etapa-05\transacciones\evidencias\salida_sqlcmd.txt" `
   -W -s "|" -w 300 -r1 -f 65001
 ```
 
