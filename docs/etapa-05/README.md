@@ -2,6 +2,8 @@
 
 **Sistema de Gestión de Ventas de Motos — "X Motors"** · Base de Datos I · Grupo 49 · FaCENA (UNNE)
 
+> Resumen ejecutivo por separado: [`ETAPA_05.md`](ETAPA_05.md) · este documento es el contrato técnico completo de la etapa.
+
 > Pregunta central: **¿Cómo hacemos robusta la base de datos?**
 >
 > Esta carpeta concentra los objetos de la Etapa V: procedimientos y funciones, transacciones, triggers de auditoría, seguridad e índices. **No se modifican** el DDL, el DML ni las consultas de las etapas I–IV.
