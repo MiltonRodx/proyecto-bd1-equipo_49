@@ -101,6 +101,8 @@ docs/etapa-05/
 | 12 | `docs/etapa-05/04-seguridad/01_seguridad.sql` | Crea roles, usuarios y permisos | No |
 | 13 | `docs/etapa-05/05-indices/01_indices.sql` | Crea los índices de performance | No |
 | 14 | `docs/etapa-05/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
+| 15 | `docs/etapa-05/05-indices/02_indices_mass_load.sql` | Crea y pobla `venta_historica_prueba` (1.000.000 filas, prueba de escala consigna v2) | Sí, crea tabla desechable |
+| 16 | `docs/etapa-05/05-indices/03_indices_mass_mediciones.sql` | Mide los 3 escenarios de índices (Table Scan / Clustered Seek / Index Seek cobertura) | No (solo crea/dropea índices de prueba) |
 
 **Reglas de ejecución:**
 
@@ -660,7 +662,7 @@ Las carpetas `evidencias/` de los temas 1–3 conservan su `.gitkeep` (históric
 | `02-transacciones/evidencias/` | `salida_sqlcmd.txt`, `salida_sqlcmd_docker.txt`, `resultados.md` |
 | `03-triggers-auditoria/evidencias/` | `01_pruebas_triggers.sql`, `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt`, `salida_sqlcmd.txt`, `resultados.md` |
 | `04-seguridad/evidencias/` | `01_seguridad_pruebas.sql`, `01_seguridad_salida.txt` |
-| `05-indices/evidencias/` | `01_indices_consultas.sql`, `01_indices_antes_despues.txt` |
+| `05-indices/evidencias/` | `01_indices_consultas.sql`, `01_indices_antes_despues.txt`, `02_indices_mass_carga.txt`, `03_indices_mass_mediciones.txt`, `resultados.md` |
 
 **Contenido mínimo de cada evidencia:**
 
@@ -751,7 +753,7 @@ Base `[X MOTORS]` recreada desde cero el 2026-10-27 en SQL Server 2025 Express (
 | Tema 2 — Transacciones | `scripts.sql` con 3 demos ACID | `COMMIT` correcto, `ROLLBACK` por stock 50004 y por FK 547; `XACT_STATE()`/`@@TRANCOUNT` verificados; venta demo `38` cancelada | `02-transacciones/evidencias/` |
 | Tema 3 — Triggers | 2 tablas de auditoría + 3 triggers | Historial de precios 34→38 filas; ciclo completo de venta `34` (`INSERT`/`UPDATE`/`DELETE`) en `auditoria_venta`; estados del cliente `42111222` auditaron snapshot; `UPDATE` sin cambio no registra | `03-triggers-auditoria/evidencias/` |
 | Tema 4 — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining | `04-seguridad/evidencias/01_seguridad_*` |
-| Tema 5 — Índices | 10 índices idempotentes | Medición ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs; escaneos en 2–9 páginas con el lote actual, índices disponibles para la escala real | `05-indices/evidencias/01_indices_*` |
+| Tema 5 — Índices | 10 índices idempotentes + prueba de escala | ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs sobre el lote (escaneos de 2–9 páginas); sobre `venta_historica_prueba` (1.000.000 filas, consigna v2): `Table Scan` 3.585 lecturas → `Clustered Index Seek` 230 → `Index Seek` cobertura 162, CPU 107 ms → 9 ms | `05-indices/evidencias/01_indices_*` + `02_indices_mass_carga.txt`, `03_indices_mass_mediciones.txt` |
 
 **Estado final de la base tras todas las demostraciones** (consistente con el contrato del grupo):
 

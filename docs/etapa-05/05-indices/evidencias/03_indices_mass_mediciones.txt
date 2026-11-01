@@ -1,0 +1,174 @@
+=============================================================
+EVIDENCIA: 03_indices_mass_mediciones.sql
+Base: [X MOTORS] - SQL Server 2025 Express (Docker, contenedor sqlserver)
+Requiere 02_indices_mass_load.sql ejecutado antes (venta_historica_prueba con 1.000.000 filas)
+=============================================================
+Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
+	Oct 15 2026 19:55:26 
+	Copyright (C) 2025 Microsoft Corporation
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64> X MOTORS dbo 2026-11-01 05:23:18.8563651
+
+----- salida completa del script -----
+Changed database context to 'X MOTORS'.
+idx_previos
+-----------
+          0
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+=== ESCENARIO 1: SIN INDICE (heap) ===
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 550 ms, elapsed time = 561 ms.
+SQL Server parse and compile time: 
+   CPU time = 551 ms, elapsed time = 562 ms.
+StmtText                                                                                                                         
+---------------------------------------------------------------------------------------------------------------------------------
+
+SELECT id_venta, fecha_venta, importe
+FROM dbo.venta_historica_prueba
+WHERE fecha_venta BETWEEN '2023-01-01' AND '2023-03-31';  
+StmtText                                                                                                                                                                                                                                                       
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  |--Table Scan(OBJECT:([X MOTORS].[dbo].[venta_historica_prueba]), WHERE:([X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta]>=CONVERT_IMPLICIT(date,[@1],0) AND [X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta]<=CONVERT_IMPLICIT(date,[@2],0))) 
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 1 ms, elapsed time = 1 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+filas_filtradas      importe_total   
+-------------------- ----------------
+               49144  199053196677.67
+Table 'venta_historica_prueba'. Scan count 1, logical reads 3585, physical reads 0, page server reads 0, read-ahead reads 3525, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 107 ms,  elapsed time = 110 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+=== ESCENARIO 2: INDICE AGRUPADO POR FECHA ===
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+Table 'venta_historica_prueba'. Scan count 1, logical reads 3585, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 1767 ms,  elapsed time = 1785 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 1 ms, elapsed time = 1 ms.
+SQL Server parse and compile time: 
+   CPU time = 1 ms, elapsed time = 1 ms.
+StmtText                                                                                                                         
+---------------------------------------------------------------------------------------------------------------------------------
+
+SELECT id_venta, fecha_venta, importe
+FROM dbo.venta_historica_prueba
+WHERE fecha_venta BETWEEN '2023-01-01' AND '2023-03-31';  
+StmtText                                                                                                                                                                                                                                                                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  |--Clustered Index Seek(OBJECT:([X MOTORS].[dbo].[venta_historica_prueba].[ix_venta_historica_prueba_fecha]), SEEK:([X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta] >= CONVERT_IMPLICIT(date,[@1],0) AND [X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta] <= CONVERT_IMPLICIT(date,[@2],0)) ORDERED FORWARD) 
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 2 ms, elapsed time = 2 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+filas_filtradas      importe_total   
+-------------------- ----------------
+               49144  199053196677.67
+Table 'venta_historica_prueba'. Scan count 1, logical reads 230, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 10 ms,  elapsed time = 10 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+=== ESCENARIO 3: INDICE CON COBERTURA (INCLUDE) ===
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+
+ SQL Server Execution Times:
+   CPU time = 5 ms,  elapsed time = 4 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+Table 'venta_historica_prueba'. Scan count 1, logical reads 4579, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 652 ms,  elapsed time = 661 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 1 ms, elapsed time = 1 ms.
+SQL Server parse and compile time: 
+   CPU time = 2 ms, elapsed time = 2 ms.
+StmtText                                                                                                               
+-----------------------------------------------------------------------------------------------------------------------
+
+SELECT fecha_venta, importe
+FROM dbo.venta_historica_prueba
+WHERE fecha_venta BETWEEN '2023-01-01' AND '2023-03-31';  
+StmtText                                                                                                                                                                                                                                                                                                                
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  |--Index Seek(OBJECT:([X MOTORS].[dbo].[venta_historica_prueba].[ix_venta_historica_prueba_cobertura]), SEEK:([X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta] >= CONVERT_IMPLICIT(date,[@1],0) AND [X MOTORS].[dbo].[venta_historica_prueba].[fecha_venta] <= CONVERT_IMPLICIT(date,[@2],0)) ORDERED FORWARD) 
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 1 ms, elapsed time = 1 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+filas_filtradas      importe_total   
+-------------------- ----------------
+               49144  199053196677.67
+Table 'venta_historica_prueba'. Scan count 1, logical reads 162, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 10 ms,  elapsed time = 9 ms.
+SQL Server parse and compile time: 
+   CPU time = 7 ms, elapsed time = 7 ms.
+=== ESTADO FINAL ===
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+name                                                                                                                             type_desc                                                    is_unique
+-------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------ ---------
+ix_venta_historica_prueba_cobertura                                                                                              NONCLUSTERED                                                         0
+Table 'syspalvalues'. Scan count 0, logical reads 2, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+Table 'sysidxstats'. Scan count 1, logical reads 2, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+Table 'sysschobjs'. Scan count 0, logical reads 2, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 0 ms,  elapsed time = 0 ms.
+SQL Server parse and compile time: 
+   CPU time = 0 ms, elapsed time = 0 ms.
+cantidad_registros
+------------------
+           1000000
+Table 'venta_historica_prueba'. Scan count 1, logical reads 3226, physical reads 0, page server reads 0, read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+
+ SQL Server Execution Times:
+   CPU time = 75 ms,  elapsed time = 75 ms.

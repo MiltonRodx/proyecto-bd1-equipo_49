@@ -50,7 +50,7 @@ El anexo corrió `SET STATISTICS IO ON; SET STATISTICS TIME ON` sobre 5 consulta
 
 Es poca tabla: la lectura lógica se mide en unidades de página (cada tabla entera cabe en 2 páginas, en algunos casos hasta 6 con el monto de cabecera); el optimizador elige el plan barato y muchas veces sigue escaneando. Los `DMV` (`sys.dm_db_index_usage_stats`) confirman que **los índices se usan** cuando dan ventaja (por ejemplo `ix_cotizacion_cliente_vencimiento`, `ix_motocicleta_modelo`, `ix_provision_accesorio_accesorio` con `user_seeks = 1`, y `ix_detalle_venta_accesorio_accesorio` aparece como scan en la consulta de agregación), pero también que hay índices aún no elegidos por plan (por ejemplo los tres de `venta`) porque con 30 filas el escaneo del agrupado cuesta igual o menos. `sys.dm_db_missing_index_details` a la fecha no sugiere índices faltantes adicionales sobre las columnas del anexo.
 
-**Conclusión honesta de la medición:** con el lote de prueba no se puede demostrar una mejora dramática; se demuestra que (a) los índices existen, (b) el optimizador los usa en varias consultas, y (c) la diferencia real aparecerá con órdenes de magnitud de más datos, que es cuando el scan del agrupado dejará de ser el plan más barato.
+**Conclusión honesta de la medición:** con el lote de prueba no se puede demostrar una mejora dramática; se demuestra que (a) los índices existen, (b) el optimizador los usa en varias consultas, y (c) la diferencia real aparecerá con órdenes de magnitud de más datos, que es cuando el scan del agrupado dejará de ser el plan más barato. Esta última afirmación queda **demostrada empíricamente en la §6**, con la prueba de escala sobre `venta_historica_prueba` (+1.000.000 de filas) exigida por la consigna v2.
 
 ## 5. Script y resultados
 
@@ -59,3 +59,24 @@ Es poca tabla: la lectura lógica se mide en unidades de página (cada tabla ent
 - Evidencia ANTES/DESPUÉS completa (incluye el `DROP` inicial, la corrida sin índices, la corrida con índices y las DMVs): [`evidencias/01_indices_antes_despues.txt`](evidencias/01_indices_antes_despues.txt)
 
 Las 10 tablas quedan con sus índices y **ninguna consulta de Etapa IV cambió de comportamiento externo**: los resultados de las mismas son idénticos antes y después.
+
+## 6. Prueba de escala con 1.000.000 de filas (consigna v2)
+
+La consigna v2 del profesor exige evaluar el impacto de los índices sobre una **tabla con más de un millón de registros**. Para eso se creó `venta_historica_prueba` (heap: `id_venta BIGINT IDENTITY`, `fecha_venta DATE`, `importe DECIMAL(12,2)`), poblada en **una sola sentencia** (patrón `ROW_NUMBER()` + `CROSS JOIN` del propio guía, importes simulando ventas de motos de $50.000 a $8.050.000 y fechas 2021–2025) por `02_indices_mass_load.sql`.
+
+La medición (`03_indices_mass_mediciones.sql`) corría la consulta trimestral del guía (`fecha_venta BETWEEN '2023-01-01' AND '2023-03-31'`) en los tres escenarios, con `SET SHOWPLAN_TEXT` (plan) y `SET STATISTICS IO/TIME` (métricas):
+
+| Escenario | Operación principal | Lecturas lógicas | CPU (ms) | Tiempo total (ms) |
+|---|---|---|---|---|
+| 1. Sin índice | Table Scan | 3.585 | 107 | 111 |
+| 2. Índice agrupado por fecha | Clustered Index Seek | 230 | 9 | 9 |
+| 3. Índice con cobertura (`INCLUDE (importe)`) | Index Seek (sin lookup) | 162 | 9 | 9 |
+
+Checks de integridad de la medición: `49.393` filas filtradas e `importe_total` idénticos en los tres escenarios (los datos no se tocaron entre corridas); `idx_previos = 0` al empezar; al terminar solo queda activo `ix_venta_historica_prueba_cobertura`.
+
+Resultado: **3.585 → 230 → 162 lecturas lógicas** (33x → 22x menos lecturas lógicas que el índice sin índice). Es la demostración que faltaba: sobre el lote pequeño de Etapa III el efecto no se veía (§4); con un millón de filas el cambio de `Table Scan` a `Index Seek` es dramático, exactamente lo que anticipa la conclusión de esa sección.
+
+> Valores del contenedor docker **SQL Server 2025 Express** (RAM compartida, hardware 64-bit). Los tiempos absolutos variarán según hardware, como advierte el mismo guía: las lecturas lógicas son la métrica estable.
+
+- Carga masiva: [`02_indices_mass_load.sql`](02_indices_mass_load.sql) · evidencia [`evidencias/02_indices_mass_carga.txt`](evidencias/02_indices_mass_carga.txt)
+- Mediciones: [`03_indices_mass_mediciones.sql`](03_indices_mass_mediciones.sql) · evidencia [`evidencias/03_indices_mass_mediciones.txt`](evidencias/03_indices_mass_mediciones.txt)
