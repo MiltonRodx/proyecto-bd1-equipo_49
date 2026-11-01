@@ -103,6 +103,7 @@ docs/etapa-05/
 | 14 | `docs/etapa-05/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
 | 15 | `docs/etapa-05/05-indices/02_indices_mass_load.sql` | Crea y pobla `venta_historica_prueba` (1.000.000 filas, prueba de escala consigna v2) | Sí, crea tabla desechable |
 | 16 | `docs/etapa-05/05-indices/03_indices_mass_mediciones.sql` | Mide los 3 escenarios de índices (Table Scan / Clustered Seek / Index Seek cobertura) | No (solo crea/dropea índices de prueba) |
+| 17 | `docs/etapa-05/04-seguridad/02_seguridad_logins_reales.sql` | Demo opcional del profe con logins reales efímeros (5 pruebas: 2 denegaciones 229, 3 OK) | Sí, confirma 1 venta demo que luego elimina (da auditoría como constancia) |
 
 **Reglas de ejecución:**
 
@@ -392,7 +393,7 @@ rol_xmotors_consulta
   DENY EXECUTE ON OBJECT::dbo.sp_actualizar_precio_modelo
 ```
 
-> Los usuarios son `WITHOUT LOGIN` para que el script sea reproducible sin permisos de `sysadmin` y para poder probar con `EXECUTE AS USER`. En producción se mapean a logins reales; el contrato de roles y permisos no cambia.
+> Los usuarios son `WITHOUT LOGIN` para que el script sea reproducible sin permisos de `sysadmin` y para poder probar con `EXECUTE AS USER`. En producción se mapean a logins reales; el contrato de roles y permisos no cambia. La demo complementaria [`04-seguridad/02_seguridad_logins_reales.sql`](04-seguridad/02_seguridad_logins_reales.sql) reproduce el ejemplo de la consigna v2 con logins reales **efímeros** (también cubre `db_owner` para el admin y un rol de consulta de modelos).
 
 ### 3.6 Índices
 
@@ -661,7 +662,7 @@ Las carpetas `evidencias/` de los temas 1–3 conservan su `.gitkeep` (históric
 | `01-procedimientos-funciones/evidencias/` | `01_funciones_pruebas.sql`, `01_funciones_salida.txt`, `02_procedimientos_pruebas.sql`, `02_procedimientos_salida.txt`, `02_procedimientos_salida_docker.txt`, `resultados.md` |
 | `02-transacciones/evidencias/` | `salida_sqlcmd.txt`, `salida_sqlcmd_docker.txt`, `resultados.md` |
 | `03-triggers-auditoria/evidencias/` | `01_pruebas_triggers.sql`, `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt`, `salida_sqlcmd.txt`, `resultados.md` |
-| `04-seguridad/evidencias/` | `01_seguridad_pruebas.sql`, `01_seguridad_salida.txt` |
+| `04-seguridad/evidencias/` | `01_seguridad_pruebas.sql`, `01_seguridad_salida.txt`, `02_seguridad_logins_salida.txt` |
 | `05-indices/evidencias/` | `01_indices_consultas.sql`, `01_indices_antes_despues.txt`, `02_indices_mass_carga.txt`, `03_indices_mass_mediciones.txt`, `resultados.md` |
 
 **Contenido mínimo de cada evidencia:**
@@ -724,7 +725,7 @@ git check-ignore -v plan_etapa5.md etapa5_guia_oficial.md
 6. **Los triggers de auditoría no modifican tablas de negocio.**
 7. **Las pruebas se ejecutan con `ROLLBACK`** para conservar el lote de Etapa III; las capturas se toman antes del rollback.
 8. **No versionar** `plan_etapa5.md` ni `etapa5_guia_oficial.md`; siguen en `.gitignore`.
-9. **No commitear contraseñas** ni logins reales; los usuarios de prueba son `WITHOUT LOGIN`.
+9. **No commitear contraseñas reales** ni logins de producción; los usuarios de `01_seguridad.sql` son `WITHOUT LOGIN` y los logins de la demo `02_seguridad_logins_reales.sql` son **efímeros de prueba** (contraseña placeholder, se crean y se dropean en el mismo script).
 
 ---
 
@@ -752,7 +753,7 @@ Base `[X MOTORS]` recreada desde cero el 2026-10-27 en SQL Server 2025 Express (
 | Tema 1 — Procedimientos y funciones | 7 funciones + `sp_actualizar_precio_modelo`, `sp_reporte_ventas_periodo` y 2 transaccionales | Venta demo `31`: `precio_venta_moto = 7.650.000`, `monto_total = 7.877.000`, control de factura **OK**, stock restaurado tras cancelación; errores 50001–50019 controlados | `01-procedimientos-funciones/evidencias/` |
 | Tema 2 — Transacciones | `scripts.sql` con 3 demos ACID | `COMMIT` correcto, `ROLLBACK` por stock 50004 y por FK 547; `XACT_STATE()`/`@@TRANCOUNT` verificados; venta demo `38` cancelada | `02-transacciones/evidencias/` |
 | Tema 3 — Triggers | 2 tablas de auditoría + 3 triggers | Historial de precios 34→38 filas; ciclo completo de venta `34` (`INSERT`/`UPDATE`/`DELETE`) en `auditoria_venta`; estados del cliente `42111222` auditaron snapshot; `UPDATE` sin cambio no registra | `03-triggers-auditoria/evidencias/` |
-| Tema 4 — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining | `04-seguridad/evidencias/01_seguridad_*` |
+| Tema 4 — Seguridad | 3 roles + 3 usuarios `WITHOUT LOGIN` + demo con logins reales efímeros | Vendedor y consulta operan y leen lo que corresponde; denegaciones 229 en DML directo, auditoría e historial; `EXEC` permitido vía ownership chaining. Demo consigna v2 con logins reales (`02_seguridad_logins_reales.sql`): **5/5 pruebas** conforme a la tabla del profe (INSERT admin OK, INSERT lector 229, EXEC lector OK, SELECT con rol OK, SELECT sin rol 229) | `04-seguridad/evidencias/01_seguridad_*` + `02_seguridad_logins_salida.txt` |
 | Tema 5 — Índices | 10 índices idempotentes + prueba de escala | ANTES/DESPUÉS con `STATISTICS IO/TIME` + DMVs sobre el lote (escaneos de 2–9 páginas); sobre `venta_historica_prueba` (1.000.000 filas, consigna v2): `Table Scan` 3.585 lecturas → `Clustered Index Seek` 230 → `Index Seek` cobertura 162, CPU 107 ms → 9 ms | `05-indices/evidencias/01_indices_*` + `02_indices_mass_carga.txt`, `03_indices_mass_mediciones.txt` |
 
 **Estado final de la base tras todas las demostraciones** (consistente con el contrato del grupo):

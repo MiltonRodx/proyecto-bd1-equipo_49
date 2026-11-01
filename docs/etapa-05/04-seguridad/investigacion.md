@@ -64,5 +64,29 @@ Ninguna prueba dejó datos: el `EXEC` de admin se corrió con `sp_actualizar_pre
 - Pruebas reproducibles: [`evidencias/01_seguridad_pruebas.sql`](evidencias/01_seguridad_pruebas.sql)
 - Salida completa con fecha y usuario: [`evidencias/01_seguridad_salida.txt`](evidencias/01_seguridad_salida.txt)
 
+## 6. Demo complementaria: logins reales (tal como el ejemplo del profesor)
+
+La consigna v2 arma su ejemplo con `CREATE LOGIN` (usuarios de servidor reales) y una tabla de 5 pruebas. Este enfoque complementa al script principal: los usuarios `WITHOUT LOGIN` de [`01_seguridad.sql`](01_seguridad.sql) son reproducibles sin permisos de `sysadmin`; el script [`02_seguridad_logins_reales.sql`](02_seguridad_logins_reales.sql) reproduce la demo del profesor con logins reales **efímeros** (se crean y se destruyen en el mismo script, contraseñas placeholder de demo nunca reales).
+
+Resultados sobre la base `[X MOTORS]` (SQL Server 2025 Express, Docker), 5 de 5 con el resultado esperado:
+
+| Prueba | Usuario | Resultado esperado (consigna v2) | Resultado obtenido |
+|---|---|---|---|
+| `INSERT` directo en `venta` | `usr_demo_xmotors_admin` (`db_owner`) | Correcto | ✅ Exitoso |
+| `INSERT` directo en `venta` | `usr_demo_xmotors_lector` | Acceso denegado | ✅ Denegado, error 229 |
+| `EXEC` de procedimiento con `INSERT` | `usr_demo_xmotors_lector` | Correcto | ✅ Exitoso (ownership chaining) |
+| `SELECT` sobre `modelo_motocicleta` | usuario con rol `rol_demo_consulta_modelos` | Correcto | ✅ Exitoso |
+| `SELECT` sobre `modelo_motocicleta` | usuario sin rol | Acceso denegado | ✅ Denegado, error 229 |
+
+Notas técnicas documentadas en el propio script:
+
+- Para la prueba de `EXEC` se usa un **SP simple espejo del ejemplo del profesor** (`sp_demo_insert_venta_simple`, `INSERT` directo sin SQL dinámico, creado y dropeado por la demo). El SP real `sp_registrar_venta` ejecuta su `INSERT` vía `sp_executesql` y el ownership chaining no cruza lotes dinámicos: es la limitación ya citada en la observación honesta de §4; la demo del profesor queda demostrada con el SP simple y el SP real se trataría con `WITH EXECUTE AS OWNER` (también comentado ahí).
+- El `INSERT` directo del admin corre dentro de una transacción con `ROLLBACK` (convención de la etapa: no ensuciar el lote); el `INSERT` por SP de la prueba 3 sí se confirma y se **elimina en la limpieza del script**; las filas de `auditoria_venta` generadas por ese ciclo `INSERT`/`DELETE` quedan como constancia.
+- Entorno con `SET QUOTED_IDENTIFIER ON` de encabezado: `venta` tiene el índice filtrado `ux_venta_chasis_vigente` y con las opciones por defecto de `sqlcmd` fallaría con error 1934.
+- La limpieza final dropea usuarios, luego el rol (no puede dropearse con miembros), el SP, y los 4 logins; verificado: 0 principios residuales.
+
+- Script: [`02_seguridad_logins_reales.sql`](02_seguridad_logins_reales.sql)
+- Salida completa con fecha y usuario: [`evidencias/02_seguridad_logins_salida.txt`](evidencias/02_seguridad_logins_salida.txt)
+
 ---
 

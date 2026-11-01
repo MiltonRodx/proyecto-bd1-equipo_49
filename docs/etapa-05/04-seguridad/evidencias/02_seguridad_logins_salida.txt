@@ -1,0 +1,60 @@
+=============================================================
+EVIDENCIA: 02_seguridad_logins_reales.sql
+Base: [X MOTORS] - SQL Server 2025 Express (Docker, contenedor sqlserver)
+Demo con logins reales efimeros: se crean y se destruyen en el mismo script.
+Contraste con 01_seguridad.sql (usuarios WITHOUT LOGIN permanentes).
+=============================================================
+Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
+	Oct 15 2026 19:55:26 
+	Copyright (C) 2025 Microsoft Corporation
+	Express Edition (64-bit) on Linux (Ubuntu 24.04.5 LTS) <X64> X MOTORS dbo 2026-11-01 05:23:18.8563651
+
+----- salida completa del script -----
+==================================================
+PARTE 1 - PERMISOS A NIVEL DE USUARIOS
+==================================================
+Changed database context to 'X MOTORS'.
+ 
+PRUEBA 1 - INSERT directo sobre venta con usuario_admin
+Resultado esperado: operacion exitosa
+Resultado: EXITOSO (INSERT permitido para db_owner)
+ 
+PRUEBA 2 - INSERT directo sobre venta con usuario_lector
+Resultado esperado: denegado por falta de permisos (error 229)
+Resultado: DENEGADO
+Error: 229 - The INSERT permission was denied on the object 'venta', database 'X MOTORS', schema 'dbo'.
+ 
+PRUEBA 3 - EXEC dbo.sp_demo_insert_venta_simple con usuario_lector
+Resultado esperado: exito por GRANT EXECUTE (ownership chaining)
+Resultado: EXITOSO (el usuario no puede INSERT directo, pero si via SP con GRANT EXECUTE)
+ 
+==================================================
+PARTE 2 - PERMISOS A NIVEL DE ROLES
+==================================================
+ 
+PRUEBA 4 - SELECT modelo_motocicleta con usuario con rol
+Resultado esperado: consulta exitosa
+id_modelo   nombre_modelo                                                precio_lista
+----------- ------------------------------------------------------------ ------------
+          1 CB 125F Twister                                                3850000.00
+          2 XR 150L                                                        4900000.00
+Resultado: EXITOSO (permiso via rol_demo_consulta_modelos)
+ 
+PRUEBA 5 - SELECT modelo_motocicleta con usuario sin rol
+Resultado esperado: denegado por falta de permisos (error 229)
+Resultado: DENEGADO
+Error: 229 - The SELECT permission was denied on the object 'modelo_motocicleta', database 'X MOTORS', schema 'dbo'.
+ 
+==================================================
+RESUMEN - TABLA DE PRUEBAS (resultado esperado vs obtenido)
+==================================================
+1. INSERT directo venta  | usr_admin  | esperado: OK         | obtenido: (ver arriba)
+2. INSERT directo venta  | usr_lector | esperado: 229        | obtenido: (ver arriba)
+3. EXEC SP demo          | usr_lector | esperado: OK         | obtenido: (ver arriba)
+4. SELECT modelos        | usr con rol| esperado: OK         | obtenido: (ver arriba)
+5. SELECT modelos        | usr sin rol| esperado: 229        | obtenido: (ver arriba)
+Changed database context to 'master'.
+Changed database context to 'X MOTORS'.
+base_final                                                                                                                       total_ventas filas_auditoria
+-------------------------------------------------------------------------------------------------------------------------------- ------------ ---------------
+X MOTORS                                                                                                                                   31              27
