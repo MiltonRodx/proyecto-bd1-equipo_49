@@ -1,0 +1,131 @@
+USE [X MOTORS];
+GO
+
+-- 1. Creamos un esquema independiente para los reportes.
+-- Esto permite separar las vistas de consulta de las tablas
+-- originales del sistema.
+
+IF SCHEMA_ID('reportes') IS NULL
+BEGIN
+    EXEC('CREATE SCHEMA reportes AUTHORIZATION dbo;');
+END;
+GO
+
+-- 2. Creamos una vista con el resumen mensual de ventas
+-- realizadas por cada vendedor.
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+CREATE OR ALTER VIEW reportes.vw_resumen_ventas_mensuales
+AS
+SELECT
+    YEAR(v.fecha) AS anio,
+    MONTH(v.fecha) AS mes,
+    v.dni_vendedor,
+    p.nombre,
+    p.apellido,
+
+    -- Cantidad de operaciones efectuadas.
+    COUNT_BIG(*) AS cantidad_ventas,
+
+    -- Suma del importe total de las ventas.
+    SUM(v.monto_total) AS total_vendido
+
+FROM dbo.venta AS v
+
+INNER JOIN dbo.vendedor AS vd
+    ON vd.dni_vendedor = v.dni_vendedor
+
+INNER JOIN dbo.persona AS p
+    ON p.dni = vd.dni_vendedor
+
+-- Solo consideramos ventas efectivamente realizadas.
+WHERE v.estado = 'efectuada'
+
+GROUP BY
+    YEAR(v.fecha),
+    MONTH(v.fecha),
+    v.dni_vendedor,
+    p.nombre,
+    p.apellido;
+GO
+
+-- 3. Creamos un rol específico para consultar reportes.
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.database_principals
+    WHERE name = 'rol_xmotors_reportes'
+)
+BEGIN
+    CREATE ROLE rol_xmotors_reportes;
+END;
+GO
+
+-- 4. Creamos un usuario de prueba sin login real.
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.database_principals
+    WHERE name = 'usr_xmotors_reportes'
+)
+BEGIN
+    CREATE USER usr_xmotors_reportes WITHOUT LOGIN;
+END;
+GO
+
+-- 5. Incorporamos el usuario al rol.
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.database_role_members
+    WHERE role_principal_id =
+          DATABASE_PRINCIPAL_ID('rol_xmotors_reportes')
+      AND member_principal_id =
+          DATABASE_PRINCIPAL_ID('usr_xmotors_reportes')
+)
+BEGIN
+    ALTER ROLE rol_xmotors_reportes
+    ADD MEMBER usr_xmotors_reportes;
+END;
+GO
+
+-- 6. Otorgamos permiso exclusivamente sobre la vista.
+-- No otorgamos SELECT sobre las tablas originales.
+
+GRANT SELECT
+ON OBJECT::reportes.vw_resumen_ventas_mensuales
+TO rol_xmotors_reportes;
+GO
+
+-- ============================================================
+-- 7. PRUEBAS DE SEGURIDAD
+-- ============================================================
+
+EXECUTE AS USER = 'usr_xmotors_reportes';
+
+-- Comprobamos que puede consultar la vista.
+SELECT
+    HAS_PERMS_BY_NAME(
+        'reportes.vw_resumen_ventas_mensuales',
+        'OBJECT',
+        'SELECT'
+    ) AS permiso_sobre_vista;
+
+-- Comprobamos que no tiene permiso directo sobre venta.
+SELECT
+    HAS_PERMS_BY_NAME(
+        'dbo.venta',
+        'OBJECT',
+        'SELECT'
+    ) AS permiso_sobre_tabla_venta;
+
+-- Consultamos el reporte autorizado.
+SELECT *
+FROM reportes.vw_resumen_ventas_mensuales
+ORDER BY anio, mes, apellido;
+
+REVERT;
+GO
