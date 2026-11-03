@@ -95,6 +95,8 @@ Reúso de lógica, código parametrizado, centralización de reglas, seguridad p
 
 Venta demo `31`: precio lista `8.500.000,00`, 10% de descuento → `precio_venta_moto = 7.650.000,00`, accesorios `227.000,00`, `monto_total = 7.877.000,00`; **factura de Etapa IV devuelve `OK`** sobre la venta demo. Cancelación posterior restauró el stock intacto. Casos negativos (cliente inexistente 50001, chasis ya vendido 50005, JSON inválido 50010, método de pago 50011, etc.) rechazados sin dejar datos parciales.
 
+![Evidencia de pruebas](images_ETAPA-05/Etapa01.png)
+
 ---
 
 ## 5. Tema 2 — Manejo de transacciones
@@ -118,6 +120,8 @@ Una venta toca `venta`, `detalle_venta_accesorio`, `motocicleta`, `modelo_motoci
 `02-transacciones/scripts.sql` · evidencias en `02-transacciones/evidencias/` (salidas `sqlcmd` local y Docker, `resultados.md`).
 
 Verificado: `XACT_STATE()`/`@@TRANCOUNT` correctos antes y después de cada demo; ninguna demo dejó venta parcial (atomicidad), el stock vuelve siempre al valor original.
+
+![Evidencia de pruebas](images_ETAPA-05/Etapa02.png)
 
 ---
 
@@ -146,6 +150,8 @@ Diseño multi-fila (set basado en `inserted`/`deleted`), solo insertan (nunca mo
 `03-triggers-auditoria/01..04_*.sql` · evidencias en `03-triggers-auditoria/evidencias/`.
 
 Ciclo completo demo de venta (`INSERT`/`UPDATE`/`DELETE`) con las tres filas correspondientes en `auditoria_venta`; historial de precios pasó de 34 a 38 filas tras cambios de precio demo; estados del cliente auditaron sus snapshots; un `UPDATE` sin cambio de valor no registra (diseño intencional).
+
+![Evidencia de pruebas](images_ETAPA-05/Etapa03.jpeg)
 
 ---
 
@@ -182,6 +188,8 @@ Tabla de las 5 pruebas de la consigna v2 (con logins reales) — **5/5 conforme*
 
 En el enfoque permanente: denegaciones 229 verificadas en DML directo sobre auditoría/historial y ventas que solo el SP puede registrar (`EXEC` permitido via chaining). **Limitación documentada:** el SP con `INSERT` vía `sp_executesql` requiere `WITH EXECUTE AS OWNER` para el chaining de lotes dinámicos (véase la observación honesta del `investigacion.md` del tema).
 
+![Evidencia de pruebas](images_ETAPA-05/Etapa04.jpeg)
+
 ---
 
 ## 8. Tema 5 — Optimización de consultas con índices
@@ -212,6 +220,8 @@ Evidencias en `05-indices/evidencias/` (salidas con `SET STATISTICS IO/TIME` + p
 | Índice con cobertura (`INCLUDE`) | 9 | 9 | 162 | Index Seek |
 
 Los 4 resultados esperados por la consigna se verifican: Table Scan masivo → reducción drástica con el índice por fecha → mínimo con el de cobertura → planes con cambio de Scan a Seek. Sobre el lote chico de Etapa III la diferencia no se ve (2–9 páginas); la prueba de escala demuestra empíricamente por qué los índices de negocio de `01_indices.sql` están bien elegidos para el crecimiento real.
+
+![Evidencia de pruebas](images_ETAPA-05/Etapa05.jpeg)
 
 ---
 
