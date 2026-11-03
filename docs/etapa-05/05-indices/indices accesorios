@@ -1,0 +1,120 @@
+USE [X MOTORS];
+GO
+
+-- 1. Activamos las estadisticas de rendimiento.
+-- Permiten observar lecturas y tiempos de ejecucion.
+
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+GO
+
+-- 2. Seleccionamos una categoria que tenga accesorios
+-- disponibles para utilizarla en la prueba.
+
+DECLARE @categoria VARCHAR(50);
+
+SELECT TOP (1)
+    @categoria = categoria
+FROM dbo.accesorio
+WHERE stock > 0
+ORDER BY categoria;
+
+-- ============================================================
+-- 3. CONSULTA ORIGINAL: ANTES DEL INDICE
+-- ============================================================
+
+PRINT 'CONSULTA ANTES DE CREAR EL INDICE';
+
+SELECT
+    descripcion,
+    categoria,
+    precio_lista,
+    stock
+FROM dbo.accesorio
+WHERE categoria = @categoria
+  AND stock > 0
+ORDER BY precio_lista DESC;
+GO
+
+-- ============================================================
+-- 4. CREACION DEL INDICE FILTRADO
+-- ============================================================
+
+-- Eliminamos solamente nuestro indice si ya existia.
+-- Esto permite repetir el script y comparar nuevamente.
+
+IF EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_Accesorio_Categoria_Precio_Disponible'
+      AND object_id = OBJECT_ID('dbo.accesorio')
+)
+BEGIN
+    DROP INDEX IX_Accesorio_Categoria_Precio_Disponible
+    ON dbo.accesorio;
+END;
+GO
+
+-- Creamos el indice.
+-- Solo almacena accesorios cuyo stock sea mayor que cero.
+
+CREATE NONCLUSTERED INDEX
+    IX_Accesorio_Categoria_Precio_Disponible
+
+ON dbo.accesorio (
+    categoria ASC,
+    precio_lista DESC
+)
+
+INCLUDE (
+    descripcion,
+    stock
+)
+
+WHERE stock > 0;
+GO
+
+-- ============================================================
+-- 5. CONSULTA OPTIMIZADA: DESPUES DEL INDICE
+-- ============================================================
+
+PRINT 'CONSULTA DESPUES DE CREAR EL INDICE';
+
+DECLARE @categoria VARCHAR(50);
+
+SELECT TOP (1)
+    @categoria = categoria
+FROM dbo.accesorio
+WHERE stock > 0
+ORDER BY categoria;
+
+SELECT
+    descripcion,
+    categoria,
+    precio_lista,
+    stock
+FROM dbo.accesorio
+WHERE categoria = @categoria
+  AND stock > 0
+ORDER BY precio_lista DESC;
+GO
+
+-- ============================================================
+-- 6. CONSULTAMOS LOS INDICES EXISTENTES EN ACCESORIO
+-- ============================================================
+
+SELECT
+    name AS nombre_indice,
+    type_desc AS tipo_indice,
+    is_unique AS es_unico,
+    has_filter AS tiene_filtro,
+    filter_definition AS condicion_filtro
+FROM sys.indexes
+WHERE object_id = OBJECT_ID('dbo.accesorio')
+  AND name IS NOT NULL;
+GO
+
+-- Desactivamos las estadisticas.
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+GO
