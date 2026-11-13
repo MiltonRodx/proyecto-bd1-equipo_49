@@ -73,5 +73,99 @@ BEGIN
 END;
 GO
 
-PRINT '02_procedimientos.sql ejecutado: sp_actualizar_precio_modelo y sp_reporte_ventas_periodo creados.';
+-- ============================================================================
+-- 3. sp_generar_cotizacion
+--    Genera una cotizacion aplicando el descuento por historial del cliente.
+--    Es el caso de uso de fn_descuento_cliente que pide la consigna: la
+--    funcion decide el porcentaje segun el monto acumulado y el procedimiento
+--    lo aplica al precio de lista del modelo, respetando la validez de 7 dias
+--    corridos (RN12). Si el llamador informa un porcentaje, puede ser igual o
+--    menor al permitido, pero nunca mayor.
+-- ============================================================================
+CREATE OR ALTER PROCEDURE dbo.sp_generar_cotizacion
+    @dni_cliente          INT,
+    @id_modelo            INT,
+    @porcentaje_descuento DECIMAL(5,2) = NULL,
+    @fecha_emision        DATE = NULL,
+    @id_cotizacion        INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.cliente WHERE dni_cliente = @dni_cliente)
+        THROW 50001, 'Cliente inexistente', 1;
+
+    DECLARE @precio_lista DECIMAL(12,2);
+
+    SELECT @precio_lista = precio_lista
+    FROM dbo.modelo_motocicleta
+    WHERE id_modelo = @id_modelo;
+
+    IF @@ROWCOUNT = 0 OR @precio_lista IS NULL
+        THROW 50017, 'Modelo inexistente', 1;
+
+    IF @precio_lista < 0
+        THROW 50016, 'Precio de modelo invalido', 1;
+
+    IF @porcentaje_descuento IS NOT NULL
+       AND (@porcentaje_descuento < 0 OR @porcentaje_descuento > 100)
+        THROW 50009, 'Porcentaje de descuento invalido', 1;
+
+    -- Descuento por historial: la funcion decide el porcentaje.
+    DECLARE @descuento_permitido DECIMAL(5,2) =
+        dbo.fn_descuento_cliente(@dni_cliente);
+
+    IF @descuento_permitido IS NULL
+        SET @descuento_permitido = 0;
+
+    IF @porcentaje_descuento IS NULL
+        SET @porcentaje_descuento = @descuento_permitido;
+    ELSE IF @porcentaje_descuento > @descuento_permitido
+        THROW 50009, 'Porcentaje de descuento mayor al permitido', 1;
+
+    IF @fecha_emision IS NULL
+        SET @fecha_emision = CAST(GETDATE() AS DATE);
+
+    DECLARE @precio_cotizado DECIMAL(12,2) =
+        dbo.fn_precio_con_descuento(@precio_lista, @porcentaje_descuento);
+
+    IF @precio_cotizado IS NULL
+        THROW 50016, 'Precio de modelo invalido', 1;
+
+    INSERT INTO dbo.cotizacion (
+        fecha_emision,
+        fecha_vencimiento,
+        precio_cotizado,
+        dni_cliente,
+        id_modelo
+    )
+    VALUES (
+        @fecha_emision,
+        DATEADD(day, 7, @fecha_emision),
+        @precio_cotizado,
+        @dni_cliente,
+        @id_modelo
+    );
+
+    SET @id_cotizacion = CAST(SCOPE_IDENTITY() AS INT);
+
+    SELECT
+        c.id_cotizacion,
+        p.nombre + ' ' + p.apellido AS cliente,
+        m.marca,
+        m.nombre_modelo,
+        @precio_lista         AS precio_lista,
+        @descuento_permitido  AS descuento_historial,
+        @porcentaje_descuento AS descuento_aplicado,
+        c.precio_cotizado,
+        c.fecha_emision,
+        c.fecha_vencimiento
+    FROM dbo.cotizacion AS c
+    JOIN dbo.persona AS p ON p.dni = c.dni_cliente
+    JOIN dbo.modelo_motocicleta AS m ON m.id_modelo = c.id_modelo
+    WHERE c.id_cotizacion = @id_cotizacion;
+END;
+GO
+
+PRINT '02_procedimientos.sql ejecutado: sp_actualizar_precio_modelo, sp_reporte_ventas_periodo y sp_generar_cotizacion creados.';
 GO
