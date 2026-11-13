@@ -95,3 +95,28 @@ GO
 
 PRINT '=== Fin de las pruebas de funciones ===';
 GO
+
+SELECT dbo.
+
+
+--SELECT dbo.fn_precio_con_descuento(300000.00, 0.00) AS precio_20_porciento;
+SELECT dbo.fn_total_accesorios_venta(5);
+
+SELECT * FROM venta;
+
+
+
+SELECT
+    dbo.fn_precio_con_descuento(8500000.00, 10.00) AS precio_con_10,
+    dbo.fn_total_accesorios_venta(5) AS accesorios_venta_inexistente,
+    dbo.fn_total_venta(3000000.00, 5) AS [Total venta de la moto id 5],
+	dbo.fn_cotizacion_vigente(33) as [Está la cotización vigente?  1=true 0=false],
+	dbo.fn_stock_disponible_modelo(11) [Stock disponible de HondaCB500F];
+
+SELECT * FROM cotizacion;
+
+INSERT INTO cotizacion (fecha_emision, fecha_vencimiento, precio_cotizado, dni_cliente, id_modelo) VALUES
+  ('2026-11-12', '2026-11-19', 3650000.00, 30456781, 1);
+
+SELECT * FROM modelo_motocicleta;
+
