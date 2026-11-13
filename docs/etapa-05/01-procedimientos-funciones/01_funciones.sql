@@ -22,7 +22,7 @@ GO
 --    NUNCA sobre monto_total.
 --    Devuelve NULL si el precio es negativo o el porcentaje no esta en 0..100.
 -- ============================================================================
-CREATE OR ALTER FUNCTION dbo.fn_precio_con_descuento (
+CREATE OR ALTER FUNCTION dbo.fn_precio_con_descuento ( -- 2000000,5
     @precio_venta_moto DECIMAL(12,2),
     @porcentaje        DECIMAL(5,2)
 ) RETURNS DECIMAL(12,2)
@@ -157,9 +157,9 @@ BEGIN
       AND estado = 'efectuada';
 
     RETURN CASE
-        WHEN @monto_acumulado > 10000000.00 THEN CAST(10.00 AS DECIMAL(5,2))
-        WHEN @monto_acumulado >  5000000.00 THEN CAST( 5.00 AS DECIMAL(5,2))
-        ELSE CAST(0.00 AS DECIMAL(5,2))
+        WHEN @monto_acumulado > 10000000.00 THEN 10.00
+        WHEN @monto_acumulado >  5000000.00 THEN 5.00
+        ELSE 0.00
     END;
 END;
 GO
@@ -194,7 +194,4 @@ RETURN
         GROUP BY c.dni_cliente
     ) AS r
 );
-GO
-
-PRINT '01_funciones.sql ejecutado: 7 funciones creadas en [X MOTORS].';
 GO
