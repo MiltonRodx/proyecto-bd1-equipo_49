@@ -22,7 +22,7 @@ GO
 --    NUNCA sobre monto_total.
 --    Devuelve NULL si el precio es negativo o el porcentaje no esta en 0..100.
 -- ============================================================================
-CREATE OR ALTER FUNCTION dbo.fn_precio_con_descuento ( -- 2000000,5
+CREATE OR ALTER FUNCTION dbo.fn_precio_con_descuento (
     @precio_venta_moto DECIMAL(12,2),
     @porcentaje        DECIMAL(5,2)
 ) RETURNS DECIMAL(12,2)
