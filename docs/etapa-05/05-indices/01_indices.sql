@@ -1,4 +1,4 @@
--- ============================================================================
+-- ==========================================================================================
 -- ETAPA V - ANEXO B: INDICES DE PERFORMANCE
 -- Archivo: docs/etapa-05/05-indices/01_indices.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
@@ -7,13 +7,13 @@
 -- con IF NOT EXISTS sobre sys.indexes for nonclustered.
 -- Con pocos datos, el optimizador puede seguir eligiendo escaneos; los
 -- indices quedan igual preparados para la escala de produccion.
--- ============================================================================
+-- ==========================================================================================
+
+USE [X MOTORS];
+GO
 
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
-GO
-
-USE [X MOTORS];
 GO
 
 -- 1. Reportes de ventas por rango de fechas y estado

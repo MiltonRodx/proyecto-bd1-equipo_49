@@ -113,7 +113,6 @@ GO
 
 
 
-
 EXECUTE AS USER = 'usr_xmotors_vendedor';   -- repetir con admin y consulta
 SELECT USER_NAME() AS usuario,
        HAS_PERMS_BY_NAME('dbo.venta',               'OBJECT', 'SELECT')  AS select_venta,
