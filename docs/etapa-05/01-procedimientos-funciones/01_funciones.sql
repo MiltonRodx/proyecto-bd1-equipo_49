@@ -8,10 +8,6 @@
 -- Orden de ejecucion: despues del DDL y del DML de las etapas anteriores.
 -- ============================================================================
 
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
 USE [X MOTORS];
 GO
 
