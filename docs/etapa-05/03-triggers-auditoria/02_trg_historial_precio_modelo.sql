@@ -1,4 +1,4 @@
--- ============================================================================
+-- ================================================================================
 -- ETAPA V - TEMA 3: TRIGGER DE HISTORIAL DE PRECIOS (RN7)
 -- Archivo: docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
@@ -7,7 +7,7 @@
 -- y el nuevo en historial_de_precio. Es la tabla de NEGOCIO que alimenta los
 -- reportes de evolucion de precios (RN7), no una tabla de auditoria tecnica.
 -- Set-based: soporta UPDATE de varias filas en una sola sentencia.
--- ============================================================================
+-- ================================================================================
 
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -23,16 +23,16 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Solo actua si alguna fila cambio realmente el precio de lista.
-    IF NOT EXISTS (
-        SELECT 1
-        FROM inserted AS i
-        JOIN deleted AS d
-            ON d.id_modelo = i.id_modelo
-        WHERE ISNULL(i.precio_lista, -1) <> ISNULL(d.precio_lista, -1)
-    )
+    -- Guard barato: muchos UPDATE solo tocan stock_disponible. Si precio_lista
+    -- ni figura en el SET, no hay nada que registrar.
+    IF NOT UPDATE(precio_lista)
         RETURN;
 
+    DECLARE @fecha DATE = CAST(SYSDATETIME() AS DATE);
+
+    -- UPDATE() es verdadero aunque el valor no cambie, por eso se compara igual.
+    -- EXISTS (SELECT a EXCEPT SELECT b) es una comparacion "distinto de" que
+    -- trata NULL como un valor mas (NULL vs NULL = igual, NULL vs 5 = distinto).
     INSERT INTO dbo.historial_de_precio (
         precio_nuevo,
         precio_anterior,
@@ -42,12 +42,12 @@ BEGIN
     SELECT
         i.precio_lista,
         d.precio_lista,
-        CAST(SYSDATETIME() AS DATE),
+        @fecha,
         i.id_modelo
     FROM inserted AS i
     JOIN deleted AS d
         ON d.id_modelo = i.id_modelo
-    WHERE ISNULL(i.precio_lista, -1) <> ISNULL(d.precio_lista, -1);
+    WHERE EXISTS (SELECT i.precio_lista EXCEPT SELECT d.precio_lista);
 END;
 GO
 

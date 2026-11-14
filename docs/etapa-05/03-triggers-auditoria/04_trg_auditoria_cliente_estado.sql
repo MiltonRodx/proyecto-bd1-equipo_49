@@ -22,28 +22,25 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF EXISTS (
-        SELECT 1
-        FROM inserted AS i
-        JOIN deleted AS d
-            ON d.dni_cliente = i.dni_cliente
-        WHERE ISNULL(i.estado, '') <> ISNULL(d.estado, '')
+    -- Guard barato: si estado ni figura en el SET, no hay nada que auditar.
+    IF NOT UPDATE(estado)
+        RETURN;
+
+    -- UPDATE() es verdadero aunque el valor no cambie, por eso se compara igual.
+    -- EXCEPT compara NULL-safe: NULL vs NULL = igual, NULL vs 'x' = distinto.
+    INSERT INTO dbo.auditoria_cliente (
+        dni_cliente,
+        estado_anterior,
+        estado_nuevo
     )
-    BEGIN
-        INSERT INTO dbo.auditoria_cliente (
-            dni_cliente,
-            estado_anterior,
-            estado_nuevo
-        )
-        SELECT
-            i.dni_cliente,
-            d.estado,
-            i.estado
-        FROM inserted AS i
-        JOIN deleted AS d
-            ON d.dni_cliente = i.dni_cliente
-        WHERE ISNULL(i.estado, '') <> ISNULL(d.estado, '');
-    END;
+    SELECT
+        i.dni_cliente,
+        d.estado,
+        i.estado
+    FROM inserted AS i
+    JOIN deleted AS d
+        ON d.dni_cliente = i.dni_cliente
+    WHERE EXISTS (SELECT i.estado EXCEPT SELECT d.estado);
 END;
 GO
 
