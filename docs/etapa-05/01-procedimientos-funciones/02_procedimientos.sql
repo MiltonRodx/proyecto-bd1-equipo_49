@@ -19,10 +19,6 @@
 -- error de negocio y las demos lo usan para comprobar que se rechaza lo debido.
 -- ============================================================================
 
--- ANSI_NULLS y QUOTED_IDENTIFIER se guardan con cada procedimiento al crearlo.
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
 
 USE [X MOTORS];
 GO
