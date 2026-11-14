@@ -9,16 +9,20 @@
 -- Reintegra el stock de la moto y de los accesorios una sola vez.
 -- La venta se vuelve a leer con bloqueo antes de cambiar el estado para
 -- evitar que una cancelacion concurrente reintegre el stock dos veces.
+/*Qué es y para qué sirve?
+Es el procedimiento que cancela o reembolsa una venta ya hecha. Es la operación inversa de sp_RegistrarVentaCompleta. 
+Al hacerlo tiene que cambiar tres cosas a la vez:
+El estado de la venta: de efectuada a cancelada o reembolsada.
+El stock de la moto: vuelve 1 unidad al modelo.
+El stock de los accesorios: vuelven las cantidades vendidas.
+Los tres cambios forman una unidad de trabajo: o se hacen los tres o no se hace ninguno. (todo o nada)
+Si fallara el tercero y los dos primeros quedaran guardados, 
+la venta figuraría cancelada pero el stock de accesorios estaría mal. Eso es la atomicidad (la A de ACID)
+ACID es un conjunto de cuatro propiedades (Atomibilidad, Consistencia, 
+Aislamiento y Durabilidad) que aseguran que las transacciones en una base de datos se ejecuten de forma segura, confiable y sin corrupción de datos.*/
 -- ============================================================================
 
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-SET ANSI_PADDING ON;
-SET ANSI_WARNINGS ON;
-SET ARITHABORT ON;
-SET CONCAT_NULL_YIELDS_NULL ON;
-SET NUMERIC_ROUNDABORT OFF;
-GO
+
 
 USE [X MOTORS];
 GO
