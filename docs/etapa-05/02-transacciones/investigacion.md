@@ -180,7 +180,7 @@ En el script se usa `THROW 50004, '...', 1` para errores de negocio y `THROW;` p
 ### 2.5 Patrón recomendado para X Motors
 
 ```sql
-CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
+CREATE OR ALTER PROCEDURE dbo.sp_RegistrarVentaCompleta
     -- parametros...
 AS
 BEGIN

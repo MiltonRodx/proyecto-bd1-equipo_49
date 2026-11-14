@@ -172,13 +172,13 @@ REVERT;
 GO
 
 -- ============================================================================
--- 7. usr_xmotors_consulta: EXEC de sp_registrar_venta (DENEGADO, esperado 229)
+-- 7. usr_xmotors_consulta: EXEC de sp_RegistrarVentaCompleta (DENEGADO, esperado 229)
 -- ============================================================================
-PRINT '=== Seguridad 7. Consulta: EXEC sp_registrar_venta (negado) ===';
+PRINT '=== Seguridad 7. Consulta: EXEC sp_RegistrarVentaCompleta (negado) ===';
 EXECUTE AS USER = 'usr_xmotors_consulta';
 BEGIN TRY
     DECLARE @cod_venta INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente = 28345672,
         @dni_vendedor = 29876543,
         @numero_chasis = 'HONCB500F002',

@@ -48,7 +48,7 @@ docs/etapa-05/
 | 1 | `sql/ddl/DDL_Script_X_Motors.sql` + `sql/dml/DML_Script_X_Motors.sql` | Base y lote |
 | 2 | `03-triggers-auditoria/01_tablas_auditoria.sql` | 3 |
 | 3 | `01-procedimientos-funciones/01_funciones.sql` + `02_procedimientos.sql` | 1 |
-| 4 | `02-transacciones/01_sp_registrar_venta.sql` + `02_sp_cambiar_estado_venta.sql` | 2 |
+| 4 | `01-procedimientos-funciones/02_procedimientos.sql` (incluye `sp_RegistrarVentaCompleta`) + `02-transacciones/02_sp_cambiar_estado_venta.sql` | 2 |
 | 5 | `02-transacciones/scripts.sql` (demos ACID) | 2 |
 | 6 | `03-triggers-auditoria/02..04_trg_*.sql` (triggers) | 3 |
 | 7 | `04-seguridad/01_seguridad.sql` (roles y usuarios permanentes) | 4 |
@@ -84,7 +84,7 @@ Reúso de lógica, código parametrizado, centralización de reglas, seguridad p
 | `fn_cotizacion_vigente` / `fn_stock_disponible_modelo` | RN12 y stock por modelo |
 | `sp_actualizar_precio_modelo` | Cambia `precio_lista` con validación y bloqueo (el trigger de auditoría registra el cambio; ver Tema 3) |
 | `sp_reporte_ventas_periodo` | Ranking de vendedores por período con ticket promedio |
-| `sp_registrar_venta` | **La operación central**: valida todo, calcula descuento (automático por historial si no se pasa), inserta la venta con JSON de accesorios, descuenta stock y audita los errores 50001–50019 |
+| `sp_RegistrarVentaCompleta` | **La operación central**: valida todo, calcula descuento (automático por historial si no se pasa), inserta la venta con JSON de accesorios, descuenta stock y audita los errores 50001–50019 |
 | `sp_cambiar_estado_venta` | `efectuada → cancelada/reembolsada` con reintegro de stock único |
 
 **Reglas de negocio aplicadas:** RN6 (congelado de precio), RN10 (1 moto + 0..N accesorios), RN11 (montos), RN12 (vigencia de cotizaciones). Descuento aplicado **solo al precio de la moto**, nunca a los accesorios ni al total.
@@ -111,7 +111,7 @@ Una venta toca `venta`, `detalle_venta_accesorio`, `motocicleta`, `modelo_motoci
 
 ### 5.3 Implementación y caso concreto
 
-- `sp_registrar_venta` y `sp_cambiar_estado_venta` con `SET XACT_ABORT ON`, `BEGIN TRY/BEGIN TRAN/COMMIT`, `ROLLBACK` + `THROW` en el `CATCH`.
+- `sp_RegistrarVentaCompleta` y `sp_cambiar_estado_venta` con `SET XACT_ABORT ON`, `BEGIN TRY/BEGIN TRAN/COMMIT`, `ROLLBACK` + `THROW` en el `CATCH`.
 - Bloqueo pesimista del stock con `UPDLOCK, HOLDLOCK` y orden fijo de bloqueo de tablas para evitar deadlocks entre ventas concurrentes.
 - `scripts.sql` con 3 demos: **COMMIT correcto** (venta + stock descontados), **ROLLBACK por stock insuficiente** (error 50004: la venta no queda), **ROLLBACK por FK inválida** (error 547). Cancelación final restaura el stock.
 

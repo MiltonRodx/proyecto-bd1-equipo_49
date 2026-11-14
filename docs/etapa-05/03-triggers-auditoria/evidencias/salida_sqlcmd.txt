@@ -1,4 +1,4 @@
-Changed database context to 'X MOTORS'.
+﻿Changed database context to 'X MOTORS'.
 === Contexto de ejecucion ===
 version_motor                                                                                                                                                                                            base_de_datos                                                                                                                    usuario_de_bd                                                                                                                    fecha_hora                            
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
@@ -29,7 +29,7 @@ id_modelo   precio_restaurado
 auditoria_venta_antes
 ---------------------
                     9
-=== AUDITORIA VENTA 2. sp_registrar_venta (INSERT en venta) ===
+=== AUDITORIA VENTA 2. sp_RegistrarVentaCompleta (INSERT en venta) ===
 cod_venta_generado
 ------------------
                 34

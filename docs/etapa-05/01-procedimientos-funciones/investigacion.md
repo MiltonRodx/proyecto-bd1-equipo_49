@@ -42,7 +42,7 @@ La idea central es que **la regla viva en un solo lugar** y que todos los usuari
 |---|---|
 | **Reutilización** | `fn_precio_con_descuento`, `fn_descuento_cliente` y `fn_total_venta` se usan en la venta y en los controles. La factura de Etapa IV es anterior y no invoca estas funciones. |
 | **Mantenibilidad** | Si cambia un umbral de descuento, se modifica una función y no todas las consultas. |
-| **Centralización de reglas** | La venta, el stock y el estado del cliente se resuelven en `sp_registrar_venta`, no en cada aplicación. |
+| **Centralización de reglas** | La venta, el stock y el estado del cliente se resuelven en `sp_RegistrarVentaCompleta`, no en cada aplicación. |
 | **Seguridad** | Un usuario puede recibir solo `EXECUTE` sobre el procedimiento, sin permisos directos sobre las tablas. |
 | **Consistencia** | Todos los caminos de venta aplican la misma fórmula y los mismos controles. |
 | **Rendimiento** | SQL Server reutiliza planes de ejecución y se reduce el tráfico de red al enviar una sola llamada. |
@@ -76,7 +76,7 @@ La idea central es que **la regla viva en un solo lugar** y que todos los usuari
 ### 3.1 Requisitos y compatibilidad
 
 - SQL Server **2016 SP1 o superior** para `CREATE OR ALTER`.
-- Nivel de compatibilidad **130 o mayor** para `OPENJSON` (usado en `sp_registrar_venta`).
+- Nivel de compatibilidad **130 o mayor** para `OPENJSON` (usado en `sp_RegistrarVentaCompleta`).
 - Esquema `dbo.` explícito.
 - `SET ANSI_NULLS ON` y `SET QUOTED_IDENTIFIER ON` al inicio de cada script.
 - En los procedimientos que modifican `venta`, se fijan además `ANSI_PADDING`, `ANSI_WARNINGS`, `ARITHABORT`, `CONCAT_NULL_YIELDS_NULL` y `NUMERIC_ROUNDABORT` para el índice filtrado.
@@ -198,15 +198,15 @@ Las ventas `cancelada` y `reembolsada` no suman.
 |---|---|---|
 | [`02_procedimientos.sql`](02_procedimientos.sql) | `sp_actualizar_precio_modelo` | Actualiza el precio de lista de un modelo. |
 | [`02_procedimientos.sql`](02_procedimientos.sql) | `sp_reporte_ventas_periodo` | Reporte de ventas efectuadas por vendedor. |
-| [`../02-transacciones/01_sp_registrar_venta.sql`](../02-transacciones/01_sp_registrar_venta.sql) | `sp_registrar_venta` | Registra una venta completa de forma atómica. |
+| [`02_procedimientos.sql`](02_procedimientos.sql) | `sp_RegistrarVentaCompleta` | Registra una venta completa de forma atómica (caso del enunciado). |
 | [`../02-transacciones/02_sp_cambiar_estado_venta.sql`](../02-transacciones/02_sp_cambiar_estado_venta.sql) | `sp_cambiar_estado_venta` | Cancela o reembolsa una venta y reintegra stock. |
 
-### 4.3 `sp_registrar_venta`: la operación central
+### 4.3 `sp_RegistrarVentaCompleta`: la operación central
 
 Firma:
 
 ```sql
-dbo.sp_registrar_venta
+dbo.sp_RegistrarVentaCompleta
     @dni_cliente          INT,
     @dni_vendedor         INT,
     @numero_chasis        VARCHAR(100),
@@ -278,9 +278,9 @@ Reintegra el stock de la moto (`+1`) y de cada accesorio (`+cantidad`) una sola 
 
 | Regla | Objeto de la Etapa V |
 |---|---|
-| RN5 — el cliente pasa a comprador | `sp_registrar_venta` |
-| RN6 — precio congelado al vender | `sp_registrar_venta` + `fn_total_venta` |
-| RN10 — venta sin accesorios | `sp_registrar_venta` (`@accesorios_json` nulo o `[]`) |
+| RN5 — el cliente pasa a comprador | `sp_RegistrarVentaCompleta` |
+| RN6 — precio congelado al vender | `sp_RegistrarVentaCompleta` + `fn_total_venta` |
+| RN10 — venta sin accesorios | `sp_RegistrarVentaCompleta` (`@accesorios_json` nulo o `[]`) |
 | RN11 — cancelación/reembolso reintegra stock | `sp_cambiar_estado_venta` |
 | RN12 — cotización válida 7 días | `fn_cotizacion_vigente` |
 
@@ -294,7 +294,7 @@ Reintegra el stock de la moto (`+1`) y de cada accesorio (`+cantidad`) una sola 
 |---|---|
 | [`01_funciones.sql`](01_funciones.sql) | Creación de las 7 funciones. |
 | [`02_procedimientos.sql`](02_procedimientos.sql) | `sp_actualizar_precio_modelo` y `sp_reporte_ventas_periodo`. |
-| [`../02-transacciones/01_sp_registrar_venta.sql`](../02-transacciones/01_sp_registrar_venta.sql) | `sp_registrar_venta`. |
+| [`02_procedimientos.sql`](02_procedimientos.sql) | `sp_RegistrarVentaCompleta` (con `@accesorios_json`). |
 | [`../02-transacciones/02_sp_cambiar_estado_venta.sql`](../02-transacciones/02_sp_cambiar_estado_venta.sql) | `sp_cambiar_estado_venta`. |
 | [`evidencias/01_funciones_pruebas.sql`](evidencias/01_funciones_pruebas.sql) | Pruebas reproducibles de funciones. |
 | [`evidencias/02_procedimientos_pruebas.sql`](evidencias/02_procedimientos_pruebas.sql) | Pruebas reproducibles de procedimientos. |
@@ -304,7 +304,7 @@ Reintegra el stock de la moto (`+1`) y de cada accesorio (`+cantidad`) una sola 
 
 > **Equivalencia con los nombres de la consigna.** La consigna de la Ejecución 1 pedía `scripts.sql` y `evidencias/salida_sqlcmd.txt`. Para respetar el contrato de archivos ya commiteado en la Ejecución 0, el contenido se repartió así:
 >
-> - `scripts.sql` → [`01_funciones.sql`](01_funciones.sql) + [`02_procedimientos.sql`](02_procedimientos.sql) + [`../02-transacciones/01_sp_registrar_venta.sql`](../02-transacciones/01_sp_registrar_venta.sql) + [`../02-transacciones/02_sp_cambiar_estado_venta.sql`](../02-transacciones/02_sp_cambiar_estado_venta.sql).
+> - `scripts.sql` → [`01_funciones.sql`](01_funciones.sql) + [`02_procedimientos.sql`](02_procedimientos.sql) + [`../02-transacciones/02_sp_cambiar_estado_venta.sql`](../02-transacciones/02_sp_cambiar_estado_venta.sql).
 > - `salida_sqlcmd.txt` → [`evidencias/01_funciones_salida.txt`](evidencias/01_funciones_salida.txt) + [`evidencias/02_procedimientos_salida.txt`](evidencias/02_procedimientos_salida.txt).
 > - `DetalleAccesorioTipo` (TVP) → reemplazado por el parámetro `@accesorios_json` con `OPENJSON`, equivalente funcional y sin necesidad de crear un tipo en la base.
 

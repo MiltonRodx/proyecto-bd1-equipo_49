@@ -1,4 +1,4 @@
-# Resultados — Tema 1: Procedimientos y funciones almacenadas
+﻿# Resultados — Tema 1: Procedimientos y funciones almacenadas
 
 **Sistema:** X Motors · Base de Datos I · Grupo 49 · FaCENA (UNNE)
 **Base de datos:** `[X MOTORS]`
@@ -98,7 +98,7 @@ Reporte de ventas efectuadas del 2026 agrupado por vendedor. Ejemplo de filas de
 
 Rango inválido (`desde > hasta`): error `50015` — Rango de fechas invalido.
 
-### 2.3 `sp_registrar_venta` — venta demo con 10 % de descuento
+### 2.3 `sp_RegistrarVentaCompleta` — venta demo con 10 % de descuento
 
 **Datos de entrada:**
 
@@ -146,7 +146,7 @@ precio_venta_moto + total_accesorios = monto_total
 
 La venta demo se eliminó al final (detalle + cabecera) para dejar el lote de Etapa III como estaba. El stock ya había sido reintegrado por la cancelación.
 
-### 2.5 Casos negativos de `sp_registrar_venta`
+### 2.5 Casos negativos de `sp_RegistrarVentaCompleta`
 
 | Caso | Error esperado | Resultado |
 |---|---|---|

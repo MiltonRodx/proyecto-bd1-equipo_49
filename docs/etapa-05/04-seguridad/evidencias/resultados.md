@@ -1,4 +1,4 @@
-# Resultados — Tema 4: Seguridad (permisos de usuarios y roles)
+﻿# Resultados — Tema 4: Seguridad (permisos de usuarios y roles)
 
 **Sistema de Gestión de Ventas de Motos — "X Motors"** · Base de Datos I · Grupo 49 · FaCENA (UNNE) · Etapa V
 
@@ -19,7 +19,7 @@ Resumen de la demostración de [`01_seguridad.sql`](../01_seguridad.sql):
 | `EXEC sp_reporte_ventas_periodo` | vendedor | OK (ownership chaining) |
 | SELECT de negocio | consulta | OK |
 | SELECT sobre `auditoria_venta` / `historial_de_precio` | consulta | **Negado** (229) |
-| `EXEC sp_registrar_venta` | consulta | **Negado** (229) |
+| `EXEC sp_RegistrarVentaCompleta` | consulta | **Negado** (229) |
 | SELECT + `EXEC` de administración | admin | OK |
 
 Ninguna prueba dejó datos (el `EXEC` de admin se corre con `sp_actualizar_precio_modelo` al mismo precio, que evita el UPDATE si no hay cambios).
@@ -42,4 +42,4 @@ Resumen de la demostración de [`02_seguridad_logins_reales.sql`](../02_segurida
 
 ## 3. Limitación conocida (documentada)
 
-`sp_registrar_venta` ejecuta su `INSERT` vía `sp_executesql`: el ownership chaining no cruza lotes dinámicos, por lo que para proyectos reales se recomienda crearlo con `WITH EXECUTE AS OWNER`. La demo del profesor usa un SP simple (`sp_demo_insert_venta_simple`, sin SQL dinámico, espíritu del ejemplo de la consigna); ver §4 de [`investigacion.md`](../investigacion.md) para las dos opciones documentadas.
+`sp_RegistrarVentaCompleta` ejecuta su `INSERT` vía `sp_executesql`: el ownership chaining no cruza lotes dinámicos, por lo que para proyectos reales se recomienda crearlo con `WITH EXECUTE AS OWNER`. La demo del profesor usa un SP simple (`sp_demo_insert_venta_simple`, sin SQL dinámico, espíritu del ejemplo de la consigna); ver §4 de [`investigacion.md`](../investigacion.md) para las dos opciones documentadas.

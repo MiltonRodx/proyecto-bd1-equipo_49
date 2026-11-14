@@ -46,7 +46,6 @@ docs/etapa-05/
 │       ├── 02_procedimientos_salida_docker.txt
 │       └── resultados.md
 ├── 02-transacciones/                     # Tema 2 (Ejecuciones 1 y 2)
-│   ├── 01_sp_registrar_venta.sql
 │   ├── 02_sp_cambiar_estado_venta.sql
 │   ├── scripts.sql
 │   ├── investigacion.md
@@ -93,15 +92,14 @@ docs/etapa-05/
 | 2 | `sql/dml/DML_Script_X_Motors.sql` | Puebla el lote de prueba | Sí (lote inicial) |
 | 3 | `docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql` | Crea `auditoria_venta` y `auditoria_cliente` | No |
 | 4 | `docs/etapa-05/01-procedimientos-funciones/01_funciones.sql` | Crea las funciones `fn_*` | No |
-| 5 | `docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql` | Crea `sp_actualizar_precio_modelo` y `sp_reporte_ventas_periodo` | No |
-| 6 | `docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql` | Crea `sp_registrar_venta` | No |
-| 7 | `docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql` | Crea `sp_cambiar_estado_venta` | No |
-| 8 | `docs/etapa-05/02-transacciones/scripts.sql` | Ejecuta las demos de `COMMIT`/`ROLLBACK` y la cancelación final | Sí, con limpieza/cancelación |
-| 9 | `docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
-| 10 | `docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
-| 11 | `docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
-| 12 | `docs/etapa-05/04-seguridad/01_seguridad.sql` | Crea roles, usuarios y permisos | No |
-| 13 | `docs/etapa-05/05-indices/01_indices.sql` | Crea los índices de performance | No |
+| 5 | `docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql` | Crea `sp_actualizar_precio_modelo`, `sp_reporte_ventas_periodo`, `sp_generar_cotizacion` y `sp_RegistrarVentaCompleta` | No |
+| 6 | `docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql` | Crea `sp_cambiar_estado_venta` | No |
+| 7 | `docs/etapa-05/02-transacciones/scripts.sql` | Ejecuta las demos de `COMMIT`/`ROLLBACK` y la cancelación final | Sí, con limpieza/cancelación |
+| 8 | `docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql` | Crea el trigger de historial de precios | No |
+| 9 | `docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql` | Crea el trigger de auditoría de ventas | No |
+| 10 | `docs/etapa-05/03-triggers-auditoria/04_trg_auditoria_cliente_estado.sql` | Crea el trigger de auditoría de estados del cliente | No |
+| 11 | `docs/etapa-05/04-seguridad/01_seguridad.sql` | Crea roles, usuarios y permisos | No |
+| 12 | `docs/etapa-05/05-indices/01_indices.sql` | Crea los índices de performance | No |
 | 14 | `docs/etapa-05/**/evidencias/*_pruebas.sql` | Ejecuta las pruebas y genera evidencias | Sí, con `ROLLBACK`/limpieza al final |
 | 15 | `docs/etapa-05/05-indices/02_indices_mass_load.sql` | Crea y pobla `venta_historica_prueba` (1.000.000 filas, prueba de escala consigna v2) | Sí, crea tabla desechable |
 | 16 | `docs/etapa-05/05-indices/03_indices_mass_mediciones.sql` | Mide los 3 escenarios de índices (Table Scan / Clustered Seek / Index Seek cobertura) | No (solo crea/dropea índices de prueba) |
@@ -274,10 +272,10 @@ CREATE OR ALTER PROCEDURE dbo.sp_reporte_ventas_periodo
 - Valida `@fecha_desde <= @fecha_hasta` cuando ambos están informados.
 - Columnas del result set: `dni_vendedor`, `vendedor`, `cantidad_ventas`, `monto_total`, `ticket_promedio`.
 
-Archivo: `docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql`.
+Archivo: `docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql`.
 
 ```sql
-CREATE OR ALTER PROCEDURE dbo.sp_registrar_venta
+CREATE OR ALTER PROCEDURE dbo.sp_RegistrarVentaCompleta
     @dni_cliente          INT,
     @dni_vendedor         INT,
     @numero_chasis        VARCHAR(100),
@@ -381,7 +379,7 @@ rol_xmotors_vendedor
   GRANT SELECT ON OBJECT::dbo.venta
   GRANT SELECT ON OBJECT::dbo.detalle_venta_accesorio
   GRANT SELECT ON OBJECT::dbo.cotizacion
-  GRANT EXECUTE ON OBJECT::dbo.sp_registrar_venta
+  GRANT EXECUTE ON OBJECT::dbo.sp_RegistrarVentaCompleta
   GRANT EXECUTE ON OBJECT::dbo.sp_cambiar_estado_venta
   GRANT EXECUTE ON OBJECT::dbo.sp_reporte_ventas_periodo
 
@@ -390,7 +388,7 @@ rol_xmotors_consulta
   DENY SELECT ON OBJECT::dbo.historial_de_precio
   DENY SELECT ON OBJECT::dbo.auditoria_venta
   DENY SELECT ON OBJECT::dbo.auditoria_cliente
-  DENY EXECUTE ON OBJECT::dbo.sp_registrar_venta
+  DENY EXECUTE ON OBJECT::dbo.sp_RegistrarVentaCompleta
   DENY EXECUTE ON OBJECT::dbo.sp_cambiar_estado_venta
   DENY EXECUTE ON OBJECT::dbo.sp_actualizar_precio_modelo
 ```
@@ -420,7 +418,7 @@ Los índices de `auditoria_venta` y `auditoria_cliente` se crean junto con sus t
 
 ## 4. Contratos de comportamiento
 
-### 4.1 `sp_registrar_venta`
+### 4.1 `sp_RegistrarVentaCompleta`
 
 **Entrada JSON de accesorios:**
 
@@ -492,7 +490,7 @@ efectuada → cancelada
 efectuada → reembolsada
 ```
 
-**Pasos transaccionales (mismo orden de bloqueo que `sp_registrar_venta`):**
+**Pasos transaccionales (mismo orden de bloqueo que `sp_RegistrarVentaCompleta`):**
 
 1. Leer la venta y sus detalles sin bloqueo para obtener el chasis, el modelo y los accesorios.
 2. Bloquear `motocicleta` → `modelo_motocicleta` → `accesorio` (por `id_accesorio`), en ese orden.

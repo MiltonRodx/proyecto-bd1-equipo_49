@@ -4,7 +4,6 @@
 -- Ejecutar despues de:
 --   01_funciones.sql
 --   02_procedimientos.sql
---   02-transacciones/01_sp_registrar_venta.sql
 --   02-transacciones/02_sp_cambiar_estado_venta.sql
 -- ============================================================================
 
@@ -82,7 +81,7 @@ END CATCH;
 GO
 
 -- ============================================================================
--- 4. sp_registrar_venta: venta demo con 10 % de descuento
+-- 4. sp_RegistrarVentaCompleta: venta demo con 10 % de descuento
 --    Cliente 35123903 (2 ventas efectuadas, $24.945.950 -> 10 %)
 --    Chasis HONCB500F003 (modelo 11, precio lista $8.500.000)
 --    Accesorios 1 (Casco, $185.000) y 3 (Guantes, $42.000)
@@ -90,11 +89,11 @@ GO
 --      precio_venta_moto = $7.650.000
 --      monto_total       = $7.877.000
 -- ============================================================================
-PRINT '=== sp_registrar_venta: venta demo con 10 % de descuento ===';
+PRINT '=== sp_RegistrarVentaCompleta: venta demo con 10 % de descuento ===';
 
 DECLARE @cod_venta INT;
 
-EXEC dbo.sp_registrar_venta
+EXEC dbo.sp_RegistrarVentaCompleta
     @dni_cliente          = 35123903,
     @dni_vendedor         = 31222333,
     @numero_chasis        = 'HONCB500F003',
@@ -191,12 +190,12 @@ SELECT
 GO
 
 -- ============================================================================
--- 8. Casos negativos de sp_registrar_venta
+-- 8. Casos negativos de sp_RegistrarVentaCompleta
 -- ============================================================================
-PRINT '=== sp_registrar_venta: chasis ya vendido (error esperado 50005) ===';
+PRINT '=== sp_RegistrarVentaCompleta: chasis ya vendido (error esperado 50005) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F001',
@@ -209,10 +208,10 @@ BEGIN CATCH
 END CATCH;
 GO
 
-PRINT '=== sp_registrar_venta: modelo sin stock (error esperado 50004) ===';
+PRINT '=== sp_RegistrarVentaCompleta: modelo sin stock (error esperado 50004) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 28345672,
         @dni_vendedor         = 29876543,
         @numero_chasis        = '9C2HON00000000003',
@@ -225,10 +224,10 @@ BEGIN CATCH
 END CATCH;
 GO
 
-PRINT '=== sp_registrar_venta: accesorio sin stock suficiente (error esperado 50008) ===';
+PRINT '=== sp_RegistrarVentaCompleta: accesorio sin stock suficiente (error esperado 50008) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F002',
@@ -245,10 +244,10 @@ GO
 -- ============================================================================
 -- 9. Regresiones de las validaciones corregidas
 -- ============================================================================
-PRINT '=== sp_registrar_venta: metodo de pago NULL (error esperado 50011) ===';
+PRINT '=== sp_RegistrarVentaCompleta: metodo de pago NULL (error esperado 50011) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F003',
@@ -261,10 +260,10 @@ BEGIN CATCH
 END CATCH;
 GO
 
-PRINT '=== sp_registrar_venta: precio de accesorio negativo (error esperado 50018) ===';
+PRINT '=== sp_RegistrarVentaCompleta: precio de accesorio negativo (error esperado 50018) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F003',
@@ -278,10 +277,10 @@ BEGIN CATCH
 END CATCH;
 GO
 
-PRINT '=== sp_registrar_venta: descuento mayor al permitido (error esperado 50009) ===';
+PRINT '=== sp_RegistrarVentaCompleta: descuento mayor al permitido (error esperado 50009) ===';
 BEGIN TRY
     DECLARE @cod_negocio INT;
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F003',
@@ -299,10 +298,10 @@ GO
 --     Cliente 35123903: 10 %. Se omite @porcentaje_descuento.
 --     Resultado esperado: precio_venta_moto = monto_total = $7.650.000
 -- ============================================================================
-PRINT '=== sp_registrar_venta: descuento automatico sin accesorios ===';
+PRINT '=== sp_RegistrarVentaCompleta: descuento automatico sin accesorios ===';
 DECLARE @cod_auto INT;
 
-EXEC dbo.sp_registrar_venta
+EXEC dbo.sp_RegistrarVentaCompleta
     @dni_cliente          = 35123903,
     @dni_vendedor         = 31222333,
     @numero_chasis        = 'HONCB500F003',
@@ -331,7 +330,7 @@ GO
 -- 11. Opciones SET hostiles: el procedimiento debe fijar las opciones que
 --     exige el indice filtrado y completar la venta sin error 1934.
 -- ============================================================================
-PRINT '=== sp_registrar_venta: opciones SET hostiles (indice filtrado) ===';
+PRINT '=== sp_RegistrarVentaCompleta: opciones SET hostiles (indice filtrado) ===';
 DECLARE @cod_set INT;
 DECLARE @cancel_ok BIT = 0;
 
@@ -341,7 +340,7 @@ SET CONCAT_NULL_YIELDS_NULL OFF;
 SET NUMERIC_ROUNDABORT ON;
 
 BEGIN TRY
-    EXEC dbo.sp_registrar_venta
+    EXEC dbo.sp_RegistrarVentaCompleta
         @dni_cliente          = 35123903,
         @dni_vendedor         = 31222333,
         @numero_chasis        = 'HONCB500F003',

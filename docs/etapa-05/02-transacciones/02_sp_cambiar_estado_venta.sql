@@ -65,7 +65,7 @@ BEGIN
         IF @@ROWCOUNT = 0
             THROW 50012, 'Venta inexistente', 1;
 
-        -- 3. Bloquear en el mismo orden que sp_registrar_venta:
+        -- 3. Bloquear en el mismo orden que sp_RegistrarVentaCompleta:
         --    moto -> modelo -> accesorios -> venta.
         DECLARE @id_modelo INT;
 

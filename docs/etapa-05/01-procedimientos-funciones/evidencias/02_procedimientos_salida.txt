@@ -54,7 +54,7 @@ dni_vendedor|vendedor|cantidad_ventas|monto_total|ticket_promedio
 error|mensaje
 -----|-------
 50015|Rango de fechas invalido
-=== sp_registrar_venta: venta demo con 10 % de descuento ===
+=== sp_RegistrarVentaCompleta: venta demo con 10 % de descuento ===
 cod_venta_generado
 ------------------
 67
@@ -104,35 +104,35 @@ id_accesorio|stock_accesorio_final
 venta_demo_restante|stock_modelo_11_limpio
 -------------------|----------------------
 0|3
-=== sp_registrar_venta: chasis ya vendido (error esperado 50005) ===
+=== sp_RegistrarVentaCompleta: chasis ya vendido (error esperado 50005) ===
 error|mensaje
 -----|-------
 50005|El chasis ya tiene una venta efectuada
-=== sp_registrar_venta: modelo sin stock (error esperado 50004) ===
+=== sp_RegistrarVentaCompleta: modelo sin stock (error esperado 50004) ===
 error|mensaje
 -----|-------
 50004|Sin stock disponible de la moto
-=== sp_registrar_venta: accesorio sin stock suficiente (error esperado 50008) ===
+=== sp_RegistrarVentaCompleta: accesorio sin stock suficiente (error esperado 50008) ===
 error|mensaje
 -----|-------
 50008|Sin stock suficiente de accesorio
-=== sp_registrar_venta: metodo de pago NULL (error esperado 50011) ===
+=== sp_RegistrarVentaCompleta: metodo de pago NULL (error esperado 50011) ===
 error|mensaje
 -----|-------
 50011|Metodo de pago invalido
-=== sp_registrar_venta: precio de accesorio negativo (error esperado 50018) ===
+=== sp_RegistrarVentaCompleta: precio de accesorio negativo (error esperado 50018) ===
 error|mensaje
 -----|-------
 50018|Precio de accesorio invalido
-=== sp_registrar_venta: descuento mayor al permitido (error esperado 50009) ===
+=== sp_RegistrarVentaCompleta: descuento mayor al permitido (error esperado 50009) ===
 error|mensaje
 -----|-------
 50009|Porcentaje de descuento mayor al permitido
-=== sp_registrar_venta: descuento automatico sin accesorios ===
+=== sp_RegistrarVentaCompleta: descuento automatico sin accesorios ===
 cod_venta|precio_venta_moto|monto_total|control_descuento_automatico
 ---------|-----------------|-----------|----------------------------
 68|7650000.00|7650000.00|OK
-=== sp_registrar_venta: opciones SET hostiles (indice filtrado) ===
+=== sp_RegistrarVentaCompleta: opciones SET hostiles (indice filtrado) ===
 resultado
 ---------
 VENTA OK CON OPCIONES HOSTILES

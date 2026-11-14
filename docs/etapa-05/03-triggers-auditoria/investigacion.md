@@ -105,7 +105,7 @@ Reglas de implementación que aplicamos:
 
 En la corrida final quedó demostrado un detalle fino:
 
-`sp_registrar_venta` calcula `monto_total` **antes** de hacer el `INSERT`. Así, el trigger de auditoría registra la fila con el monto definitivo en su único `INSERT`, y no se genera un segundo registro `UPDATE` spúreo.
+`sp_RegistrarVentaCompleta` calcula `monto_total` **antes** de hacer el `INSERT`. Así, el trigger de auditoría registra la fila con el monto definitivo en su único `INSERT`, y no se genera un segundo registro `UPDATE` spúreo.
 
 La evidencia de esta ejecución tiene dos corridas:
 

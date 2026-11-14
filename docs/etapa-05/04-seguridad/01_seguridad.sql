@@ -99,7 +99,7 @@ GRANT SELECT ON OBJECT::dbo.venta                TO rol_xmotors_vendedor;
 GRANT SELECT ON OBJECT::dbo.detalle_venta_accesorio TO rol_xmotors_vendedor;
 GRANT SELECT ON OBJECT::dbo.cotizacion           TO rol_xmotors_vendedor;
 
-GRANT EXECUTE ON OBJECT::dbo.sp_registrar_venta  TO rol_xmotors_vendedor;
+GRANT EXECUTE ON OBJECT::dbo.sp_RegistrarVentaCompleta  TO rol_xmotors_vendedor;
 GRANT EXECUTE ON OBJECT::dbo.sp_cambiar_estado_venta TO rol_xmotors_vendedor;
 GRANT EXECUTE ON OBJECT::dbo.sp_reporte_ventas_periodo TO rol_xmotors_vendedor;
 
@@ -118,7 +118,7 @@ DENY SELECT ON OBJECT::dbo.auditoria_venta     TO rol_xmotors_consulta;
 DENY SELECT ON OBJECT::dbo.auditoria_cliente   TO rol_xmotors_consulta;
 
 -- No opera ventas ni precios.
-DENY EXECUTE ON OBJECT::dbo.sp_registrar_venta         TO rol_xmotors_consulta;
+DENY EXECUTE ON OBJECT::dbo.sp_RegistrarVentaCompleta         TO rol_xmotors_consulta;
 DENY EXECUTE ON OBJECT::dbo.sp_cambiar_estado_venta    TO rol_xmotors_consulta;
 DENY EXECUTE ON OBJECT::dbo.sp_actualizar_precio_modelo TO rol_xmotors_consulta;
 GO

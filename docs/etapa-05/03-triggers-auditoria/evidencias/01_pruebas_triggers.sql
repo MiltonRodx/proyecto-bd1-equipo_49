@@ -58,10 +58,10 @@ PRINT '=== AUDITORIA VENTA 1. Estado inicial ===';
 SELECT COUNT(*) AS auditoria_venta_antes FROM dbo.auditoria_venta;
 GO
 
-PRINT '=== AUDITORIA VENTA 2. sp_registrar_venta (INSERT en venta) ===';
+PRINT '=== AUDITORIA VENTA 2. sp_RegistrarVentaCompleta (INSERT en venta) ===';
 DECLARE @cod_venta INT;
 
-EXEC dbo.sp_registrar_venta
+EXEC dbo.sp_RegistrarVentaCompleta
     @dni_cliente          = 40234567,
     @dni_vendedor         = 32109876,
     @numero_chasis        = 'KAWZ400001',

@@ -75,7 +75,6 @@ sqlcmd -S <server> -d "X MOTORS" -i sql/dml/DML_Script_X_Motors.sql
 for f in docs/etapa-05/03-triggers-auditoria/01_tablas_auditoria.sql \
          docs/etapa-05/01-procedimientos-funciones/01_funciones.sql \
          docs/etapa-05/01-procedimientos-funciones/02_procedimientos.sql \
-         docs/etapa-05/02-transacciones/01_sp_registrar_venta.sql \
          docs/etapa-05/02-transacciones/02_sp_cambiar_estado_venta.sql \
          docs/etapa-05/03-triggers-auditoria/02_trg_historial_precio_modelo.sql \
          docs/etapa-05/03-triggers-auditoria/03_trg_auditoria_venta.sql \
@@ -92,7 +91,7 @@ done
 
 ## 🎯 Lo destacado de la Etapa V
 
-* **Procedimientos y funciones:** la operación completa de venta en `sp_registrar_venta` (descuentos, accesorios vía JSON, stock y errores de negocio `50001–50019`); venta demo verificada con la factura de Etapa IV (`OK`).
+* **Procedimientos y funciones:** la operación completa de venta en `sp_RegistrarVentaCompleta` (descuentos, accesorios vía JSON, stock y errores de negocio `50001–50019`); venta demo verificada con la factura de Etapa IV (`OK`).
 * **Transacciones:** demos ACID con `COMMIT`/`ROLLBACK` (stock insuficiente y FK inválida) que nunca dejan ventas parciales.
 * **Auditoría:** triggers sobre `modelo_motocicleta`, `venta` y `cliente.estado` con tablas de auditoría propias y soporte multilínea.
 * **Seguridad:** 3 roles con principio de mínimo privilegio; la demo de la consigna v2 con logins reales efímeros dio **5/5 pruebas** conforme (2 denegaciones 229, 3 OKs).
@@ -100,7 +99,7 @@ done
 
 ## ℹ️ Nota de diseño vigente
 
-`venta.metodo_pago` quedó como `VARCHAR(50)` validado a nivel de aplicación (la tabla normalizada `METODO_PAGO` mencionada en los primeros análisis se descartó para no romper el contrato de etapas anteriores). Los procedimientos de la etapa V (`sp_registrar_venta`) normalizan y validan los métodos de pago admitidos (`efectivo`, `transferencia bancaria`, `tarjeta de credito/debito`, `financiamiento`) con errores de negocio dedicados.
+`venta.metodo_pago` quedó como `VARCHAR(50)` validado a nivel de aplicación (la tabla normalizada `METODO_PAGO` mencionada en los primeros análisis se descartó para no romper el contrato de etapas anteriores). Los procedimientos de la etapa V (`sp_RegistrarVentaCompleta`) normalizan y validan los métodos de pago admitidos (`efectivo`, `transferencia bancaria`, `tarjeta de credito/debito`, `financiamiento`) con errores de negocio dedicados.
 
 ## Licencia
 

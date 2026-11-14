@@ -1,4 +1,4 @@
-Changed database context to 'X MOTORS'.
+﻿Changed database context to 'X MOTORS'.
 === Contexto de ejecucion ===
 version_motor                                                                                                                                                                                            base_de_datos                                                                                                                    usuario_de_bd                                                                                                                    fecha_hora                            
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------- --------------------------------------
@@ -88,10 +88,10 @@ error       mensaje
 error       mensaje                                                                                                                                                                                                 
 ----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         229 The SELECT permission was denied on the object 'historial_de_precio', database 'X MOTORS', schema 'dbo'.                                                                                                
-=== Seguridad 7. Consulta: EXEC sp_registrar_venta (negado) ===
+=== Seguridad 7. Consulta: EXEC sp_RegistrarVentaCompleta (negado) ===
 error       mensaje                                                                                                                                                                                                 
 ----------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        229 The EXECUTE permission was denied on the object 'sp_registrar_venta', database 'X MOTORS', schema 'dbo'.                                                                                                
+        229 The EXECUTE permission was denied on the object 'sp_RegistrarVentaCompleta', database 'X MOTORS', schema 'dbo'.                                                                                                
 === Seguridad 8. Admin: lectura y EXEC de administracion (permitidos) ===
 total_ventas
 ------------

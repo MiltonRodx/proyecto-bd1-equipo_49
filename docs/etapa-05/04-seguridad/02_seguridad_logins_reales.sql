@@ -21,11 +21,12 @@
 --      El modelo permanente de seguridad sigue siendo 01_seguridad.sql
 --      (roles + usuarios WITHOUT LOGIN) para que el script sea
 --      reproducible sin permisos de sysadmin.
---   2. Se usa un SP simple esp para la Prueba 3 (sp_demo_insert_venta_simple,
+--   2. Se usa un SP simple espejo para la Prueba 3 (sp_demo_insert_venta_simple,
 --      con INSERT directo, sin SQL dinamico), igual al caso del profesor.
---      El SP real sp_registrar_venta hace el INSERT via sp_executesql y el
---      ownership chaining NO cruza lotes dinamicos (ver observacion honesta
---      en investigacion.md): ese limite se documenta, no se fuerza.
+--      El SP real sp_RegistrarVentaCompleta hace el INSERT de venta via
+--      sp_executesql y el ownership chaining NO cruza lotes dinamicos (ver
+--      observacion honesta en investigacion.md): ese limite se documenta,
+--      no se fuerza.
 --   3. El INSERT permanente de la Prueba 3 queda solo temporalmente:
 --      al final del script se ELIMINAN las filas demo de venta para
 --      restaurar el lote de Etapa III. Las filas de auditoria_producto

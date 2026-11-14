@@ -31,7 +31,7 @@ CREATE USER usr_xmotors_vendedor WITHOUT LOGIN;
 ALTER ROLE rol_xmotors_vendedor ADD MEMBER usr_xmotors_vendedor;
 
 GRANT SELECT ON OBJECT::dbo.modelo_motocicleta  TO rol_xmotors_vendedor;
-GRANT EXECUTE ON OBJECT::dbo.sp_registrar_venta TO rol_xmotors_vendedor;
+GRANT EXECUTE ON OBJECT::dbo.sp_RegistrarVentaCompleta TO rol_xmotors_vendedor;
 DENY  INSERT, UPDATE, DELETE ON SCHEMA::dbo     TO rol_xmotors_vendedor;
 
 GRANT SELECT ON SCHEMA::dbo              TO rol_xmotors_consulta;
@@ -51,12 +51,12 @@ Los `DENY` **preceden** a los `GRANT` de esquema: sobre `dbo` el rol de consulta
 | `EXEC sp_reporte_ventas_periodo` | vendedor | OK (ownership chaining) |
 | `SELECT` de ventas | consulta | OK |
 | `SELECT` sobre `auditoria_venta` / `historial_de_precio` | consulta | **Negado** (229) |
-| `EXEC sp_registrar_venta` | consulta | **Negado** (229) |
+| `EXEC sp_RegistrarVentaCompleta` | consulta | **Negado** (229) |
 | `SELECT` de todo + `EXEC` de administración | admin | OK |
 
 Ninguna prueba dejó datos: el `EXEC` de admin se corrió con `sp_actualizar_precio_modelo` con el mismo precio (la lógica evita el UPDATE si no hay cambios) y el lote quedó intacto.
 
-> **Observación honesta:** para que el vendedor ejecute `sp_registrar_venta` en producción (que internamente llama a `sp_executesql` con el `INSERT`), los SP con SQL dinámico deben crearse con `WITH EXECUTE AS OWNER`, ya que el ownership chaining no cruza batches dinámicos. En este lote se demuestra el `GRANT EXECUTE` y el `DENY` de DML directo; la combinación completa (vendedor ejecutando la venta real) se documenta pero no se fuerza en la demostración para no escribir datos bajo otro contexto de seguridad que después complicaría la limpieza del lote.
+> **Observación honesta:** para que el vendedor ejecute `sp_RegistrarVentaCompleta` en producción (que internamente llama a `sp_executesql` con el `INSERT`), los SP con SQL dinámico deben crearse con `WITH EXECUTE AS OWNER`, ya que el ownership chaining no cruza batches dinámicos. En este lote se demuestra el `GRANT EXECUTE` y el `DENY` de DML directo; la combinación completa (vendedor ejecutando la venta real) se documenta pero no se fuerza en la demostración para no escribir datos bajo otro contexto de seguridad que después complicaría la limpieza del lote.
 
 ## 5. Script y resultados
 
@@ -80,7 +80,7 @@ Resultados sobre la base `[X MOTORS]` (SQL Server 2025 Express, Docker), 5 de 5 
 
 Notas técnicas documentadas en el propio script:
 
-- Para la prueba de `EXEC` se usa un **SP simple espejo del ejemplo del profesor** (`sp_demo_insert_venta_simple`, `INSERT` directo sin SQL dinámico, creado y dropeado por la demo). El SP real `sp_registrar_venta` ejecuta su `INSERT` vía `sp_executesql` y el ownership chaining no cruza lotes dinámicos: es la limitación ya citada en la observación honesta de §4; la demo del profesor queda demostrada con el SP simple y el SP real se trataría con `WITH EXECUTE AS OWNER` (también comentado ahí).
+- Para la prueba de `EXEC` se usa un **SP simple espejo del ejemplo del profesor** (`sp_demo_insert_venta_simple`, `INSERT` directo sin SQL dinámico, creado y dropeado por la demo). El SP real `sp_RegistrarVentaCompleta` ejecuta su `INSERT` de `venta` vía `sp_executesql` y el ownership chaining no cruza lotes dinámicos: es la limitación ya citada en la observación honesta de §4; la demo del profesor queda demostrada con el SP simple y el SP real se trataría con `WITH EXECUTE AS OWNER` (también comentado ahí).
 - El `INSERT` directo del admin corre dentro de una transacción con `ROLLBACK` (convención de la etapa: no ensuciar el lote); el `INSERT` por SP de la prueba 3 sí se confirma y se **elimina en la limpieza del script**; las filas de `auditoria_venta` generadas por ese ciclo `INSERT`/`DELETE` quedan como constancia.
 - Entorno con `SET QUOTED_IDENTIFIER ON` de encabezado: `venta` tiene el índice filtrado `ux_venta_chasis_vigente` y con las opciones por defecto de `sqlcmd` fallaría con error 1934.
 - La limpieza final dropea usuarios, luego el rol (no puede dropearse con miembros), el SP, y los 4 logins; verificado: 0 principios residuales.
