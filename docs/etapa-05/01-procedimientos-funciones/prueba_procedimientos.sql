@@ -45,9 +45,9 @@ SELECT @id_cotizacion AS IdCotizacion;
 DECLARE @cod_venta INT;
 
 EXEC dbo.sp_RegistrarVentaCompleta
-    @dni_cliente = 30111222,
-    @dni_vendedor = 28999888,
-    @numero_chasis = 'CHASIS-001',
+    @dni_cliente = 31222334,
+    @dni_vendedor = 29876543,
+    @numero_chasis = '9C2YAM00000000007',
     @metodo_pago = 'efectivo',
     @accesorios_json = N'[{"id_accesorio":3,"cantidad":1}]',
     @cod_venta = @cod_venta OUTPUT;
