@@ -1,0 +1,42 @@
+============================================================
+ ETAPA V - TEMA 2: CASOS DE PRUEBA (scripts de procedimientos)
+============================================================
+Script        : docs/etapa-05/02-transacciones/casos_de_prueba.sql
+Entorno       : SQL Server 2022 Express (Docker, Linux) - sqlcmd 18
+Fecha/hora    : 2026-11-15 16:49:23
+
+Comando:
+  docker exec sqlserver sqlcmd -S localhost -U sa -C -I -d "X MOTORS" \
+    -i /tmp/casos_de_prueba.sql -W -s "|" -w 300 -r1 -f 65001
+
+------------------------------------------------------------
+SALIDA
+------------------------------------------------------------
+Changed database context to 'X MOTORS'.
+Cliente: 27654321 | Vendedor: 29876543 | Chasis: 9C2BAJ00000000012 | Accesorio: 1
+=== PRUEBA 1: accesorio SIN stock suficiente (debe fallar y deshacer todo) ===
+numero_error|mensaje|transacciones_abiertas
+------------|-------|----------------------
+50008|Sin stock suficiente de accesorio|0
+=== PRUEBA 2: venta con stock suficiente (debe confirmarse completa) ===
+cod_venta|estado|precio_venta_moto|monto_total|numero_chasis
+---------|------|-----------------|-----------|-------------
+12|efectuada|5900000.00|6085000.00|9C2BAJ00000000012
+cod_venta|id_accesorio|cantidad|precio_pactado
+---------|------------|--------|--------------
+12|1|1|185000.00
+=== PRUEBA 3: cancelar la venta (estado + stock de moto + stock de accesorios) ===
+cod_venta|estado
+---------|------
+12|cancelada
+=== PRUEBA 4: cancelar de nuevo la misma venta (debe rechazarse) ===
+numero_error|mensaje|transacciones_abiertas
+------------|-------|----------------------
+50013|Transicion de estado invalida|0
+momento|stock_motos|stock_accesorio|ventas|detalles
+-------|-----------|---------------|------|--------
+0. ANTES|7|11|10|17
+1. DESPUES DE LA VENTA INCORRECTA|7|11|10|17
+2. DESPUES DE LA VENTA CORRECTA|6|10|11|18
+3. DESPUES DE CANCELAR|7|11|11|18
+4. DESPUES DE CANCELAR DE NUEVO|7|11|11|18

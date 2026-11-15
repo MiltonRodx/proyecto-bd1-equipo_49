@@ -279,3 +279,33 @@ OK|OK|OK|OK|OK|OK|OK
 - El demo 2 usa una unidad ficticia para no chocar con el índice filtrado ni con las ventas reales del lote. La unidad se elimina con el `ROLLBACK`.
 - No se modificaron `sql/ddl/`, `sql/dml/` ni `sql/consultas/`.
 - La venta 64 queda `cancelada`; si se quiere dejar la base exactamente en el baseline, ejecutar la limpieza inicial del script o eliminar la venta 64 y su detalle después de tomar la evidencia.
+
+---
+
+## 10. Casos de prueba de los procedimientos (`casos_de_prueba.sql`)
+
+Además de los demos de `scripts.sql`, se ejecutó `../casos_de_prueba.sql`: cuatro pruebas
+que usan los procedimientos reales (`sp_RegistrarVentaCompleta` y `sp_cambiar_estado_venta`)
+y eligen solos los datos de prueba. Salida completa: [`salida_casos_prueba_docker.txt`](salida_casos_prueba_docker.txt).
+
+| Prueba | Acción | Resultado |
+|---|---|---|
+| 1 | Venta pidiendo más accesorios que el stock | Error **50008**, `@@TRANCOUNT = 0`; la foto no cambia (ROLLBACK total) |
+| 2 | Venta con stock suficiente | Venta **12** `efectuada` + detalle; stock −1 en moto y accesorio |
+| 3 | Cancelar la venta 12 | Estado `cancelada`; stocks restaurados |
+| 4 | Cancelar la misma venta otra vez | Error **50013**; el stock no se devuelve dos veces |
+
+"Foto" de la base en cada momento:
+
+```text
+momento|stock_motos|stock_accesorio|ventas|detalles
+0. ANTES|7|11|10|17
+1. DESPUES DE LA VENTA INCORRECTA|7|11|10|17
+2. DESPUES DE LA VENTA CORRECTA|6|10|11|18
+3. DESPUES DE CANCELAR|7|11|11|18
+4. DESPUES DE CANCELAR DE NUEVO|7|11|11|18
+```
+
+**Conclusión:** las pruebas 1 y 2 confirman la atomicidad (la venta fallida no deja filas ni
+descuenta stock); las pruebas 3 y 4 confirman que la cancelación es atómica y que no se
+reintegra el stock dos veces.

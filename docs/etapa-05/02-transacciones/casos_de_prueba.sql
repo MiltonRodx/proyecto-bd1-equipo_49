@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ETAPA V - TEMA 2: TRANSACCIONES - SCRIPT DE DEMOSTRACION
--- Archivo: docs/etapa-05/02-transacciones/03_demo_transacciones.sql
+-- Archivo: docs/etapa-05/02-transacciones/casos_de_prueba.sql
 -- Sistema: X Motors - Base de Datos I - Grupo 49 - FaCENA (UNNE)
 --
 -- Demuestra la ATOMICIDAD (todo o nada) con sp_RegistrarVentaCompleta y

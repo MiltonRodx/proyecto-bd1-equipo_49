@@ -48,11 +48,12 @@ docs/etapa-05/
 ├── 02-transacciones/                     # Tema 2 (Ejecuciones 1 y 2)
 │   ├── 02_sp_cambiar_estado_venta.sql
 │   ├── scripts.sql
+│   ├── casos_de_prueba.sql
 │   ├── investigacion.md
 │   └── evidencias/
-│       ├── .gitkeep
 │       ├── salida_sqlcmd.txt
 │       ├── salida_sqlcmd_docker.txt
+│       ├── salida_casos_prueba_docker.txt
 │       └── resultados.md
 ├── 03-triggers-auditoria/                # Tema 3 (Ejecución 3)
 │   ├── 01_tablas_auditoria.sql
@@ -660,7 +661,7 @@ Las carpetas `evidencias/` de los temas 1–3 conservan su `.gitkeep` (históric
 | Carpeta | Archivos |
 |---|---|
 | `01-procedimientos-funciones/evidencias/` | `01_funciones_pruebas.sql`, `01_funciones_salida.txt`, `02_procedimientos_pruebas.sql`, `02_procedimientos_salida.txt`, `02_procedimientos_salida_docker.txt`, `resultados.md` |
-| `02-transacciones/evidencias/` | `salida_sqlcmd.txt`, `salida_sqlcmd_docker.txt`, `resultados.md` |
+| `02-transacciones/evidencias/` | `salida_sqlcmd.txt`, `salida_sqlcmd_docker.txt`, `salida_casos_prueba_docker.txt`, `resultados.md` |
 | `03-triggers-auditoria/evidencias/` | `01_pruebas_triggers.sql`, `01_historial_precio.txt`, `02_auditoria_venta.txt`, `03_auditoria_cliente.txt`, `salida_sqlcmd.txt`, `resultados.md` |
 | `04-seguridad/evidencias/` | `01_seguridad_pruebas.sql`, `01_seguridad_salida.txt`, `02_seguridad_logins_salida.txt` |
 | `05-indices/evidencias/` | `01_indices_consultas.sql`, `01_indices_antes_despues.txt`, `02_indices_mass_carga.txt`, `03_indices_mass_mediciones.txt`, `resultados.md` |
