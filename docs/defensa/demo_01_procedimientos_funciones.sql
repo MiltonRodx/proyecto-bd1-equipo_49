@@ -1,4 +1,4 @@
--- ============================================================================
+-- ===================================================================================
 -- DEMO 1: PROCEDIMIENTOS Y FUNCIONES (Etapa V - Tema 1)
 -- Archivo: docs/defensa/demo_01_procedimientos_funciones.sql
 -- Ejecutar COMPLETO (F5). Es re-ejecutable: al final limpia todo lo que creo.
@@ -15,7 +15,7 @@
 --   a mano y dejar datos a medias. fn_descuento_cliente y fn_precio_con_descuento
 --   calculan el descuento (mas de $5M acumulado -> 5%, mas de $10M -> 10%,
 --   solo ventas 'efectuada') y sp_RegistrarVentaCompleta aplica todo en una llamada.
--- ============================================================================
+-- =================================================================================
 
 USE [X MOTORS];
 GO
@@ -48,6 +48,8 @@ END CATCH;
 -- ============================================================================
 -- BLOQUE EJECUCION 2 (CASO FELIZ): una sola llamada registra toda la venta.
 -- ============================================================================
+DECLARE @cod INT; -- variable temporal para asociarle el cod de una venta
+SET @cod = 1;
 EXEC dbo.sp_RegistrarVentaCompleta
      @dni_cliente = 42111222, @dni_vendedor = 31222333,
      @numero_chasis = '9C2HON00000000002', @metodo_pago = 'efectivo',
@@ -59,6 +61,8 @@ SELECT @cod AS cod_venta_creada;
 -- ============================================================================
 -- BLOQUE DESPUES: la venta, su detalle y los efectos (stock, estado cliente)
 -- ============================================================================
+DECLARE @cod INT; -- variable temporal para asociarle el cod de una venta
+SET @cod = 1;
 SELECT cod_venta, estado, precio_venta_moto, monto_total, numero_chasis
 FROM dbo.venta WHERE cod_venta = @cod;
 
@@ -73,6 +77,8 @@ SELECT dbo.fn_stock_disponible_modelo(1) AS stock_modelo_despues,
 -- (Si los triggers de auditoria del tema 3 estan instalados, quedan filas en
 --  auditoria_venta: es la convencion del proyecto, la auditoria no se borra.)
 -- ============================================================================
+DECLARE @cod INT; -- variable temporal para asociarle el cod de una venta
+SET @cod = 1;
 IF @cod IS NOT NULL
 BEGIN
     DELETE FROM dbo.detalle_venta_accesorio WHERE cod_venta = @cod;
